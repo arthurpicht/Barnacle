@@ -6,7 +6,7 @@
         <format property="timestamp" pattern="yyyyMMdd-HHmm"/>
     </tstamp>
 
-    <property name="version" value="1.2-snapshot${timestamp}"/>
+    <property name="version" value="0.1-snapshot${timestamp}"/>
 
     <property name="lib.dir" value="${basedir}/lib"/>
     <property name="build.dir" value="${basedir}/build"/>

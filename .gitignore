@@ -3,7 +3,7 @@ build
 lib/*
 !lib/.gitkeep
 out
-src-test-gen
+src-test-gen/*
 !src-test-gen/**/.gitkeep
 test-sql
 !test-sql/.gitkeep
