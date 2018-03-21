@@ -25,13 +25,16 @@ Simply check generated classed whether they suit your requirements. Good luck!
 
 ## Build
 
-1. Clone repository
+1. Clone repository.
 
-2. Call
+2. Resolve third party dependencies:
     
         $ ant resolve.3p   
-in root directory to resolve third party dependencies
 
-3. Copy *AP-Configuration.jar* to *lib* directory
+3. Build [AP-Configuration](https://github.com/arthurpicht/AP-Configuration) and copy resulting *JAR* to *Barnacle/lib* directory.
 
-4. Call *ant* a second time without any parameter to build project
+4. Build Barnacle:
+
+        $ ant
+
+    Resulting JAR can be found in *Barnacle/build/jar*.
