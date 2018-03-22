@@ -12,7 +12,7 @@ take advantage of a built-in JDBC connection provider.
 ## Status
 
 Under development. Applicable for restricted use cases. 
-Simply check generated classes whether they suit your requirements. Good luck!
+Simply check  whether generated classes suit your requirements. Good luck!
 
 ## Dependencies
 
