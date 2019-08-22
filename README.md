@@ -23,7 +23,7 @@ Simply check  whether generated classes suit your requirements. Good luck!
 , [logback-classic-1.2.3](http://search.maven.org/#artifactdetails%7Cch.qos.logback%7Clogback-classic%7C1.2.3%7Cjar)
 
 
-## Build
+## Build DEPRECATED
 
 1. Clone repository.
 
