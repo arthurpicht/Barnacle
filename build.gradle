@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'com.github.arthurpicht'
-version '0.1.1-SNAPSHOT'
+version '0.2.1-SNAPSHOT'
 
 sourceCompatibility = 1.8
 
