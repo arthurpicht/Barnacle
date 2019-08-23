@@ -4,6 +4,7 @@ import de.arthurpicht.configuration.Configuration;
 import de.arthurpicht.configuration.ConfigurationFactory;
 import de.arthurpicht.configuration.ConfigurationFileNotFoundException;
 
+import java.io.File;
 import java.io.IOException;
 
 /**
@@ -39,7 +40,7 @@ public class BarnacleConfiguration {
 		// Konfigurationsdatei laden, deren Namen als SysProp barnacle.conf übergeben wurde.
 		// Wenn SysProp nicht besteht, barnacle.conf laden.
 		
-		String barnacleConfFileName = "barnacle.conf";
+//		String barnacleConfFileName = "barnacle.conf";
 		String barnacleConfBySystemProp = null;
 		
 		try {
@@ -49,14 +50,22 @@ public class BarnacleConfiguration {
 		}
 		
 		if (barnacleConfBySystemProp != null) {
-			barnacleConfFileName = barnacleConfBySystemProp;
-		}
+			String barnacleConfFileName = barnacleConfBySystemProp;
 
-		try {
-			configurationFactory.addConfigurationFileFromClasspath(barnacleConfFileName);
-		} catch (ConfigurationFileNotFoundException | IOException e) {
-			// TODO suboptimal. static initializer aufheben, besseres Exception-Konzept
-			throw new RuntimeException("Barnacle project specific configuration '" + barnacleConfFileName + "' not found!");
+			try {
+				configurationFactory.addConfigurationFileFromFilesystem(new File(barnacleConfFileName));
+			} catch (ConfigurationFileNotFoundException | IOException e) {
+				throw new RuntimeException("Barnacle project specific configuration '" + barnacleConfFileName + "' not found!");
+			}
+
+		} else {
+
+			try {
+				configurationFactory.addConfigurationFileFromClasspath("barnacle.conf");
+			} catch (ConfigurationFileNotFoundException | IOException e) {
+				// TODO suboptimal. static initializer aufheben, besseres Exception-Konzept
+				throw new RuntimeException("Barnacle project specific configuration 'barnacle.conf' not found!");
+			}
 		}
 
 		// Sektion [general] auswerten.
