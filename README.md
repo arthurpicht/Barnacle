@@ -16,6 +16,25 @@ Simply check  whether generated classes suit your requirements. Good luck!
 
 ## Dependencies
 
+For gradle or maven builds, Barnacle can be obtained from [jitpack](jitpack.io).
+In gradle builds, add *jitpack* to the list of your repositories and add the following
+dependency declaration:
+
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+    }
+   
+    dependencies {
+        implementation 'com.github.arthurpicht:Barnacle:master-SNAPSHOT'    
+    }
+    
+Use `master-SNAPSHOT` for the latest development version or `v0.2.0` for the latest release.
+
+Don't forget to add a JDBC driver to your dependencies, like
+
+    implementation 'org.mariadb.jdbc:mariadb-java-client:2.4.3'
+
 * [AP-Configuration](https://github.com/arthurpicht/AP-Configuration)
 * [slf4j-api-1.7.25.jar](http://search.maven.org/#artifactdetails%7Corg.slf4j%7Cslf4j-api%7C1.7.25%7Cjar)
 * JDBC-Driver, e.g. [mysql-connector-java-5.1.45-bin.jar](http://search.maven.org/#artifactdetails%7Cmysql%7Cmysql-connector-java%7C5.1.45%7Cjar)
@@ -23,18 +42,48 @@ Simply check  whether generated classes suit your requirements. Good luck!
 , [logback-classic-1.2.3](http://search.maven.org/#artifactdetails%7Cch.qos.logback%7Clogback-classic%7C1.2.3%7Cjar)
 
 
-## Build DEPRECATED
+## Build
 
 1. Clone repository.
 
-2. Resolve third party dependencies:
+        $ git clone git@github.com:arthurpicht/Barnacle.git
+        
+    or
     
-        $ ant resolve.3p   
+        $ git clone https://github.com/arthurpicht/Barnacle.git
 
-3. Build [AP-Configuration](https://github.com/arthurpicht/AP-Configuration) and copy resulting *JAR* to *Barnacle/lib* directory.
 
-4. Build Barnacle:
+2. Build Barnacle with [gradle](https://gradle.org):
 
-        $ ant
+        $ gradle jar
 
-    Resulting JAR can be found in *Barnacle/build/jar*.
+    Resulting JAR can be found in *Barnacle/build/libs*.
+
+## Prepare Barnacle as a tool
+
+In order to prepare Barnacle to be used as a command line tool, proceed the following steps.
+
+1. By calling
+
+        $ gradle prepareTooling
+        
+    all dependent JARs will be copied to *Barnacle/bin/libs*
+    
+2. Put `Barnacle\bin` on your *PATH*.
+
+2. Configure *barnacle.conf*, including the *\[generator\]* section.
+
+3. Call
+
+       $ barnacle path/to/your/barnacle.conf
+
+## Include Barnacle into your gradle build
+
+Based on the previous steps, Barnacle can be included into gradle build 
+of your own project as simple as that:
+
+    task barnacle(type: Exec) {
+        mkdir "$buildDir/sql"
+        commandLine "barnacle", "path/to/your/custom/barnacle.conf"
+    }
+ 

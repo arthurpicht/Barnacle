@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'java-library'
 }
 
 group 'com.github.arthurpicht'
@@ -13,8 +13,25 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.arthurpicht:AP-Configuration:0.1.0'
+    api 'com.github.arthurpicht:AP-Configuration:0.1.0'
+
+    // TODO: remove logback-classic declaration, add slf4j and leave declaration of logging framework to the user.
     implementation 'ch.qos.logback:logback-classic:1.2.3'
-    
+
+    runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.4.3'
     testImplementation group: 'junit', name: 'junit', version: '4.12'
 }
+
+task extractDependencies(type: Copy) {
+    into "bin/libs"
+    from configurations.runtimeClasspath
+}
+
+task prepareTooling() {
+    
+}
+
+extractDependencies.dependsOn jar
+prepareTooling.dependsOn extractDependencies
+
+

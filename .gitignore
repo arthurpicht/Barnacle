@@ -1,6 +1,7 @@
 *~
 .idea/workspace.xml
 .gradle
+bin/libs/*.jar
 build
 gradle
 gradlew
