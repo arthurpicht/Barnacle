@@ -14,7 +14,7 @@ take advantage of a built-in JDBC connection provider.
 Under development. Applicable for restricted use cases. 
 Simply check  whether generated classes suit your requirements. Good luck!
 
-## Dependencies
+## Download from Maven-Repo
 
 For gradle or maven builds, Barnacle can be obtained from [jitpack](jitpack.io).
 In gradle builds, add *jitpack* to the list of your repositories and add the following
@@ -61,7 +61,8 @@ Don't forget to add a JDBC driver to your dependencies, like
 
 ## Prepare Barnacle as a tool
 
-In order to prepare Barnacle to be used as a command line tool, proceed the following steps.
+In order to prepare Barnacle to be used as a command line tool, build Barnacle as 
+described and proceed the following steps.
 
 1. By calling
 
