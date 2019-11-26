@@ -27,14 +27,14 @@ import java.util.Set;
  * Initializer class for Barnacle processing and
  * generating.
  *
- * @author Arthur Picht, 2007 - 2018
+ * @author Arthur Picht, 2007 - 2019
  *
  */
 public class BarnacleInitializer {
 
     public static enum Encoding {ISO, UTF, DEFAULT}
 
-    public static final String VERSION = "Barnacle Version 0.1-snapshot (2018.03)";
+    public static final String VERSION = "Barnacle Version 0.2.1-snapshot (2019.11)";
 
     private static Logger logger = LoggerFactory.getLogger("BARNACLE");
 

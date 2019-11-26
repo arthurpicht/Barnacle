@@ -10,6 +10,7 @@ import de.arthurpicht.barnacle.mapping.ForeignKeyWrapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -44,6 +45,12 @@ public class VoGenerator extends VoBaseGenerator {
         GeneratorConfiguration generatorConfiguration = GeneratorContext.getInstance().getGeneratorConfiguration();
         this.connectionExceptionCanonicalClassName = generatorConfiguration.getConnectionExceptionCanonicalClassName();
         this.entityNotFoundExceptionCanonicalClassName = generatorConfiguration.getEntityNotFoundExceptionCanonicalClassName();
+
+        // serializable
+        if (generatorConfiguration.isVoSerializable()) {
+            this.addImplementedInterface(Serializable.class);
+            this.importGenerator.addImport(Serializable.class);
+        }
 
         // imports for non-primitive Attributes
         List<Attribute> attributeList = entity.getAttributes();
