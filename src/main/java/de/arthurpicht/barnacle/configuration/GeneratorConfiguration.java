@@ -15,7 +15,6 @@ public class GeneratorConfiguration {
     private String voPackageName;
     private String vobPackageName;
     private String daoPackageName;
-    private boolean voSerializable = true;
     private boolean executeOnDb = true;
     private boolean createScript = true;
     private String scriptFile = "barnacle.sql";
@@ -44,8 +43,6 @@ public class GeneratorConfiguration {
         this.vobPackageName = configuration.getString("vob_package_name");
 
         this.daoPackageName = configuration.getString("dao_package_name");
-
-        this.voSerializable = configuration.getBoolean("vo_serializable", true);
 
         this.executeOnDb = configuration.getBoolean("execute_on_db", false);
 
@@ -119,10 +116,6 @@ public class GeneratorConfiguration {
 
     public String getDaoPackageName() {
         return daoPackageName;
-    }
-
-    public boolean isVoSerializable() {
-        return this.voSerializable;
     }
 
     public boolean isExecuteOnDb() {

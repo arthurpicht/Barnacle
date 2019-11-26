@@ -46,12 +46,6 @@ public class VoGenerator extends VoBaseGenerator {
         this.connectionExceptionCanonicalClassName = generatorConfiguration.getConnectionExceptionCanonicalClassName();
         this.entityNotFoundExceptionCanonicalClassName = generatorConfiguration.getEntityNotFoundExceptionCanonicalClassName();
 
-        // serializable
-        if (generatorConfiguration.isVoSerializable()) {
-            this.addImplementedInterface(Serializable.class);
-            this.importGenerator.addImport(Serializable.class);
-        }
-
         // imports for non-primitive Attributes
         List<Attribute> attributeList = entity.getAttributes();
         for (Attribute attribute : attributeList) {
