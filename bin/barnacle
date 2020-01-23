@@ -2,7 +2,7 @@
 
 __dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
-version="0.2.1-SNAPSHOT"
+version="0.2.1"
 
 java -cp ${__dir}/../build/libs/Barnacle-${version}.jar:${__dir}/libs/AP-Configuration-0.1.0.jar:${__dir}/libs/logback-classic-1.2.3.jar:${__dir}/libs/logback-core-1.2.3.jar:${__dir}/libs/slf4j-api-1.7.25.jar:${__dir}/libs/mariadb-java-client-2.4.3.jar \
         -Dbarnacle.conf=$1 \
