@@ -35,7 +35,7 @@ public class BarnacleInitializer {
     public static enum Encoding {ISO, UTF, DEFAULT}
 
 //    public static final String VERSION = "Barnacle Version 0.2.1-snapshot (2019.11)";
-    public static final String VERSION = "Barnacle Version 0.2.1 (2020-01-23)";
+    public static final String VERSION = "Barnacle Version 0.2.2-SNAPSHOT (2020-01-23)";
 
     private static Logger logger = LoggerFactory.getLogger("BARNACLE");
 
