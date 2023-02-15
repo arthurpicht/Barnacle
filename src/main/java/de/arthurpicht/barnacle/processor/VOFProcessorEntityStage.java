@@ -7,7 +7,6 @@ import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
 import de.arthurpicht.barnacle.exceptions.GeneratorException;
 import de.arthurpicht.barnacle.mapping.Attribute;
 import de.arthurpicht.barnacle.mapping.Entity;
-import de.arthurpicht.barnacle.mapping.EntityCollection;
 
 import java.lang.reflect.Field;
 
@@ -24,8 +23,7 @@ public class VOFProcessorEntityStage {
 			throws GeneratorException {
 
 		Entity entity = new Entity(vofClass, generatorConfiguration);
-//		EntityCollection.addEntity(entity);
-		
+
 		String tableNameString = obtainTableName(vofClass);
 		entity.setTableName(tableNameString);
 

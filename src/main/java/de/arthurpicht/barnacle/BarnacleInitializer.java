@@ -40,7 +40,7 @@ public class BarnacleInitializer {
     private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
     private static final LoggerTypes loggerType = LoggerTypes.SLF4J;
 
-    public static void process() throws BarnacleInitializerException {
+    public static void process() {
 
         logger.info(VERSION);
 
@@ -54,10 +54,7 @@ public class BarnacleInitializer {
             // Step 0: Check preconditions ... create folders if needed
             PreconditionChecker.check();
 
-            // Step 1: Processing ... Map annotated Value-Object-Field-Files
-            // (VOF-Files) to abstract Entitycollection
-            // including sql data type determination.
-
+            // Step 1: Build entity and attribute representations from all VOF-files
             Class<?>[] classArray = VofClassLoader.getClassesFromPackage(
                     generatorConfiguration.getSrcDir(),
                     generatorConfiguration.getVofPackageName());
@@ -69,6 +66,8 @@ public class BarnacleInitializer {
                     }
                 }
             }
+
+            EntityStageValidator.validate(entityCollection);
 
             // Step 2: Processing VOF-Files again: Stage2.
             // Now determing relations.
