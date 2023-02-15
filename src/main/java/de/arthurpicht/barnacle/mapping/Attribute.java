@@ -1,7 +1,8 @@
 package de.arthurpicht.barnacle.mapping;
 
-import de.arthurpicht.barnacle.BarnacleInitializer;
 import de.arthurpicht.barnacle.annotations.Annotations;
+import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
+import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.exceptions.GeneratorException;
 import de.arthurpicht.barnacle.exceptions.UnknownTypeException;
 import de.arthurpicht.barnacle.generator.sql.TypeMapper;
@@ -16,22 +17,22 @@ import java.lang.reflect.Field;
  */
 public class Attribute {
 
-    private Field field;
+    private final Field field;
 
-    private String columnName;
+    private final String columnName;
 
-    private boolean isPrimaryKey;
-    private boolean isAutoIncrement;
+    private final boolean isPrimaryKey;
+    private final boolean isAutoIncrement;
 
-    private String defaultValue;
+    private final String defaultValue;
 
-    private String type;
-    private Integer para1;
-    private Integer para2;
+    private final String type;
+    private final Integer para1;
+    private final Integer para2;
 
-    private boolean notNull;
+    private final boolean notNull;
 
-    private String sqlDataType;
+    private final String sqlDataType;
 
     public Attribute(Field field, Entity entity) throws GeneratorException {
 
@@ -39,9 +40,9 @@ public class Attribute {
 
         // determine columnname
         // set as fieldname if not given
-        String columnName = new String();
+        String columnName;
         if (field.isAnnotationPresent(Annotations.ColumnName.class)) {
-            Annotations.ColumnName columnNameAnnotation = (Annotations.ColumnName) field.getAnnotation(Annotations.ColumnName.class);
+            Annotations.ColumnName columnNameAnnotation = field.getAnnotation(Annotations.ColumnName.class);
             columnName = columnNameAnnotation.value();
         } else {
             columnName = this.getFieldName();
@@ -53,23 +54,19 @@ public class Attribute {
         boolean isAutoIncrement = false;
         if (field.isAnnotationPresent(Annotations.PrimaryKey.class)) {
             isPrimaryKey = true;
-            Annotations.PrimaryKey primaryKey = (Annotations.PrimaryKey) field.getAnnotation(Annotations.PrimaryKey.class);
+            Annotations.PrimaryKey primaryKey = field.getAnnotation(Annotations.PrimaryKey.class);
             isAutoIncrement = primaryKey.autoIncrement();
         }
         this.isPrimaryKey = isPrimaryKey;
         this.isAutoIncrement = isAutoIncrement;
 
         // determine 'not null' flag
-        boolean notNull = false;
-        if (field.isAnnotationPresent(Annotations.NotNull.class)) {
-            notNull = true;
-        }
-        this.notNull = notNull;
+        this.notNull = field.isAnnotationPresent(Annotations.NotNull.class);
 
         // determine default value
-        String defaultValue = new String();
+        String defaultValue;
         if (field.isAnnotationPresent(Annotations.Default.class)) {
-            Annotations.Default defaultAnnotation = (Annotations.Default) field.getAnnotation(Annotations.Default.class);
+            Annotations.Default defaultAnnotation = field.getAnnotation(Annotations.Default.class);
             defaultValue = defaultAnnotation.value();
             this.defaultValue = defaultValue;
         } else {
@@ -81,15 +78,15 @@ public class Attribute {
         Integer para1 = null;
         Integer para2 = null;
         if (field.isAnnotationPresent(Annotations.Type.class)) {
-            Annotations.Type typeAnnotation = (Annotations.Type) field.getAnnotation(Annotations.Type.class);
+            Annotations.Type typeAnnotation = field.getAnnotation(Annotations.Type.class);
             type = typeAnnotation.type();
             String para1String = typeAnnotation.para1();
             if (!para1String.equals("")) {
-                para1 = new Integer(para1String);
+                para1 = Integer.valueOf(para1String);
 
                 String para2String = typeAnnotation.para2();
                 if (!para2String.equals("")) {
-                    para2 = new Integer(para2String);
+                    para2 = Integer.valueOf(para2String);
                 }
             }
         }
@@ -100,7 +97,7 @@ public class Attribute {
         // unique
         // TODO move this to class Entity
         if (field.isAnnotationPresent(Annotations.Unique.class)) {
-            Annotations.Unique uniqueAnnotation = (Annotations.Unique) field.getAnnotation(Annotations.Unique.class);
+            Annotations.Unique uniqueAnnotation = field.getAnnotation(Annotations.Unique.class);
             String indexName = uniqueAnnotation.name();
             if (indexName.equals("")) {
                 entity.addUniqueField("uk_" + this.columnName, this);
@@ -110,8 +107,9 @@ public class Attribute {
         }
 
         // Determine SQL datatype by requesting database specific TypeMapper
+        GeneratorConfiguration generatorConfiguration = GeneratorContext.getInstance().getGeneratorConfiguration();
         String sqlDataType;
-        TypeMapper typeMapper = TypeMapper.getInstance(BarnacleInitializer.getDatabase());
+        TypeMapper typeMapper = TypeMapper.getInstance(generatorConfiguration.getDialect());
         try {
             sqlDataType = typeMapper.getSQLType(this);
         } catch (UnknownTypeException e) {
@@ -125,11 +123,11 @@ public class Attribute {
      *
      * @return
      */
-    public String getFieldTypeSimpleName() {
+    public String getJavaTypeSimpleName() {
         return this.field.getType().getSimpleName();
     }
 
-    public String getFieldTypeCanonicalName() {
+    public String getJavaTypeCanonicalName() {
         return this.field.getType().getCanonicalName();
     }
 
@@ -171,10 +169,7 @@ public class Attribute {
      * @return
      */
     public boolean hasCustomType() {
-        if (this.type != null) {
-            return true;
-        }
-        return false;
+        return this.type != null;
     }
 
     /**
@@ -209,7 +204,7 @@ public class Attribute {
 
     private String getFieldNameWithFirstLetterUpperCase() {
         String methodName = this.getFieldName().substring(0, 1).toUpperCase();
-        methodName += this.getFieldName().substring(1, this.getFieldName().length());
+        methodName += this.getFieldName().substring(1);
         return methodName;
     }
 
@@ -251,14 +246,11 @@ public class Attribute {
      * @return
      */
     public boolean equals(Attribute attribute) {
-        if (this.getFieldName().equals(attribute.getFieldName())) {
-            return true;
-        }
-        return false;
+        return this.getFieldName().equals(attribute.getFieldName());
     }
 
     public String toString() {
-        String string = "Column fieldTypeSimpleName=" + this.getFieldTypeSimpleName() + " fieldName=" + this.getFieldName() + " columnName=" + this.columnName + " isPK=" + this.isPrimaryKey + " isAutoIncrement=" + isAutoIncrement;
+        String string = "Column fieldTypeSimpleName=" + this.getJavaTypeSimpleName() + " fieldName=" + this.getFieldName() + " columnName=" + this.columnName + " isPK=" + this.isPrimaryKey + " isAutoIncrement=" + isAutoIncrement;
         if (this.notNull) {
             string += " not null";
         }

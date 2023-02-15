@@ -1,6 +1,6 @@
 package de.arthurpicht.barnacle;
 
-import de.arthurpicht.barnacle.exceptions.BarnacleInititalizerException;
+import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
 
 /**
  * Dies ist die Start-Klasse für die Barnacle-Generierung. Sie kann aufgerufen werden
@@ -17,7 +17,7 @@ public class GeneratorInit {
 		
 		try {
 			BarnacleInitializer.process();
-		} catch (BarnacleInititalizerException e) {
+		} catch (BarnacleInitializerException e) {
 			e.printStackTrace();
 		}
 	}

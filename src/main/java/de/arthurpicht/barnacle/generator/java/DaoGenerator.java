@@ -2,31 +2,31 @@ package de.arthurpicht.barnacle.generator.java;
 
 import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
+import de.arthurpicht.barnacle.generator.sql.TypeMapper;
 import de.arthurpicht.barnacle.helper.Helper;
 import de.arthurpicht.barnacle.mapping.Attribute;
 import de.arthurpicht.barnacle.mapping.Entity;
 import de.arthurpicht.barnacle.mapping.ForeignKeyWrapper;
+import de.arthurpicht.utils.core.strings.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class DaoGenerator extends ClassGenerator {
 
-    private static Logger logger = LoggerFactory.getLogger("BARNACLE");
+    private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
 
-    private Entity entity;
-    private String connectionManagerSimpleClassName;
-    private String connectionExceptionCanonicalClassName;
-    private String connectionExceptionSimpleClassName;
-    private String entityNotFoundExceptionCanonicalClassName;
-    private String entityNotFoundExceptionSimpleClassName;
+    private final Entity entity;
+    private final String connectionManagerSimpleClassName;
+    private final String connectionExceptionCanonicalClassName;
+    private final String connectionExceptionSimpleClassName;
+    private final String entityNotFoundExceptionCanonicalClassName;
+    private final String entityNotFoundExceptionSimpleClassName;
 
     public DaoGenerator(Entity entity) {
         super(entity.getDaoCanonicalClassName());
@@ -48,6 +48,7 @@ public class DaoGenerator extends ClassGenerator {
 
         // standard methods
         this.addCreateMethod();
+        this.addCreateMethodByConnectionPrep();
         this.addCreateMethodByConnection();
         this.addCreateMethodBatch();
 
@@ -87,27 +88,27 @@ public class DaoGenerator extends ClassGenerator {
     }
 
     private void addStandardImports() {
-        ImportGenerator importGenerator = this.getImportGenerator();
-        importGenerator.addImport(GeneratorContext.getInstance().getGeneratorConfiguration().getConnectionManagerCanonicalClassName());
-        importGenerator.addImport(List.class);
-        importGenerator.addImport(ArrayList.class);
-        importGenerator.addImport(Connection.class);
-        importGenerator.addImport(Statement.class);
-        importGenerator.addImport(ResultSet.class);
-        importGenerator.addImport(SQLException.class);
+        this.importGenerator.addImport(
+                GeneratorContext.getInstance().getGeneratorConfiguration().getConnectionManagerCanonicalClassName());
+        this.importGenerator.addImport(List.class);
+        this.importGenerator.addImport(ArrayList.class);
+        this.importGenerator.addImport(Connection.class);
+        this.importGenerator.addImport(Statement.class);
+        this.importGenerator.addImport(ResultSet.class);
+        this.importGenerator.addImport(SQLException.class);
+        this.importGenerator.addImport(PreparedStatement.class);
     }
 
     private void addImportsForNonPrimitiveAttributes() {
         List<Attribute> attributeList = entity.getAttributes();
         for (Attribute attribute : attributeList) {
             if (!attribute.isPrimitiveType()) {
-                this.getImportGenerator().addImport(attribute.getFieldTypeCanonicalName());
+                this.getImportGenerator().addImport(attribute.getJavaTypeCanonicalName());
             }
         }
     }
 
     private void addCreateMethod() {
-
         MethodGenerator methodGenerator = this.getNewMethodGenerator();
         methodGenerator.setIsStatic(true);
         methodGenerator.setMethodName("create");
@@ -120,25 +121,82 @@ public class DaoGenerator extends ClassGenerator {
 
         methodGenerator.addThrowsException(this.connectionExceptionCanonicalClassName);
 
-//        methodGenerator.addCodeLn("Connection connection = " + this.connectionManagerSimpleClassName + ".getInstance().openConnection(" + this.entity.getDaoSimpleClassName() + ".class);");
         methodGenerator.addCodeLn(createGetConnectionStatement());
         methodGenerator.addCodeLn("try {");
-
         methodGenerator.addCodeLn("create(" + voVarName + ", connection);");
-
         methodGenerator.addCodeLn("} catch (" + SQLException.class.getSimpleName() + " sqlEx) {");
         methodGenerator.addCodeLn("throw new " + Helper.getSimpleClassNameFromCanonicalClassName(this.connectionExceptionCanonicalClassName) + "(sqlEx);");
         methodGenerator.addCodeLn("} finally {");
-//        methodGenerator.addCodeLn(this.connectionManagerSimpleClassName + ".getInstance().releaseConnection(connection, " + this.entity.getDaoSimpleClassName() + ".class);");
         methodGenerator.addCodeLn(generateReleaseConnectionStatement());
         methodGenerator.addCodeLn("}");
+    }
+
+    private void addCreateMethodByConnectionPrep() {
+
+        addPreparedStatementCreateAsLocalConst();
+
+        MethodGenerator methodGenerator = this.getNewMethodGenerator();
+        methodGenerator.setIsStatic(true);
+        methodGenerator.setMethodName("create");
+
+        String voSimpleClassName = this.entity.getVoSimpleClassName();
+        String voCanonicalClassName = this.entity.getVoCanonicalClassName();
+        String voVarName = generateVarNameFromSimpleClassName(voSimpleClassName);
+        methodGenerator.addAndImportParameter(voCanonicalClassName, voVarName);
+        methodGenerator.addAndImportParameter(Connection.class, "connection");
+
+        methodGenerator.addThrowsException(SQLException.class);
+
+        methodGenerator.addCodeLn(
+                "PreparedStatement preparedStatement = connection.prepareStatement(CREATE_STATEMENT);");
+
+        int index = 1;
+        List<String> getterList = new ArrayList<>();
+        for (Attribute attribute : entity.getAttributes()) {
+            String setMethod = TypeMapper.getPreparedStatementSetMethod(attribute.getJavaTypeSimpleName());
+            String getter = voVarName + "." + attribute.generateGetterMethodName() + "()";
+            getterList.add(getter);
+            String line = "preparedStatement." + setMethod
+                    + "(" + index + ", "
+                    + getter + ");";
+            methodGenerator.addCodeLn(line);
+            index++;
+        }
+
+        String logStatement = Strings.listing(getterList, " + \"][\" + ", "CREATE_STATEMENT + \" [\" + ", " + \"]\"");
+        LoggerGenerator loggerGenerator = this.getLoggerGenerator();
+        methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByExpression(logStatement));
+
+        methodGenerator.addCodeLn("preparedStatement.executeUpdate();");
+        methodGenerator.addCodeLn("try { preparedStatement.close(); } catch (SQLException ignored) {}");
+    }
+
+    private void addPreparedStatementCreateAsLocalConst() {
+        String statement = "INSERT INTO " + this.entity.getTableName();
+
+        List<Attribute> attributes = this.entity.getNonAutoIncrementAttributes();
+        List<String> columnNames = attributes.stream()
+                .map(Attribute::getColumnName)
+                .collect(Collectors.toList());
+        String columnNameListing = Strings.listing(columnNames, ", ", " (", ") ");
+        statement += columnNameListing;
+
+        statement += "VALUES";
+
+        List<String> questionMarks = attributes.stream()
+                .map(a -> "?")
+                .collect(Collectors.toList());
+        String questionMarkListing = Strings.listing(questionMarks, ", ", " (", ")");
+        statement += questionMarkListing;
+
+        this.localStringConstGenerator.add("CREATE_STATEMENT", statement);
     }
 
     private void addCreateMethodByConnection() {
 
         MethodGenerator methodGenerator = this.getNewMethodGenerator();
         methodGenerator.setIsStatic(true);
-        methodGenerator.setMethodName("create");
+        methodGenerator.setMethodName("createOLD");
 
         String voSimpleClassName = this.entity.getVoSimpleClassName();
         String voCanonicalClassName = this.entity.getVoCanonicalClassName();
@@ -289,7 +347,7 @@ public class DaoGenerator extends ClassGenerator {
             String pkCanonicalClassName = this.entity.getPkCanonicalClassName();
             methodGenerator.addAndImportParameter(pkCanonicalClassName, pkVarName);
         } else {
-            methodGenerator.addParameter(pkAttribute.getFieldTypeSimpleName(), pkAttribute.getFieldName());
+            methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
         }
 
         methodGenerator.addThrowsException(this.connectionExceptionCanonicalClassName);
@@ -334,7 +392,7 @@ public class DaoGenerator extends ClassGenerator {
             String pkCanonicalClassName = this.entity.getPkCanonicalClassName();
             methodGenerator.addAndImportParameter(pkCanonicalClassName, pkVarName);
         } else {
-            methodGenerator.addParameter(pkAttribute.getFieldTypeSimpleName(), pkAttribute.getFieldName());
+            methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
         }
         methodGenerator.addAndImportParameter(Connection.class, "connection");
 
@@ -412,7 +470,7 @@ public class DaoGenerator extends ClassGenerator {
         if (this.entity.isComposedPk()) {
             methodGenerator.addAndImportParameter(this.entity.getPkCanonicalClassName(), pkVarName);
         } else {
-            methodGenerator.addParameter(pkAttribute.getFieldTypeSimpleName(), pkAttribute.getFieldName());
+            methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
         }
 
         methodGenerator.addThrowsException(this.connectionExceptionCanonicalClassName);
@@ -451,7 +509,7 @@ public class DaoGenerator extends ClassGenerator {
         if (this.entity.isComposedPk()) {
             methodGenerator.addAndImportParameter(this.entity.getPkCanonicalClassName(), pkVarName);
         } else {
-            methodGenerator.addParameter(pkAttribute.getFieldTypeSimpleName(), pkAttribute.getFieldName());
+            methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
         }
         methodGenerator.addAndImportParameter(Connection.class, "connection");
 
@@ -652,7 +710,7 @@ public class DaoGenerator extends ClassGenerator {
         methodGenerator.setReturnTypeParameter(this.entity.getVoCanonicalClassName());
         methodGenerator.setMethodName("findBy" + Helper.shiftCaseFirstLetter(foreignKeyName));
         for (Attribute fkAttribute : fkAttributes) {
-            methodGenerator.addParameter(fkAttribute.getFieldTypeSimpleName(), fkAttribute.getFieldName());
+            methodGenerator.addParameter(fkAttribute.getJavaTypeSimpleName(), fkAttribute.getFieldName());
         }
         methodGenerator.addThrowsException(this.connectionExceptionCanonicalClassName);
 
@@ -757,7 +815,7 @@ public class DaoGenerator extends ClassGenerator {
 //		methodGenerator.setReturnTypeParameter(this.entity.getVoCanonicalClassName());
         methodGenerator.setMethodName("findBy" + Helper.shiftCaseFirstLetter(uniqueKeyName));
         for (Attribute uniqueKeyAttribute : uniqueKeyAttributeList) {
-            methodGenerator.addParameter(uniqueKeyAttribute.getFieldTypeSimpleName(), uniqueKeyAttribute.getFieldName());
+            methodGenerator.addParameter(uniqueKeyAttribute.getJavaTypeSimpleName(), uniqueKeyAttribute.getFieldName());
         }
         methodGenerator.addThrowsException(this.connectionExceptionCanonicalClassName);
         methodGenerator.addThrowsException(this.entityNotFoundExceptionCanonicalClassName);
@@ -1070,14 +1128,15 @@ public class DaoGenerator extends ClassGenerator {
      */
     private String generateLocalVarFromResultSet(Entity entity, Attribute attribute) {
         String voSimpleClassName = entity.getVoSimpleClassName();
-        String fieldType = attribute.getFieldTypeSimpleName();
+        String fieldType = attribute.getJavaTypeSimpleName();
         String out = fieldType + " " + attribute.getFieldName() + " = ";
-        if (attribute.isPrimitiveType()) {
-            String resultSetGetter = fieldType.substring(0, 1).toUpperCase() + fieldType.substring(1, fieldType.length());
-            out += "resultSet.get" + resultSetGetter;
-        } else {
-            out += "(" + fieldType + ") resultSet.getObject";
-        }
+//        if (attribute.isPrimitiveType()) {
+//            String resultSetGetter = fieldType.substring(0, 1).toUpperCase() + fieldType.substring(1);
+        String resultSetGetter = TypeMapper.getResultSetGetMethod(fieldType);
+            out += "resultSet." + resultSetGetter;
+//        } else {
+//            out += "(" + fieldType + ") resultSet.getObject";
+//        }
         out += "(" + voSimpleClassName + "." + attribute.getConstName() + ");";
 
         return out;

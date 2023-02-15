@@ -43,7 +43,7 @@ public class VoConstructorGenerator extends ConstructorGenerator {
 	 */
 	public void defineParametersAndAssignmentsByAttributes(List<Attribute> attributeList) {		
 		for (Attribute attribute : attributeList) {
-			this.paraTypeName.add(attribute.getFieldTypeSimpleName());
+			this.paraTypeName.add(attribute.getJavaTypeSimpleName());
 			this.paraName.add(attribute.getFieldName());
 			this.member.add("this." + attribute.getFieldName());
 			this.assignment.add(attribute.getFieldName());

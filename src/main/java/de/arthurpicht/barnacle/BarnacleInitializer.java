@@ -3,7 +3,7 @@ package de.arthurpicht.barnacle;
 import de.arthurpicht.barnacle.annotations.Annotations.Barnacle;
 import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
-import de.arthurpicht.barnacle.exceptions.BarnacleInititalizerException;
+import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
 import de.arthurpicht.barnacle.exceptions.GeneratorException;
 import de.arthurpicht.barnacle.exceptions.VofClassLoaderException;
 import de.arthurpicht.barnacle.generator.java.DaoGenerator;
@@ -32,31 +32,22 @@ import java.util.Set;
  */
 public class BarnacleInitializer {
 
-    public static enum Encoding {ISO, UTF, DEFAULT}
+    public enum Dialect {MYSQL, H2}
+    public enum Encoding {ISO, UTF, DEFAULT}
 
 //    public static final String VERSION = "Barnacle Version 0.2.1-snapshot (2019.11)";
-    public static final String VERSION = "Barnacle Version 0.2.2-SNAPSHOT (2020-01-23)";
+    public static final String VERSION = "Barnacle Version 0.2.2-SNAPSHOT (2023-02-12)";
+    private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
+    private static final LoggerTypes loggerType = LoggerTypes.SLF4J;
 
-    private static Logger logger = LoggerFactory.getLogger("BARNACLE");
-
-    private static LoggerTypes loggerType = LoggerTypes.SLF4J;
-
-    // FIXME Fest verdrahtet?
-    private static Databases database = Databases.MYSQL;
-
-    private static GeneratorConfiguration generatorConfiguration;
-
-    /**
-     * Starts Barnacle generator.
-     *
-     * @throws BarnacleInititalizerException
-     */
-    public static void process() throws BarnacleInititalizerException {
+    public static void process() throws BarnacleInitializerException {
 
         logger.info(VERSION);
 
         GeneratorContext generatorContext = GeneratorContext.getInstance();
         GeneratorConfiguration generatorConfiguration = generatorContext.getGeneratorConfiguration();
+
+        EntityCollection entityCollection = new EntityCollection();
 
         try {
 
@@ -67,32 +58,34 @@ public class BarnacleInitializer {
             // (VOF-Files) to abstract Entitycollection
             // including sql data type determination.
 
-            Class[] classArray = VofClassLoader.getClassesFromPackage(generatorConfiguration.getSrcDir(), generatorConfiguration.getVofPackageName());
+            Class<?>[] classArray = VofClassLoader.getClassesFromPackage(
+                    generatorConfiguration.getSrcDir(),
+                    generatorConfiguration.getVofPackageName());
             for (Class<?> clazz : classArray) {
                 if (clazz.getSimpleName().endsWith("VOF")) {
                     if (clazz.isAnnotationPresent(Barnacle.class)) {
-                        VOFProcessorStage1.process(clazz);
+                        Entity entity = VOFProcessorEntityStage.process(clazz, generatorConfiguration);
+                        entityCollection.addEntity(entity);
                     }
                 }
             }
 
             // Step 2: Processing VOF-Files again: Stage2.
             // Now determing relations.
-            Set<Entity> entities = EntityCollection.getEntities();
-            for (Entity entity : entities) {
-                VOFProcessorStage2.process(entity);
+            for (Entity entity : entityCollection.getEntities()) {
+                VOFProcessorStage2.process(entity, entityCollection);
             }
 
             // Association-Tables
-            for (Entity entity : entities) {
+            for (Entity entity : entityCollection.getEntities()) {
                 VOFProcessorStage3.process(entity);
             }
 
             // Step 3: Validating entities and relations
-            for (Entity entity : entities) {
+            for (Entity entity : entityCollection.getEntities()) {
                 EntityValidator.validate(entity);
             }
-            for (Entity entity : entities) {
+            for (Entity entity : entityCollection.getEntities()) {
                 RelationValidator.validate(entity);
             }
 
@@ -100,11 +93,11 @@ public class BarnacleInitializer {
             //		- Value-Object-Files (VO-Files)
             //		- DB-Tables (Stage1)
             //		- Data-Access-Object-Files (DAO-Files)
-            System.out.println(EntityCollection.debugOut());
+//            System.out.println(EntityCollection.debugOut());
 
-            for (Entity entity : entities) {
+            for (Entity entity : entityCollection.getEntities()) {
 
-                VoGenerator voGenerator = new VoGenerator(entity);
+                VoGenerator voGenerator = new VoGenerator(entity, entityCollection);
                 voGenerator.generate();
 
                 if (entity.isComposedPk()) {
@@ -116,12 +109,12 @@ public class BarnacleInitializer {
                 daoGenerator.generate();
             }
 
-            SqlGenerator.generateStage1(entities, generatorConfiguration.getEncodingDB());
+            SqlGenerator.generateStage1(entityCollection.getEntities(), generatorConfiguration.getEncodingDB());
 
             // Step 5: Generate
             //		- Foreign-Key-Constraints
 
-            for (Entity entity : entities) {
+            for (Entity entity : entityCollection.getEntities()) {
                 SqlGenerator.generateStage2(entity);
             }
 
@@ -130,12 +123,9 @@ public class BarnacleInitializer {
 
             logger.info("Barnacle generation successfully completed!");
 
-        } catch (GeneratorException e) {
+        } catch (GeneratorException | VofClassLoaderException e) {
             logger.error("GeneratorException", e.fillInStackTrace());
-            throw new BarnacleInititalizerException(e);
-        } catch (VofClassLoaderException e) {
-            logger.error("GeneratorException", e.fillInStackTrace());
-            throw new BarnacleInititalizerException(e);
+            throw new BarnacleInitializerException(e);
         }
     }
 
@@ -143,10 +133,6 @@ public class BarnacleInitializer {
 
 	public static LoggerTypes getLoggerType() {
 		return loggerType;
-	}
-
-	public static Databases getDatabase() {
-		return database;
 	}
 
 }

@@ -48,7 +48,7 @@ public class PkGenerator extends VoBaseGenerator {
 		List<Attribute> attributeList = this.entity.getPkAttributes();
 		for (Attribute attribute : attributeList) {
 			if (!attribute.isPrimitiveType()) {
-				this.getImportGenerator().addImport(attribute.getFieldTypeCanonicalName());
+				this.getImportGenerator().addImport(attribute.getJavaTypeCanonicalName());
 			}
 		}
 	}

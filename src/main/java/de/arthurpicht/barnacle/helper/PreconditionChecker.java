@@ -2,23 +2,23 @@ package de.arthurpicht.barnacle.helper;
 
 import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
-import de.arthurpicht.barnacle.exceptions.BarnacleInititalizerException;
+import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
 
 import java.io.File;
 
 public class PreconditionChecker {
 	
-	public static void check() throws BarnacleInititalizerException {
+	public static void check() throws BarnacleInitializerException {
 
         GeneratorConfiguration generatorConfiguration = GeneratorContext.getInstance().getGeneratorConfiguration();
 		
 		// Check whether src-dir exists
 		File sourceFolder = new File(generatorConfiguration.getSrcDir());
 		if (!sourceFolder.exists()) {
-			throw new BarnacleInititalizerException("Source folder '" + generatorConfiguration.getSrcDir() + "' does not exist.");
+			throw new BarnacleInitializerException("Source folder '" + generatorConfiguration.getSrcDir() + "' does not exist.");
 		}
 		if (!sourceFolder.isDirectory()) {
-			throw new BarnacleInititalizerException("Configured source folder '" + generatorConfiguration.getSrcDir() + "' does not appear to be a directory.");
+			throw new BarnacleInitializerException("Configured source folder '" + generatorConfiguration.getSrcDir() + "' does not appear to be a directory.");
 		}
 		
 		// VOF package
@@ -26,7 +26,7 @@ public class PreconditionChecker {
 		String vofPath = vofPackageName.replace('.', '/');
 		File vofFolder = new File(sourceFolder, vofPath);
 		if (!vofFolder.exists() || !vofFolder.isDirectory()) {
-			throw new BarnacleInititalizerException("Folder '" + vofFolder.getAbsolutePath() + "' representing VOF package '" + generatorConfiguration.getVofPackageName() + "' does not exist.");
+			throw new BarnacleInitializerException("Folder '" + vofFolder.getAbsolutePath() + "' representing VOF package '" + generatorConfiguration.getVofPackageName() + "' does not exist.");
 		}
 
 		// VOB package
@@ -34,16 +34,16 @@ public class PreconditionChecker {
 		String vobPath = vobPackageName.replace('.', '/');
 		File vobFolder = new File(sourceFolder, vobPath);
 		if (!vobFolder.exists() || !vobFolder.isDirectory()) {
-			throw new BarnacleInititalizerException("Folder '" + vobFolder.getAbsolutePath() + "' representing VOB package '" + generatorConfiguration.getVobPackageName() + "' does not exist.");
+			throw new BarnacleInitializerException("Folder '" + vobFolder.getAbsolutePath() + "' representing VOB package '" + generatorConfiguration.getVobPackageName() + "' does not exist.");
 		}
 		
 		// src-gen
 		File sourceGenFolder = new File(generatorConfiguration.getSrcGenDir());
 		if (!sourceGenFolder.exists()) {
-			throw new BarnacleInititalizerException("Source generation folder '" + generatorConfiguration.getSrcGenDir() + "' does not exist.");
+			throw new BarnacleInitializerException("Source generation folder '" + generatorConfiguration.getSrcGenDir() + "' does not exist.");
 		}
 		if (!sourceGenFolder.isDirectory()) {
-			throw new BarnacleInititalizerException("Configured source generation folder '" + generatorConfiguration.getSrcGenDir() + "' does not appear to be a directory.");
+			throw new BarnacleInitializerException("Configured source generation folder '" + generatorConfiguration.getSrcGenDir() + "' does not appear to be a directory.");
 		}
 		
 		// VO package:
@@ -53,7 +53,7 @@ public class PreconditionChecker {
 		File voFolder = new File(sourceGenFolder, voPath);
 		if (!voFolder.exists()) {
 			boolean success = voFolder.mkdirs();
-			if (!success) throw new BarnacleInititalizerException("Could not create directory for VO package: " + voFolder.getAbsolutePath());
+			if (!success) throw new BarnacleInitializerException("Could not create directory for VO package: " + voFolder.getAbsolutePath());
 		}
 
 		// DAO package:
@@ -63,7 +63,7 @@ public class PreconditionChecker {
 		File daoFolder = new File(sourceGenFolder, daoPath);
 		if (!daoFolder.exists()) {
 			boolean success = daoFolder.mkdirs();
-			if (!success) throw new BarnacleInititalizerException("Could not create directory for DAO package: " + daoFolder.getAbsolutePath());
+			if (!success) throw new BarnacleInitializerException("Could not create directory for DAO package: " + daoFolder.getAbsolutePath());
 		}
 
 		// script file
@@ -74,7 +74,7 @@ public class PreconditionChecker {
 			File parent = scriptFile.getParentFile();
 			if (parent != null) {
 				if (!parent.exists()) {
-					throw new BarnacleInititalizerException("Parent directory of configured script file does not exist: " + parent.getAbsolutePath());
+					throw new BarnacleInitializerException("Parent directory of configured script file does not exist: " + parent.getAbsolutePath());
 				}
 			}
 		}

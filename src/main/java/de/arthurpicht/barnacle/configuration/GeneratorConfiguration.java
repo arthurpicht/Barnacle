@@ -1,97 +1,83 @@
 package de.arthurpicht.barnacle.configuration;
 
-import de.arthurpicht.barnacle.BarnacleInitializer;
-import de.arthurpicht.barnacle.connectionManager.ConnectionManager;
-import de.arthurpicht.barnacle.exceptions.BarnacleInititalizerException;
-import de.arthurpicht.barnacle.exceptions.DBConnectionException;
-import de.arthurpicht.barnacle.exceptions.EntityNotFoundException;
-import de.arthurpicht.configuration.Configuration;
+import de.arthurpicht.barnacle.BarnacleInitializer.Dialect;
+import de.arthurpicht.barnacle.BarnacleInitializer.Encoding;
 
 public class GeneratorConfiguration {
 
-    private String srcDir;
-    private String srcGenDir;
-    private String vofPackageName;
-    private String voPackageName;
-    private String vobPackageName;
-    private String daoPackageName;
-    private boolean executeOnDb = true;
-    private boolean createScript = true;
-    private String scriptFile = "barnacle.sql";
-    private BarnacleInitializer.Encoding encodingDB;
-    private BarnacleInitializer.Encoding encodingSource;
-    private String connectionManagerCanonicalClassName;
-    private String connectionExceptionCanonicalClassName;
-    private String entityNotFoundExceptionCanonicalClassName;
-    private String daoLoggerName;
+    public static final String DIALECT = "dialect";
+    public static final String SRC_DIR = "src_dir";
+    public static final String SRC_GEN_DIR = "src_gen_dir";
+    public static final String EXECUTE_ON_DB = "execute_on_db";
+    public static final String CREATE_SCRIPT = "create_skript";
+    public static final String SCRIPT_FILE = "script_file";
+    public static final String ENCODING_DB = "encoding_db";
+    public static final String CONNECTION_MANAGER_CLASS = "connection_manager_class";
+    public static final String CONNECTION_EXCEPTION_CLASS = "connection_exception_class";
+    public static final String ENTITY_NOT_FOUND_EXCEPTION_CLASS = "entity_not_found_exception_class";
+    public static final String DAO_LOGGER_NAME = "dao_logger_name";
 
-    public GeneratorConfiguration(Configuration configuration) {
 
-        // TODO Rework, validate catch KeyNotFoundExceptions for mandatory properties, throw Exception
+    public static final String VOF_PACKAGE_NAME = "vof_package_name";
+    public static final String VO_PACKAGE_NAME = "vo_package_name";
+    public static final String VOB_PACKAGE_NAME = "vob_package_name";
+    public static final String DAO_PACKAGE_NAME = "dao_package_name";
 
-        this.srcDir = configuration.getString("src_dir", "src");
+    private final Dialect dialect;
+    private final String srcDir;
+    private final String srcGenDir;
+    private final String vofPackageName;
+    private final String voPackageName;
+    private final String vobPackageName;
+    private final String daoPackageName;
+    private final boolean executeOnDb;
+    private final boolean createScript;
+    private final String scriptFile;
+    private final Encoding encodingDB;
+    private final Encoding encodingSource;
+    private final String connectionManagerCanonicalClassName;
+    private final String connectionExceptionCanonicalClassName;
+    private final String entityNotFoundExceptionCanonicalClassName;
+    private final String daoLoggerName;
 
-        this.srcGenDir = configuration.getString("src_gen_dir", "src-gen");
-        if (!this.srcGenDir.endsWith("/")) {
-            this.srcGenDir += "/";
-        }
+    public GeneratorConfiguration(
+            Dialect dialect,
+            String srcDir,
+            String srcGenDir,
+            String vofPackageName,
+            String voPackageName,
+            String vobPackageName,
+            String daoPackageName,
+            boolean executeOnDb,
+            boolean createScript,
+            String scriptFile,
+            Encoding encodingDB,
+            Encoding encodingSource,
+            String connectionManagerCanonicalClassName,
+            String connectionExceptionCanonicalClassName,
+            String entityNotFoundExceptionCanonicalClassName,
+            String daoLoggerName) {
 
-        this.vofPackageName = configuration.getString("vof_package_name");
-
-        this.voPackageName = configuration.getString("vo_package_name");
-
-        this.vobPackageName = configuration.getString("vob_package_name");
-
-        this.daoPackageName = configuration.getString("dao_package_name");
-
-        this.executeOnDb = configuration.getBoolean("execute_on_db", false);
-
-        this.createScript = configuration.getBoolean("create_skript", false);
-
-        this.scriptFile = configuration.getString("script_file");
-
-        String encoding_db = configuration.getString("encoding_db", "DEFAULT");
-        if (encoding_db.equals(BarnacleInitializer.Encoding.DEFAULT.name())) {
-            this.encodingDB = BarnacleInitializer.Encoding.DEFAULT;
-        } else if (encoding_db.equals(BarnacleInitializer.Encoding.ISO.name())) {
-            this.encodingDB = BarnacleInitializer.Encoding.ISO;
-        } else if (encoding_db.equals(BarnacleInitializer.Encoding.UTF.name())) {
-            this.encodingDB = BarnacleInitializer.Encoding.UTF;
-        } else {
-            throw new BarnacleInititalizerException("Illegaler Parameter für 'encoding_db' in [generator]-Sektion von barnacle.conf: " + encoding_db);
-        }
-
-        String encoding_source = configuration.getString("encoding_source", "UTF");
-        if (encoding_source.equals(BarnacleInitializer.Encoding.DEFAULT.name())) {
-            this.encodingSource = BarnacleInitializer.Encoding.DEFAULT;
-        } else if (encoding_source.equals(BarnacleInitializer.Encoding.ISO.name())) {
-            this.encodingSource = BarnacleInitializer.Encoding.ISO;
-        } else if (encoding_source.equals(BarnacleInitializer.Encoding.UTF.name())) {
-            this.encodingSource = BarnacleInitializer.Encoding.UTF;
-        } else {
-            throw new BarnacleInititalizerException("Illegaler Parameter für 'encoding_source' in [generator]-Sektion von barnacle.conf: " + encoding_db);
-        }
-
-        this.connectionManagerCanonicalClassName = configuration.getString("connection_manager_class", ConnectionManager.class.getCanonicalName());
-
-        this.connectionExceptionCanonicalClassName = configuration.getString("connection_exception_class", DBConnectionException.class.getCanonicalName());
-
-        this.entityNotFoundExceptionCanonicalClassName = configuration.getString("entity_not_found_exception_class", EntityNotFoundException.class.getCanonicalName());
-
-        this.daoLoggerName = configuration.getString("dao_logger_name", "");
-
+        this.dialect = dialect;
+        this.srcDir = srcDir;
+        this.srcGenDir = srcGenDir;
+        this.vofPackageName = vofPackageName;
+        this.voPackageName = voPackageName;
+        this.vobPackageName = vobPackageName;
+        this.daoPackageName = daoPackageName;
+        this.executeOnDb = executeOnDb;
+        this.createScript = createScript;
+        this.scriptFile = scriptFile;
+        this.encodingDB = encodingDB;
+        this.encodingSource = encodingSource;
+        this.connectionManagerCanonicalClassName = connectionManagerCanonicalClassName;
+        this.connectionExceptionCanonicalClassName = connectionExceptionCanonicalClassName;
+        this.entityNotFoundExceptionCanonicalClassName = entityNotFoundExceptionCanonicalClassName;
+        this.daoLoggerName = daoLoggerName;
     }
 
-    public void validate() throws BarnacleInititalizerException {
-
-        if (this.srcDir == null || this.srcDir.equals("")) throw new BarnacleInititalizerException("Generator-Parameter 'src_dir' ist nicht gesetzt oder leer.");
-        if (this.srcGenDir == null || this.srcGenDir.equals("")) throw new BarnacleInititalizerException("Generator-Parameter 'src_gen_dir' ist nicht gesetzt oder leer.");
-        if (this.vofPackageName == null || this.vofPackageName.equals("")) throw new BarnacleInititalizerException("Generator-Parameter 'vof_package_name' ist nicht gesetzt oder leer.");
-        if (this.vobPackageName == null || this.vobPackageName.equals("")) throw new BarnacleInititalizerException("Generator-Parameter 'vob_package_name' ist nicht gesetzt oder leer.");
-        if (this.daoPackageName == null || this.daoPackageName.equals("")) throw new BarnacleInititalizerException("Generator-Parameter 'dao_package_name' ist nicht gesetzt oder leer.");
-        if (this.createScript) {
-            if (this.scriptFile == null || this.scriptFile.equals("")) throw new BarnacleInititalizerException("Generator-Parameter 'script_file' ist nicht gesetzt oder leer.");
-        }
+    public Dialect getDialect() {
+        return this.dialect;
     }
 
     public String getSrcDir() {
@@ -130,11 +116,11 @@ public class GeneratorConfiguration {
         return scriptFile;
     }
 
-    public BarnacleInitializer.Encoding getEncodingDB() {
+    public Encoding getEncodingDB() {
         return encodingDB;
     }
 
-    public BarnacleInitializer.Encoding getEncodingSource() {
+    public Encoding getEncodingSource() {
         return encodingSource;
     }
 

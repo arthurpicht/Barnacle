@@ -86,7 +86,7 @@ public class VoBaseGenerator extends ClassGenerator {
 		
 		MethodGenerator getterGenerator = this.getNewMethodGenerator();
 		getterGenerator.setMethodName(attribute.generateGetterMethodName());
-		getterGenerator.setReturnTypeBySimpleClassName(attribute.getFieldTypeSimpleName());
+		getterGenerator.setReturnTypeBySimpleClassName(attribute.getJavaTypeSimpleName());
 
 		getterGenerator.addCodeLn("return this." + attribute.getFieldName() + ";");		
 	}
@@ -96,7 +96,7 @@ public class VoBaseGenerator extends ClassGenerator {
 		MethodGenerator setterGenerator = this.getNewMethodGenerator();
 		setterGenerator.setMethodName(attribute.generateSetterMethodName());
 		String fieldName = attribute.getFieldName();
-		setterGenerator.addParameter(attribute.getFieldTypeSimpleName(), fieldName);
+		setterGenerator.addParameter(attribute.getJavaTypeSimpleName(), fieldName);
 		
 		setterGenerator.addCodeLn("this." + fieldName + "=" + fieldName + ";");		
 	}

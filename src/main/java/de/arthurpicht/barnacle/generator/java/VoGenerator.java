@@ -4,13 +4,10 @@ import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.exceptions.GeneratorException;
 import de.arthurpicht.barnacle.helper.Helper;
-import de.arthurpicht.barnacle.mapping.Attribute;
-import de.arthurpicht.barnacle.mapping.Entity;
-import de.arthurpicht.barnacle.mapping.ForeignKeyWrapper;
+import de.arthurpicht.barnacle.mapping.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -36,7 +33,7 @@ public class VoGenerator extends VoBaseGenerator {
      * @param entity
      * @throws GeneratorException
      */
-    public VoGenerator(Entity entity) throws GeneratorException {
+    public VoGenerator(Entity entity, EntityCollection entityCollection) throws GeneratorException {
 
         super(getVOcanonicalClassNameFromEntity(entity), entity);
 
@@ -50,7 +47,7 @@ public class VoGenerator extends VoBaseGenerator {
         List<Attribute> attributeList = entity.getAttributes();
         for (Attribute attribute : attributeList) {
             if (!attribute.isPrimitiveType()) {
-                this.getImportGenerator().addImport(attribute.getFieldTypeCanonicalName());
+                this.getImportGenerator().addImport(attribute.getJavaTypeCanonicalName());
             }
         }
 
@@ -88,7 +85,8 @@ public class VoGenerator extends VoBaseGenerator {
         }
 
         // getter method for referencing foreign keys
-        Set<ForeignKeyWrapper> referencingForeignKeyWrapperSet = entity.getAllReferencingForeignKeys();
+        Set<ForeignKeyWrapper> referencingForeignKeyWrapperSet
+                = Entities.getAllReferencingForeignKeys(entity, entityCollection);
         for (ForeignKeyWrapper referencingForeignKeyWrapper : referencingForeignKeyWrapperSet) {
             this.addReferencingFkGetter(referencingForeignKeyWrapper);
         }

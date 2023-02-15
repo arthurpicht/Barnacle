@@ -2,7 +2,8 @@ package de.arthurpicht.barnacle.context;
 
 import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
 import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
-import de.arthurpicht.barnacle.exceptions.BarnacleInititalizerException;
+import de.arthurpicht.barnacle.configuration.GeneratorConfigurationFactory;
+import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
 import de.arthurpicht.configuration.Configuration;
 
 /**
@@ -12,7 +13,7 @@ public class GeneratorContext {
 
     private static GeneratorContext generatorContext;
 
-    private GeneratorConfiguration generatorConfiguration;
+    private final GeneratorConfiguration generatorConfiguration;
 
     public static GeneratorContext getInstance() {
         if (generatorContext == null) {
@@ -24,10 +25,10 @@ public class GeneratorContext {
     private GeneratorContext() {
         // Konfiguration holen
         if (!BarnacleConfiguration.hasGeneratorConfiguration()) {
-            throw new BarnacleInititalizerException("No [generator]-Configuration found in barnacle.conf!");
+            throw new BarnacleInitializerException("No [generator]-Configuration found in barnacle.conf!");
         }
         Configuration configuration = BarnacleConfiguration.getGeneratorConfiguration();
-        this.generatorConfiguration = new GeneratorConfiguration(configuration);
+        this.generatorConfiguration = GeneratorConfigurationFactory.create(configuration);
     }
 
     public GeneratorConfiguration getGeneratorConfiguration() {

@@ -16,22 +16,22 @@ import java.util.List;
 
 public class FieldProcessorStage2 {
 	
-	public static void process(Entity entity) throws GeneratorException {
+	public static void process(Entity entity, EntityCollection entityCollection) throws GeneratorException {
 
 		Class<?> vofClass = entity.getVofClass();
 		Field[] fields = vofClass.getDeclaredFields();
 		for (Field field : fields) {
 			if (field.isAnnotationPresent(Barnacle.class)) {
-				processField(field, entity);				
+				processField(field, entity, entityCollection);
 			}
 		}
 	}
 	
-	private static void processField(Field field, Entity entity) throws GeneratorException {
+	private static void processField(Field field, Entity entity, EntityCollection entityCollection) throws GeneratorException {
 		
 		if (field.isAnnotationPresent(ForeignKey.class)) {
 			
-			ForeignKey foreignKey = (ForeignKey) field.getAnnotation(ForeignKey.class);
+			ForeignKey foreignKey = field.getAnnotation(ForeignKey.class);
 			
 			String[] referenceTableName = foreignKey.referenceTableName();
 			String[] referenceColumnName = foreignKey.referenceColumnName();
@@ -109,13 +109,13 @@ public class FieldProcessorStage2 {
 			}
 			
 			for (ForeignKeyAnnotationWrapper foreignKeyAnnotationWrapper : foreignKeyAnnotations) {
-				processForeignKey(foreignKeyAnnotationWrapper, entity, field);
+				processForeignKey(entityCollection, foreignKeyAnnotationWrapper, entity, field);
 			}
 		}
 		
 	}
 	
-	private static void processForeignKey(ForeignKeyAnnotationWrapper annotationWrapper, Entity entity, Field field) throws GeneratorException {
+	private static void processForeignKey(EntityCollection entityCollection, ForeignKeyAnnotationWrapper annotationWrapper, Entity entity, Field field) throws GeneratorException {
 		
 		//
 		// foreign key Name
@@ -129,7 +129,7 @@ public class FieldProcessorStage2 {
 		// reference table name 
 		//
 		String referenceTableName = annotationWrapper.getReferenceTableName();
-		Entity referenceEntity = EntityCollection.getEntityByTableName(referenceTableName);
+		Entity referenceEntity = entityCollection.getEntityByTableName(referenceTableName);
 		if (referenceEntity == null) {
 			throw new GeneratorException("Error in foreign key definition. "
 					+ "class: " + entity.getVofClass().getSimpleName() + ", field: " + field.getName() + ", 'referenceTableName=" 

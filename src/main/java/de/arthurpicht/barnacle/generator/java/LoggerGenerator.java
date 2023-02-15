@@ -1,69 +1,37 @@
 package de.arthurpicht.barnacle.generator.java;
 
+import de.arthurpicht.barnacle.exceptions.BarnacleRuntimeException;
+
 /**
- * Abstract base class for logger generator classes. Implements
- * basic functionality to generate statements in conjunction with
- * logger usage. 
- * 
- * @author Arthur Picht, 2007 - 2018
- *
+ * @author Arthur Picht, 2007 - 2018, 2023
  */
 public abstract class LoggerGenerator {
 	
 	public enum LoggerTypes {SLF4J};
 
-	protected ClassGenerator parentClassGenerator;
+	protected ClassGenerator classGenerator;
 	
-	/**
-	 * Do not call constructor manually! Use getInstance method instead!
-	 * 
-	 * @param classGenerator
-	 */
-	public LoggerGenerator(ClassGenerator classGenerator) {
-		this.parentClassGenerator = classGenerator;
+	protected LoggerGenerator(ClassGenerator classGenerator) {
+		this.classGenerator = classGenerator;
 	}
 	
-	/**
-	 * Generates specific LoggerGenerator class by logger type.
-	 * 
-	 * @param classGenerator
-	 * @param loggerType
-	 * @return
-	 */
 	public static LoggerGenerator getInstance(ClassGenerator classGenerator, LoggerTypes loggerType) {
 		if (loggerType == LoggerTypes.SLF4J) {
 			LoggerGenerator loggerGenerator = new SLF4JGenerator(classGenerator);
 			loggerGenerator.addToImport();
-			return new SLF4JGenerator(classGenerator);
+			return loggerGenerator;
 		}
-		throw new RuntimeException("Impossible logger instance requested!");
+		throw new BarnacleRuntimeException("Impossible logger instance requested!");
 	}
 
-	/**
-	 * Generates import statement for logger class.
-	 *
-	 */
 	public abstract void addToImport();
 	
-	/**
-	 * Generates initialization statement for logger.
-	 * 
-	 * @param sourceCache
-	 */
 	public abstract void generateInitialization(SourceCache sourceCache);
 	
-	/**
-	 * Generates log statement on debug level for passed log string.
-	 * 
-	 * @param logString
-	 */
 	public abstract String generateDebugLogStatementByString(String logString);
 	
-	/**
-	 * Generates log statement on debug level for passed variable name.
-	 * 
-	 * @param varName
-	 */
 	public abstract String generateDebugLogStatementByVarName(String varName);
+
+	public abstract String generateDebugLogStatementByExpression(String expression);
 
 }

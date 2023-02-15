@@ -1,7 +1,8 @@
 package de.arthurpicht.barnacle.generator.sql;
 
-import de.arthurpicht.barnacle.BarnacleInitializer;
+import de.arthurpicht.barnacle.BarnacleInitializer.Dialect;
 import de.arthurpicht.barnacle.BarnacleInitializer.Encoding;
+import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import de.arthurpicht.barnacle.exceptions.GeneratorException;
 import de.arthurpicht.barnacle.generator.SqlDispatcher;
@@ -16,10 +17,11 @@ import java.util.Set;
 
 public class SqlGenerator {
 	
-	private static StatementGenerator statementGenerator;
+	private static final StatementGenerator statementGenerator;
 	
-	static { 
-		statementGenerator = StatementGenerator.getInstance(BarnacleInitializer.getDatabase());
+	static {
+		Dialect dialect = GeneratorContext.getInstance().getGeneratorConfiguration().getDialect();
+		statementGenerator = StatementGenerator.getInstance(dialect);
 	}
 	
 	/**
@@ -60,7 +62,7 @@ public class SqlGenerator {
 	 */
 	private static void preDrop() throws GeneratorException {
 		try {
-			String[] sqlStatements = statementGenerator.preDrop();
+			String[] sqlStatements = statementGenerator.deactivateForeignKeyChecks();
 			SqlDispatcher.dispatch(sqlStatements);
 		} catch (DBConnectionException e) {
 			throw new GeneratorException(e);
@@ -75,7 +77,7 @@ public class SqlGenerator {
 	 */
 	private static void postDrop() throws GeneratorException {
 		try {
-			String[] sqlStatements = statementGenerator.postDrop();
+			String[] sqlStatements = statementGenerator.activateForeignKeyChecks();
 			SqlDispatcher.dispatch(sqlStatements);
 		} catch (DBConnectionException e) {
 			throw new GeneratorException(e);
@@ -117,8 +119,14 @@ public class SqlGenerator {
 			// create columns
 			List<Attribute> attributeList = entity.getAttributes();
 			for (Attribute attribute : attributeList) {
-				
-				sqlStatement = statementGenerator.addColumn(entity.getTableName(), attribute.getColumnName(), attribute.getSqlDataType(), attribute.getDefaultValue(), attribute.isNotNull());
+
+				boolean isNotNull = attribute.isNotNull() || attribute.isPrimaryKey();
+				sqlStatement = statementGenerator.addColumn(
+						entity.getTableName(),
+						attribute.getColumnName(),
+						attribute.getSqlDataType(),
+						attribute.getDefaultValue(),
+						isNotNull);
 				SqlDispatcher.dispatch(sqlStatement);
 			}
 			

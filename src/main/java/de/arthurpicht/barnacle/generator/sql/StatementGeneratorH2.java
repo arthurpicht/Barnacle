@@ -2,20 +2,19 @@ package de.arthurpicht.barnacle.generator.sql;
 
 import de.arthurpicht.barnacle.BarnacleInitializer.Encoding;
 
+public class StatementGeneratorH2 extends StatementGenerator {
 
-public class StatementGeneratorMySQL extends StatementGenerator {
-
-	public StatementGeneratorMySQL() {
+	public StatementGeneratorH2() {
 	}
 	
 	@Override
 	public String[] deactivateForeignKeyChecks() {
-		return new String[]{"SET foreign_key_checks=0;"};
+		return new String[]{"SET REFERENTIAL_INTEGRITY FALSE;"};
 	}
 	
 	@Override
 	public String[] activateForeignKeyChecks() {
-		return new String[]{"SET foreign_key_checks=1;"};
+		return new String[]{"SET REFERENTIAL_INTEGRITY TRUE;"};
 	}
 
 	@Override
@@ -34,14 +33,10 @@ public class StatementGeneratorMySQL extends StatementGenerator {
 
 	@Override
 	public String configureEncoding(String tablename, Encoding encoding) {
-		String sql = "";
-		if (encoding.equals(Encoding.ISO)) {
-			sql = "ALTER TABLE " + tablename + " CHARACTER SET LATIN1;";
-		} else if (encoding.equals(Encoding.UTF)) {
-			sql = "ALTER TABLE " + tablename + " CHARACTER SET UTF8;";
-		}
-		
-		return sql;
+		// from the docs: http://www.h2database.com/html/advanced.html
+		// H2 internally uses Unicode, and supports all character encoding systems and character sets supported by the
+		// virtual machine you use.
+		return "";
 	}
 
 }
