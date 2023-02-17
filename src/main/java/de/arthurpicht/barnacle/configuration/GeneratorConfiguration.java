@@ -1,7 +1,7 @@
 package de.arthurpicht.barnacle.configuration;
 
-import de.arthurpicht.barnacle.BarnacleInitializer.Dialect;
-import de.arthurpicht.barnacle.BarnacleInitializer.Encoding;
+import de.arthurpicht.barnacle.Const.Dialect;
+import de.arthurpicht.barnacle.Const.Encoding;
 
 public class GeneratorConfiguration {
 

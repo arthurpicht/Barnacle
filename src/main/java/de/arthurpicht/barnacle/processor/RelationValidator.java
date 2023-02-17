@@ -1,9 +1,10 @@
 package de.arthurpicht.barnacle.processor;
 
-import de.arthurpicht.barnacle.exceptions.GeneratorException;
-import de.arthurpicht.barnacle.mapping.Attribute;
-import de.arthurpicht.barnacle.mapping.Entity;
-import de.arthurpicht.barnacle.mapping.ForeignKeyWrapper;
+import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
+import de.arthurpicht.barnacle.model.Attribute;
+import de.arthurpicht.barnacle.model.ERMBuilderException;
+import de.arthurpicht.barnacle.model.Entity;
+import de.arthurpicht.barnacle.model.ForeignKeyWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +34,9 @@ public class RelationValidator {
 	 * Processes some entity validation tasks.
 	 *  
 	 * @param entity
-	 * @throws GeneratorException
+	 * @throws CodeGeneratorException
 	 */
-	public static void validate(Entity entity) throws GeneratorException {
+	public static void validate(Entity entity) {
 		
 		for (ForeignKeyWrapper foreignKeyWrapper : entity.getAllForeignKeys()) {
 			
@@ -54,9 +55,9 @@ public class RelationValidator {
 	 * in SQL-types.
 	 * 
 	 * @param foreignKeyWrapper
-	 * @throws GeneratorException
+	 * @throws CodeGeneratorException
 	 */
-	private static void checkForTypeEquality(ForeignKeyWrapper foreignKeyWrapper) throws GeneratorException {
+	private static void checkForTypeEquality(ForeignKeyWrapper foreignKeyWrapper) {
 		List<Attribute> keyFieldAttributeList = foreignKeyWrapper.getKeyFieldAttributes();
 		List<Attribute> referencedFieldAttributeList = foreignKeyWrapper.getTargetFieldAttributes();
 		
@@ -69,7 +70,7 @@ public class RelationValidator {
 			String sqlTypeReferncedField = referencedField.getSqlDataType();
 			
 			if (!sqlTypeKeyField.equals(sqlTypeReferncedField)) {
-				throw new GeneratorException("Foreign key constraint definition error: types do not match! Entity table name: "
+				throw new ERMBuilderException("Foreign key constraint definition error: types do not match! Entity table name: "
 				+ foreignKeyWrapper.getParentEntity().getTableName() + ", field: " + keyField.getFieldName()
 				+ ", types: " + sqlTypeKeyField + " and " + sqlTypeReferncedField);
 			}
@@ -81,9 +82,9 @@ public class RelationValidator {
 	 * Checks wheather referenced attribute is defined as primary key field.
 	 * 
 	 * @param foreignKeyWrapper
-	 * @throws GeneratorException
+	 * @throws CodeGeneratorException
 	 */
-	private static void checkForReferencingPrimaryKey(ForeignKeyWrapper foreignKeyWrapper) throws GeneratorException {
+	private static void checkForReferencingPrimaryKey(ForeignKeyWrapper foreignKeyWrapper) {
 		
 		List<Attribute> keyFieldAttributeList = foreignKeyWrapper.getKeyFieldAttributes();
 		List<Attribute> referencedFieldAttributeList = foreignKeyWrapper.getTargetFieldAttributes();
@@ -94,7 +95,7 @@ public class RelationValidator {
 			
 			// check wheather referenced field is primary key field
 			if (!referencedField.isPrimaryKey()) {
-				throw new GeneratorException("Foreign key constraint definition error: Referenced field is no primary key field! Entity with table: "
+				throw new ERMBuilderException("Foreign key constraint definition error: Referenced field is no primary key field! Entity with table: "
 						+ foreignKeyWrapper.getParentEntity().getTableName() + ", field: " + keyField.getFieldName()
 						+ ", referenced Field: " + referencedField);
 			}
@@ -106,9 +107,9 @@ public class RelationValidator {
 	 * Adjusts order of referencing fields if necessary.
 	 * 
 	 * @param foreignKeyWrapper
-	 * @throws GeneratorException
+	 * @throws CodeGeneratorException
 	 */
-	private static void checkForFurtherPrimaryKeyConditions(ForeignKeyWrapper foreignKeyWrapper) throws GeneratorException {
+	private static void checkForFurtherPrimaryKeyConditions(ForeignKeyWrapper foreignKeyWrapper) {
 		Entity referencedEntity = foreignKeyWrapper.getTargetEntity();
 		List<Attribute> referencedEntityPKAttributeList = referencedEntity.getPkAttributes();
 
@@ -117,7 +118,7 @@ public class RelationValidator {
 		
 		if (referencedEntityPKAttributeList.size() < keyFieldAttributeList.size()) {
 			// Actually this can not happen when passed checkForPrimaryKey method.
-			throw new GeneratorException("Foreign key constraint definition error: Referenced field is no primary key field! Entity with table: "
+			throw new ERMBuilderException("Foreign key constraint definition error: Referenced field is no primary key field! Entity with table: "
 						+ foreignKeyWrapper.getParentEntity().getTableName() + " Some field(s) referencing  non primary key field");
 		}
 		
@@ -135,7 +136,7 @@ public class RelationValidator {
 			} else {
 				int ri = referencedFieldAttributeList.indexOf(actPKField);
 				if (ri < 0) {
-					throw new GeneratorException("Foreign key constraint definition error: Referencing fields do " +
+					throw new ERMBuilderException("Foreign key constraint definition error: Referencing fields do " +
 							"not match first primary key fields of referenced entity!"
 							+ " Entity table name: " + foreignKeyWrapper.getParentEntity().getTableName() 
 							+ ", ForeignKeyName: " + foreignKeyWrapper.getForeignKeyName());
@@ -147,10 +148,9 @@ public class RelationValidator {
 			foreignKeyWrapper.setKeyFieldAttributes(newKeyFieldAttributeList);
 			foreignKeyWrapper.setTargetFieldAttributes(newReferencedFieldAttributeList);
 		}		
-
 	}
 	
-	private static void checkForAssociationTableConstraint(Entity entity) throws GeneratorException {
+	private static void checkForAssociationTableConstraint(Entity entity) {
 		
 		if (entity.isAssociationTable()) {
 			List<Attribute> pkAttributes = entity.getPkAttributes();
@@ -159,14 +159,14 @@ public class RelationValidator {
 			
 			for (Attribute fkAttributeA : fkAttributesA) {
 				if (!pkAttributes.contains(fkAttributeA)) {
-					throw new GeneratorException("Association-Table definition error: Foreign key attribute '" + fkAttributeA.getFieldName() + "'" +
+					throw new ERMBuilderException("Association-Table definition error: Foreign key attribute '" + fkAttributeA.getFieldName() + "'" +
 							" is not primary key.  Violation against [ConstAT_1]");
 				}
 			}
 			
 			for (Attribute fkAttributeB : fkAttributesB) {
 				if (!pkAttributes.contains(fkAttributeB)) {
-					throw new GeneratorException("Association-Table definition error: Foreign key attribute '" + fkAttributeB.getFieldName() + "'" +
+					throw new ERMBuilderException("Association-Table definition error: Foreign key attribute '" + fkAttributeB.getFieldName() + "'" +
 							" is not part of primary key.  Violation against [ConstAT_1]");
 				}
 			}
@@ -174,18 +174,17 @@ public class RelationValidator {
 			for (Attribute pkAttribute : pkAttributes) {
 				if (!fkAttributesA.contains(pkAttribute)) {
 					if (!fkAttributesB.contains(pkAttribute)) {
-						throw new GeneratorException("Association-Table definition error: Primary key attribute '" + pkAttribute.getFieldName() + "'" +
+						throw new ERMBuilderException("Association-Table definition error: Primary key attribute '" + pkAttribute.getFieldName() + "'" +
 						" is not part of foreign key.  Violation against [ConstAT_1]");
 					}
 				}
 			}
 
 			if (pkAttributes.size() != fkAttributesA.size() + fkAttributesB.size()) {
-				throw new GeneratorException("Association-Table definition error: Primary must be the sum of all foreign" +
+				throw new ERMBuilderException("Association-Table definition error: Primary must be the sum of all foreign" +
 				" key attributes defining association. Violation against [ConstAT_1]");
 			}
 		}
 	}
 
-	
 }

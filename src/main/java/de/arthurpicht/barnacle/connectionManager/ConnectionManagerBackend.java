@@ -1,6 +1,6 @@
 package de.arthurpicht.barnacle.connectionManager;
 
-import de.arthurpicht.barnacle.BarnacleInitializer;
+import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import de.arthurpicht.configuration.Configuration;
@@ -28,7 +28,7 @@ public class ConnectionManagerBackend {
 
         // Logging der Konfiguration, wenn angefordert
         if (BarnacleConfiguration.isLogConfigOnInit()) {
-            BARNACLE_LOGGER.info(BarnacleInitializer.VERSION);
+            BARNACLE_LOGGER.info(Const.VERSION);
             BARNACLE_LOGGER.info("Barnacle configuration:");
             BARNACLE_LOGGER.info("[general]");
             logAllProperties(BarnacleConfiguration.getGeneralConfiguration());

@@ -4,9 +4,9 @@ import de.arthurpicht.barnacle.annotations.Annotations;
 import de.arthurpicht.barnacle.annotations.Annotations.TableName;
 import de.arthurpicht.barnacle.annotations.Annotations.VobFactory;
 import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
-import de.arthurpicht.barnacle.exceptions.GeneratorException;
-import de.arthurpicht.barnacle.mapping.Attribute;
-import de.arthurpicht.barnacle.mapping.Entity;
+import de.arthurpicht.barnacle.model.Attribute;
+import de.arthurpicht.barnacle.model.ERMBuilderException;
+import de.arthurpicht.barnacle.model.Entity;
 
 import java.lang.reflect.Field;
 
@@ -20,7 +20,7 @@ import java.lang.reflect.Field;
 public class VOFProcessorEntityStage {
 	
 	public static Entity process(Class<?> vofClass, GeneratorConfiguration generatorConfiguration)
-			throws GeneratorException {
+			throws ERMBuilderException {
 
 		Entity entity = new Entity(vofClass, generatorConfiguration);
 
@@ -55,7 +55,7 @@ public class VOFProcessorEntityStage {
 		return tableNameString.toLowerCase();
 	}
 
-	private static void analyzeFields(Class<?> vofClass, Entity entity) throws GeneratorException {
+	private static void analyzeFields(Class<?> vofClass, Entity entity) {
 		Field[] fields = vofClass.getDeclaredFields();
 		for (Field field : fields) {
 			if (field.isAnnotationPresent(Annotations.Barnacle.class)) {
@@ -64,7 +64,7 @@ public class VOFProcessorEntityStage {
 		}
 	}
 
-	private static void processField(Field field, Entity entity) throws GeneratorException {
+	private static void processField(Field field, Entity entity) {
 		Attribute attribute = new Attribute(field, entity);
 		entity.addAttribute(attribute);
 	}

@@ -1,14 +1,13 @@
 package de.arthurpicht.barnacle.configuration;
 
-import de.arthurpicht.barnacle.BarnacleInitializer;
+import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.connectionManager.ConnectionManager;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import de.arthurpicht.barnacle.exceptions.EntityNotFoundException;
-import de.arthurpicht.utils.core.strings.Strings;
 
 public class GeneratorConfigurationBuilder {
 
-    private BarnacleInitializer.Dialect dialect;
+    private Const.Dialect dialect;
     private String srcDir;
     private String srcGenDir;
     private final String vofPackageName;
@@ -18,8 +17,8 @@ public class GeneratorConfigurationBuilder {
     private boolean executeOnDb;
     private boolean createScript;
     private String scriptFile;
-    private BarnacleInitializer.Encoding encodingDB;
-    private BarnacleInitializer.Encoding encodingSource;
+    private Const.Encoding encodingDB;
+    private Const.Encoding encodingSource;
     private String connectionManagerCanonicalClassName;
     private String connectionExceptionCanonicalClassName;
     private String entityNotFoundExceptionCanonicalClassName;
@@ -31,7 +30,7 @@ public class GeneratorConfigurationBuilder {
             String vobPackageName,
             String daoPackageName
     ) {
-        this.dialect = BarnacleInitializer.Dialect.MYSQL;
+        this.dialect = Const.Dialect.MYSQL;
         this.srcDir = "src";
         this.srcGenDir = "src-gen/";
         this.vofPackageName = vofPackageName;
@@ -41,15 +40,15 @@ public class GeneratorConfigurationBuilder {
         this.executeOnDb = false;
         this.createScript = false;
         this.scriptFile = "barnacle.sql";
-        this.encodingDB = BarnacleInitializer.Encoding.DEFAULT;
-        this.encodingSource = BarnacleInitializer.Encoding.UTF;
+        this.encodingDB = Const.Encoding.DEFAULT;
+        this.encodingSource = Const.Encoding.UTF;
         this.connectionManagerCanonicalClassName = ConnectionManager.class.getCanonicalName();
         this.connectionExceptionCanonicalClassName = DBConnectionException.class.getCanonicalName();
         this.entityNotFoundExceptionCanonicalClassName = EntityNotFoundException.class.getCanonicalName();
         this.daoLoggerName = "";
     }
 
-    public GeneratorConfigurationBuilder withDialect(BarnacleInitializer.Dialect dialect) {
+    public GeneratorConfigurationBuilder withDialect(Const.Dialect dialect) {
         this.dialect = dialect;
         return this;
     }
@@ -79,12 +78,12 @@ public class GeneratorConfigurationBuilder {
         return this;
     }
 
-    public GeneratorConfigurationBuilder withEncodingDB(BarnacleInitializer.Encoding encodingDB) {
+    public GeneratorConfigurationBuilder withEncodingDB(Const.Encoding encodingDB) {
         this.encodingDB = encodingDB;
         return this;
     }
 
-    public GeneratorConfigurationBuilder withEncodingSource(BarnacleInitializer.Encoding encodingSource) {
+    public GeneratorConfigurationBuilder withEncodingSource(Const.Encoding encodingSource) {
         this.encodingSource = encodingSource;
         return this;
     }

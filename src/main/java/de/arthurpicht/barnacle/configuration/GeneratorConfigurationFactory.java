@@ -1,6 +1,6 @@
 package de.arthurpicht.barnacle.configuration;
 
-import de.arthurpicht.barnacle.BarnacleInitializer;
+import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
 import de.arthurpicht.configuration.Configuration;
 
@@ -24,10 +24,10 @@ public class GeneratorConfigurationFactory {
 
         if (configuration.containsKey(DIALECT)) {
             String dialectString = configuration.getString(DIALECT);
-            if (dialectString.toUpperCase().equals(BarnacleInitializer.Dialect.MYSQL.name())) {
-                generatorConfigurationBuilder.withDialect(BarnacleInitializer.Dialect.MYSQL);
-            } else if (dialectString.toUpperCase().equals(BarnacleInitializer.Dialect.H2.name())) {
-                generatorConfigurationBuilder.withDialect(BarnacleInitializer.Dialect.H2);
+            if (dialectString.toUpperCase().equals(Const.Dialect.MYSQL.name())) {
+                generatorConfigurationBuilder.withDialect(Const.Dialect.MYSQL);
+            } else if (dialectString.toUpperCase().equals(Const.Dialect.H2.name())) {
+                generatorConfigurationBuilder.withDialect(Const.Dialect.H2);
             } else {
                 throw new BarnacleInitializerException("Illegaler Parameter für 'dialect' in [generator]-Sektion " +
                         "von barnacle.conf: " + dialectString);
@@ -57,12 +57,12 @@ public class GeneratorConfigurationFactory {
 
         if (configuration.containsKey(ENCODING_DB)) {
             String encoding_db = configuration.getString("encoding_db");
-            if (encoding_db.equals(BarnacleInitializer.Encoding.DEFAULT.name())) {
-                generatorConfigurationBuilder.withEncodingDB(BarnacleInitializer.Encoding.DEFAULT);
-            } else if (encoding_db.equals(BarnacleInitializer.Encoding.ISO.name())) {
-                generatorConfigurationBuilder.withEncodingDB(BarnacleInitializer.Encoding.ISO);
-            } else if (encoding_db.equals(BarnacleInitializer.Encoding.UTF.name())) {
-                generatorConfigurationBuilder.withEncodingDB(BarnacleInitializer.Encoding.UTF);
+            if (encoding_db.equals(Const.Encoding.DEFAULT.name())) {
+                generatorConfigurationBuilder.withEncodingDB(Const.Encoding.DEFAULT);
+            } else if (encoding_db.equals(Const.Encoding.ISO.name())) {
+                generatorConfigurationBuilder.withEncodingDB(Const.Encoding.ISO);
+            } else if (encoding_db.equals(Const.Encoding.UTF.name())) {
+                generatorConfigurationBuilder.withEncodingDB(Const.Encoding.UTF);
             } else {
                 throw new BarnacleInitializerException("Illegaler Parameter für 'encoding_db' in [generator]-Sektion von " +
                         "barnacle.conf: " + encoding_db);

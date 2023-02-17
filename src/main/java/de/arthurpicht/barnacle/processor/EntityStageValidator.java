@@ -1,9 +1,9 @@
 package de.arthurpicht.barnacle.processor;
 
 import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
-import de.arthurpicht.barnacle.mapping.Attribute;
-import de.arthurpicht.barnacle.mapping.Entity;
-import de.arthurpicht.barnacle.mapping.EntityCollection;
+import de.arthurpicht.barnacle.model.Attribute;
+import de.arthurpicht.barnacle.model.Entity;
+import de.arthurpicht.barnacle.model.EntityRelationshipModel;
 import de.arthurpicht.utils.core.strings.Strings;
 
 import java.util.ArrayList;
@@ -12,8 +12,8 @@ import java.util.stream.Collectors;
 
 public class EntityStageValidator {
 
-    public static void validate(EntityCollection entityCollection) {
-        for (Entity entity : entityCollection.getEntities()) {
+    public static void validate(EntityRelationshipModel entityRelationshipModel) {
+        for (Entity entity : entityRelationshipModel.getEntities()) {
             List<Attribute> autoIncrementAttributes = selectAutoIncrementAttributes(entity);
             assertMaxOneAutoIncrementField(autoIncrementAttributes, entity);
             assertCorrectType(autoIncrementAttributes, entity);
