@@ -3,7 +3,7 @@ package de.arthurpicht.barnacle.processor;
 import de.arthurpicht.barnacle.annotations.Annotations;
 import de.arthurpicht.barnacle.annotations.Annotations.TableName;
 import de.arthurpicht.barnacle.annotations.Annotations.VobFactory;
-import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.ERMBuilderException;
 import de.arthurpicht.barnacle.model.Entity;

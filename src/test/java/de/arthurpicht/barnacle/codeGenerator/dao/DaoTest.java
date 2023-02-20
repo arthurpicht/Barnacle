@@ -1,7 +1,7 @@
 package de.arthurpicht.barnacle.codeGenerator.dao;
 
-import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
-import de.arthurpicht.barnacle.configuration.GeneratorConfigurationBuilder;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfigurationBuilder;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
 import de.arthurpicht.barnacle.codeGenerator.java.DaoGenerator;
 import de.arthurpicht.barnacle.model.Attribute;

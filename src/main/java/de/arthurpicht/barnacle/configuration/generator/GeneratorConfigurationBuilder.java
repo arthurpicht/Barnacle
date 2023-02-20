@@ -1,4 +1,4 @@
-package de.arthurpicht.barnacle.configuration;
+package de.arthurpicht.barnacle.configuration.generator;
 
 import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.connectionManager.ConnectionManager;

@@ -1,7 +1,7 @@
 package de.arthurpicht.barnacle.processor;
 
-import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
 import de.arthurpicht.barnacle.model.Attribute;
+import de.arthurpicht.barnacle.model.ERMBuilderException;
 import de.arthurpicht.barnacle.model.Entity;
 import de.arthurpicht.barnacle.model.EntityRelationshipModel;
 import de.arthurpicht.utils.core.strings.Strings;
@@ -35,9 +35,9 @@ public class EntityStageValidator {
             List<String> fieldNames = autoIncrementAttributes.stream()
                     .map(Attribute::getFieldName)
                     .collect(Collectors.toList());
-            String fieldNameListing = Strings.listing(fieldNames, "", "", "", "[", "]");
+            String fieldNameListing = Strings.listing(fieldNames, ", ", "", "", "[", "]");
 
-            throw new BarnacleInitializerException(
+            throw new ERMBuilderException(
                     "More than one autoIncrement field found in VOF file [" + entity.getVofSimpleClassName() + "]: "
                             + fieldNameListing + ".");
         }
@@ -48,7 +48,7 @@ public class EntityStageValidator {
             Attribute attribute = autoIncrementAttributes.get(0);
             String javaTypeSimpleName = attribute.getJavaTypeSimpleName();
             if (!(javaTypeSimpleName.equals("int") || (javaTypeSimpleName.equals("Integer"))))
-                throw new BarnacleInitializerException(
+                throw new ERMBuilderException(
                         "autoIncrement field [" + entity.getVofSimpleClassName() + "." + attribute.getFieldName() + "] "
                                 + " is not of type int or Integer."
                 );

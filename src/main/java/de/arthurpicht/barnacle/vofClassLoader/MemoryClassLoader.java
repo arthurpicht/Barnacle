@@ -1,6 +1,5 @@
 package de.arthurpicht.barnacle.vofClassLoader;
 
-
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;

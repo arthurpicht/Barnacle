@@ -1,6 +1,6 @@
 package de.arthurpicht.barnacle.codeGenerator.java;
 
-import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

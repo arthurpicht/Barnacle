@@ -1,6 +1,8 @@
 package de.arthurpicht.barnacle.codeGenerator;
 
-import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
+import de.arthurpicht.barnacle.Const;
+import de.arthurpicht.barnacle.codeGenerator.sql.StatementGenerator;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.codeGenerator.java.DaoGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.PkGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.VoGenerator;
@@ -12,6 +14,9 @@ public class CodeGenerator {
 
     public static void execute(EntityRelationshipModel entityRelationshipModel, GeneratorConfiguration generatorConfiguration)
             throws CodeGeneratorException {
+
+        Const.Dialect dialect = generatorConfiguration.getDialect();
+        StatementGenerator statementGenerator = StatementGenerator.getInstance(dialect);
 
         for (Entity entity : entityRelationshipModel.getEntities()) {
 
@@ -27,16 +32,17 @@ public class CodeGenerator {
             daoGenerator.generate();
         }
 
-        SqlGenerator.generateStage1(entityRelationshipModel.getEntities(), generatorConfiguration.getEncodingDB());
+        SqlGenerator sqlGenerator = new SqlGenerator(statementGenerator, generatorConfiguration);
+        sqlGenerator.generateBareEntities(entityRelationshipModel.getEntities(), generatorConfiguration.getEncodingDB());
 
         // Step 5: Generate
         //		- Foreign-Key-Constraints
         for (Entity entity : entityRelationshipModel.getEntities()) {
-            SqlGenerator.generateStage2(entity);
+            sqlGenerator.generateForeignKeys(entity);
         }
 
         // Close resources
-        SqlGenerator.close();
+        sqlGenerator.close();
     }
 
 }

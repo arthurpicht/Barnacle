@@ -1,25 +1,24 @@
 package de.arthurpicht.barnacle.model;
 
 import de.arthurpicht.barnacle.annotations.Annotations;
-import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
-import de.arthurpicht.barnacle.exceptions.VofClassLoaderException;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.processor.*;
-import de.arthurpicht.barnacle.vofClassLoader.VofClassLoader;
+
+import java.util.List;
 
 public class EntityRelationshipModelBuilder {
 
-    public static EntityRelationshipModel execute(GeneratorConfiguration generatorConfiguration) {
+    public static EntityRelationshipModel execute(
+            GeneratorConfiguration generatorConfiguration,
+            List<Class<?>> classes) {
 
         EntityRelationshipModel entityRelationshipModel = new EntityRelationshipModel();
 
         // Step 1: Build entity and attribute representations from all VOF-files
-        Class<?>[] classArray = loadVofClasses(generatorConfiguration);
-        for (Class<?> clazz : classArray) {
-            if (clazz.getSimpleName().endsWith("VOF")) {
-                if (clazz.isAnnotationPresent(Annotations.Barnacle.class)) {
-                    Entity entity = VOFProcessorEntityStage.process(clazz, generatorConfiguration);
-                    entityRelationshipModel.addEntity(entity);
-                }
+        for (Class<?> clazz : classes) {
+            if (clazz.getSimpleName().endsWith("VOF") && clazz.isAnnotationPresent(Annotations.Barnacle.class)) {
+                Entity entity = VOFProcessorEntityStage.process(clazz, generatorConfiguration);
+                entityRelationshipModel.addEntity(entity);
             }
         }
 
@@ -45,16 +44,6 @@ public class EntityRelationshipModelBuilder {
         }
 
         return entityRelationshipModel;
-    }
-
-    private static Class<?>[] loadVofClasses(GeneratorConfiguration generatorConfiguration) {
-        try {
-            return VofClassLoader.getClassesFromPackage(
-                    generatorConfiguration.getSrcDir(),
-                    generatorConfiguration.getVofPackageName());
-        } catch (VofClassLoaderException e) {
-            throw new ERMBuilderException(e.getMessage(), e);
-        }
     }
 
 }

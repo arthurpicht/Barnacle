@@ -2,7 +2,7 @@ package de.arthurpicht.barnacle.codeGenerator.java;
 
 import de.arthurpicht.barnacle.Const.Encoding;
 import de.arthurpicht.barnacle.Const;
-import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
 import de.arthurpicht.barnacle.helper.Helper;

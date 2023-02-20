@@ -1,7 +1,7 @@
 package de.arthurpicht.barnacle.model;
 
 import de.arthurpicht.barnacle.annotations.Annotations;
-import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.exceptions.UnknownTypeException;
 import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;

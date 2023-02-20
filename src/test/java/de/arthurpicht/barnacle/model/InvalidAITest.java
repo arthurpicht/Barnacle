@@ -1,44 +1,37 @@
 package de.arthurpicht.barnacle.model;
 
-import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
-import de.arthurpicht.barnacle.configuration.GeneratorConfigurationBuilder;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfigurationBuilder;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class InvalidAITest {
 
     @Test
     public void test() throws ERMBuilderException {
         GeneratorConfigurationBuilder generatorConfigurationBuilder = new GeneratorConfigurationBuilder(
-                "test.vof.package.name",
-                "test.vo.package.name",
-                "test.vob.package.name",
-                "test.dao.package.name"
+                "test.vof.myPackage.name",
+                "test.vo.myPackage.name",
+                "test.vob.myPackage.name",
+                "test.dao.myPackage.name"
         );
         GeneratorConfiguration generatorConfiguration = generatorConfigurationBuilder.build();
 
-        Class<?> vofClass = InvalidAIVOF.class;
-        EntityRelationshipModelBuilder.execute(generatorConfiguration);
+        List<Class<?>> classList = new ArrayList<>();
+        classList.add(InvalidAIVOF.class);
 
-//        Entity entity = VOFProcessorEntityStage.process(vofClass, generatorConfiguration);
-//        assertNotNull(entity);
+        ERMBuilderException e = Assertions.assertThrows(
+                ERMBuilderException.class,
+                () -> EntityRelationshipModelBuilder.execute(generatorConfiguration, classList));
 
-//        List<Attribute> attributeList = entity.getAttributes();
-//        assertEquals(3, attributeList.size());
-//
-//        Attribute attribute = attributeList.get(0);
-//        assertEquals("String", attribute.getJavaTypeSimpleName());
-//
-//        attribute = attributeList.get(1);
-//        assertEquals("String", attribute.getJavaTypeSimpleName());
-//
-//        attribute = attributeList.get(2);
-//        assertEquals("String", attribute.getJavaTypeSimpleName());
-//
-//        DaoGenerator daoGenerator = new DaoGenerator(entity);
-//        daoGenerator.generate(Paths.get("src/test/temp/TestDAO.java"), generatorConfiguration);
+        assertEquals(
+                "More than one autoIncrement field found in VOF file [InvalidAIVOF]: [id1], [id2].",
+                e.getMessage());
     }
 
 }

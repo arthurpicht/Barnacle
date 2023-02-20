@@ -2,6 +2,8 @@ package de.arthurpicht.barnacle.connectionManager;
 
 import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
+import de.arthurpicht.barnacle.configuration.general.GeneralConfiguration;
+import de.arthurpicht.barnacle.configuration.general.GeneralConfigurationFactory;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import de.arthurpicht.configuration.Configuration;
 import de.arthurpicht.configuration.ConfigurationFactory;
@@ -13,47 +15,50 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-
 public class ConnectionManagerBackend {
 
-    private static DBConnectionDecisionMaker dbConnectionDecisionMaker;
+    private static final DBConnectionDecisionMaker dbConnectionDecisionMaker;
 
     protected static Logger BARNACLE_LOGGER;
 
     static {
 
+        BarnacleConfiguration barnacleConfiguration = new BarnacleConfiguration();
+        GeneralConfiguration generalConfiguration
+                = GeneralConfigurationFactory.create(barnacleConfiguration.getGeneralConfiguration());
+
         // Logger initialisieren
-        String loggerName = BarnacleConfiguration.getLoggerName();
+        String loggerName = generalConfiguration.getLogger();
         BARNACLE_LOGGER = LoggerFactory.getLogger(loggerName);
 
         // Logging der Konfiguration, wenn angefordert
-        if (BarnacleConfiguration.isLogConfigOnInit()) {
+        if (generalConfiguration.isLogConfigOnInit()) {
             BARNACLE_LOGGER.info(Const.VERSION);
             BARNACLE_LOGGER.info("Barnacle configuration:");
             BARNACLE_LOGGER.info("[general]");
-            logAllProperties(BarnacleConfiguration.getGeneralConfiguration());
+            logAllProperties(barnacleConfiguration.getGeneralConfiguration());
 
-            if (BarnacleConfiguration.hasGeneratorConfiguration()) {
+            if (barnacleConfiguration.hasGeneratorConfiguration()) {
                 BARNACLE_LOGGER.info("[generator]");
-                logAllProperties(BarnacleConfiguration.getGeneratorConfiguration());
+                logAllProperties(barnacleConfiguration.getGeneratorConfiguration());
             }
         }
 
         //
         // Map daoPackage-ConnectionWrapper aufbauen, dann abschließend DecisionMaker davon erzeugen
         //
-        Map<String, ConnectionWrapper> dbConnections = new HashMap<String, ConnectionWrapper>();
+        Map<String, ConnectionWrapper> dbConnections = new HashMap<>();
 
         // Über alle Sektionen der Konfiguration mit Ausnahme
         // von [general] und [generator] iterieren
-        ConfigurationFactory configurationFactory = BarnacleConfiguration.getConfigurationFactory();
+        ConfigurationFactory configurationFactory = barnacleConfiguration.getConfigurationFactory();
         Set<String> sectionNames = configurationFactory.getSectionNames();
         for (String sectionName : sectionNames) {
             if (sectionName.equals("general") || sectionName.equals("generator")) continue;
 
             // Config loggen, wenn angefordert
             Configuration configuration = configurationFactory.getConfiguration(sectionName);
-            if (BarnacleConfiguration.isLogConfigOnInit()) {
+            if (generalConfiguration.isLogConfigOnInit()) {
                 BARNACLE_LOGGER.info("[" + configuration.getSectionName() + "]");
                 logAllProperties(configuration);
             }
@@ -86,7 +91,7 @@ public class ConnectionManagerBackend {
      */
     public static Connection openConnection(String daoCanonicalClassName) throws DBConnectionException {
 
-        ConnectionWrapper connectionWrapper = dbConnectionDecisionMaker.getDBCoonectionByDaoClass(daoCanonicalClassName);
+        ConnectionWrapper connectionWrapper = dbConnectionDecisionMaker.getDBConnectionByDaoClass(daoCanonicalClassName);
         return connectionWrapper.openConnection();
     }
 
@@ -96,7 +101,7 @@ public class ConnectionManagerBackend {
      */
     public static void releaseConnection(Connection con, String daoCanonicalClassName) throws DBConnectionException {
 
-        ConnectionWrapper connectionWrapper = dbConnectionDecisionMaker.getDBCoonectionByDaoClass(daoCanonicalClassName);
+        ConnectionWrapper connectionWrapper = dbConnectionDecisionMaker.getDBConnectionByDaoClass(daoCanonicalClassName);
         connectionWrapper.releaseConnection(con);
     }
 

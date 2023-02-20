@@ -1,10 +1,11 @@
-package de.arthurpicht.barnacle.configuration;
+package de.arthurpicht.barnacle.configuration.generator;
 
 import de.arthurpicht.barnacle.Const;
+import de.arthurpicht.barnacle.configuration.MandatoryConfigParameterMissing;
 import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
 import de.arthurpicht.configuration.Configuration;
 
-import static de.arthurpicht.barnacle.configuration.GeneratorConfiguration.*;
+import static de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration.*;
 
 public class GeneratorConfigurationFactory {
 

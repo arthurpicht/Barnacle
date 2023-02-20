@@ -1,6 +1,6 @@
 package de.arthurpicht.barnacle.model;
 
-import de.arthurpicht.barnacle.configuration.GeneratorConfiguration;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 
 import java.util.*;
 

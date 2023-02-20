@@ -1,4 +1,4 @@
-package de.arthurpicht.barnacle.configuration;
+package de.arthurpicht.barnacle.configuration.generator;
 
 import de.arthurpicht.barnacle.Const.Dialect;
 import de.arthurpicht.barnacle.Const.Encoding;
@@ -16,8 +16,6 @@ public class GeneratorConfiguration {
     public static final String CONNECTION_EXCEPTION_CLASS = "connection_exception_class";
     public static final String ENTITY_NOT_FOUND_EXCEPTION_CLASS = "entity_not_found_exception_class";
     public static final String DAO_LOGGER_NAME = "dao_logger_name";
-
-
     public static final String VOF_PACKAGE_NAME = "vof_package_name";
     public static final String VO_PACKAGE_NAME = "vo_package_name";
     public static final String VOB_PACKAGE_NAME = "vob_package_name";
