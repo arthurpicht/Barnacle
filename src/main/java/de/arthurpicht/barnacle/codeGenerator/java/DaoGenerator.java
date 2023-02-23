@@ -152,7 +152,7 @@ public class DaoGenerator extends ClassGenerator {
 
         int index = 1;
         List<String> getterList = new ArrayList<>();
-        for (Attribute attribute : entity.getAttributes()) {
+        for (Attribute attribute : entity.getNonAutoIncrementAttributes()) {
             String setMethod = TypeMapper.getPreparedStatementSetMethod(attribute.getJavaTypeSimpleName());
             String getter = voVarName + "." + attribute.generateGetterMethodName() + "()";
             getterList.add(getter);
@@ -168,6 +168,21 @@ public class DaoGenerator extends ClassGenerator {
         methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByExpression(logStatement));
 
         methodGenerator.addCodeLn("preparedStatement.executeUpdate();");
+
+        if (entity.hasAutoIncrementAttribute()) {
+            Attribute autoIncrementAttribute = this.entity.getAutoIncrementAttribute();
+            methodGenerator.addCodeLn("ResultSet resultSet = preparedStatement.getGeneratedKeys();");
+            methodGenerator.addCodeLn("if (resultSet.next()) {");
+            methodGenerator.addCodeLn("int generatedKey = resultSet.getInt(1);");
+            methodGenerator.addCodeLn(voVarName + "." + autoIncrementAttribute.generateSetterMethodName()
+                    + "(generatedKey);");
+            methodGenerator.addCodeLn("} else {");
+            methodGenerator.addCodeLn("throw new SQLException(\"Could not obtain generated key for " +
+                    "auto increment field.\");");
+            methodGenerator.addCodeLn("}");
+            methodGenerator.addCodeLn("try { resultSet.close(); } catch (SQLException ignored) {}");
+        }
+
         methodGenerator.addCodeLn("try { preparedStatement.close(); } catch (SQLException ignored) {}");
     }
 

@@ -54,14 +54,18 @@ public class Entity {
 		}
 		return nonAutoIncrementAttributes;
 	}
-	
+
+	public boolean hasAutoIncrementAttribute() {
+		return this.attributes.stream().anyMatch(Attribute::isAutoIncrement);
+	}
+
 	public Attribute getAutoIncrementAttribute() {
 		for (Attribute attribute : this.attributes) {
 			if (attribute.isAutoIncrement()) {
 				return attribute;
 			}
 		}
-		return null;
+		throw new IllegalStateException("No auto increment attribute. Check before calling getter method.");
 	}
 	
 	public int getNrPkAttributes() {

@@ -52,7 +52,7 @@ public class VoGenerator extends VoBaseGenerator {
         }
 
         // constants
-        this.constantGenerator.addConstant("TABLENAME", entity.getTableName());
+        this.constantGenerator.addStringConstant("TABLENAME", entity.getTableName());
 
         List<Attribute> constantAttributes = entity.getAttributes();
         this.addConstants(constantAttributes);

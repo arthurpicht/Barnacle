@@ -3,37 +3,23 @@ package de.arthurpicht.barnacle.codeGenerator.java;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Generates constant definitions.
- * 
- * @author Picht
- *
- */
-@SuppressWarnings("rawtypes")
 public class ConstantGenerator {
 	
-	private class ConstantWrapper {
-		public String type = new String("String");
-		public String name = new String();
-		public String value = new String();
+	private static class ConstantWrapper {
+		public String type = "String";
+		public String name = "";
+		public String value = "";
 	}
 	
-	private ClassGenerator parentClassGenerator;
-	private List<ConstantWrapper> constantList;
+	private final ClassGenerator parentClassGenerator;
+	private final List<ConstantWrapper> constantList;
 	
 	public ConstantGenerator(ClassGenerator parentClassGenerator) {
 		this.parentClassGenerator = parentClassGenerator;
-		this.constantList = new ArrayList<ConstantWrapper>();
+		this.constantList = new ArrayList<>();
 	}
 	
-	/**
-	 * Adds constant to constant wrapper.
-	 * 
-	 * @param type
-	 * @param name
-	 * @param value
-	 */
-	public void addConstant(Class type, String name, String value) {
+	public void addStringConstant(Class<?> type, String name, String value) {
 		ConstantWrapper constantWrapper = new ConstantWrapper();
 		this.parentClassGenerator.getImportGenerator().addImport(type);
 		constantWrapper.type = type.getSimpleName();
@@ -42,24 +28,13 @@ public class ConstantGenerator {
 		this.constantList.add(constantWrapper);
 	}
 	
-	/**
-	 * Adds constant to constant wrapper. Type keeps default String.
-	 * 
-	 * @param name
-	 * @param value
-	 */
-	public void addConstant(String name, String value) {
+	public void addStringConstant(String name, String value) {
 		ConstantWrapper constantWrapper = new ConstantWrapper();
 		constantWrapper.name = name;
 		constantWrapper.value = value;
 		this.constantList.add(constantWrapper);
 	}
 	
-	/**
-	 * Generates constant definitions to passed souce cache.
-	 * 
-	 * @param sourceCache
-	 */
 	public void generate(SourceCache sourceCache) {
 		for (ConstantWrapper constantWrapper : this.constantList) {
 			sourceCache.addLine("public static final " 

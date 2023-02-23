@@ -36,7 +36,7 @@ public class VoBaseGenerator extends ClassGenerator {
 		for (Attribute attribute : attributeList) {
 			String name = attribute.getFieldName().toUpperCase();
 			String value = attribute.getColumnName();
-			constantGenerator.addConstant(name, value);
+			constantGenerator.addStringConstant(name, value);
 		}
 	}
 	

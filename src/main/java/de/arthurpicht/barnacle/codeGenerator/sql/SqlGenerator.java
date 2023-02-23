@@ -107,8 +107,8 @@ public class SqlGenerator {
         }
 
         // auto increment
-        Attribute attribute = entity.getAutoIncrementAttribute();
-        if (attribute != null) {
+        if (entity.hasAutoIncrementAttribute()) {
+            Attribute attribute = entity.getAutoIncrementAttribute();
             sqlStatement = this.statementGenerator.addAutoIncrement(entity.getTableName(), attribute.getColumnName(), attribute.getSqlDataType(), attribute.getDefaultValue(), attribute.isNotNull());
             this.sqlDispatcher.dispatch(sqlStatement);
         }

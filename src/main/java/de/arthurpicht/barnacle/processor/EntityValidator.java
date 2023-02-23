@@ -63,8 +63,8 @@ public class EntityValidator {
 	 * @throws CodeGeneratorException
 	 */
 	private static void checkSpecConstraintPK_AI_2(Entity entity) {
-		Attribute autoIncAttribute = entity.getAutoIncrementAttribute();
-		if (autoIncAttribute != null) {
+		if (entity.hasAutoIncrementAttribute()) {
+			Attribute autoIncAttribute = entity.getAutoIncrementAttribute();
 			String sqlDataType = autoIncAttribute.getSqlDataType().toUpperCase();
 			if (!sqlDataType.equals("INTEGER")) {
 				throw new ERMBuilderException("Entity definition error: Invalid type of auto-increment-field. " +
