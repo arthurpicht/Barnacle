@@ -1,7 +1,5 @@
 package de.arthurpicht.barnacle.codeGenerator.java;
 
-import de.arthurpicht.barnacle.helper.Helper;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,7 +16,7 @@ public class ImportGenerator {
 	public void addImport(String canonicalClassName) {
 		if (!this.canonicalClassNameList.contains(canonicalClassName)) {
 			String packageNameOfGeneratedClass = this.classGenerator.getPackageName();
-			String packageNameOfImportClass = Helper.getPackageNameFromCanonicalClassName(canonicalClassName);
+			String packageNameOfImportClass = JavaGeneratorHelper.getPackageNameFromCanonicalClassName(canonicalClassName);
 			if (!packageNameOfGeneratedClass.equals(packageNameOfImportClass)) {
 				this.canonicalClassNameList.add(canonicalClassName);				
 			}

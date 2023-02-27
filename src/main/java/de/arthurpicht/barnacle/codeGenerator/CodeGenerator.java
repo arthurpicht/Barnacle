@@ -3,7 +3,7 @@ package de.arthurpicht.barnacle.codeGenerator;
 import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.codeGenerator.sql.StatementGenerator;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
-import de.arthurpicht.barnacle.codeGenerator.java.DaoGenerator;
+import de.arthurpicht.barnacle.codeGenerator.java.dao.DaoGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.PkGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.VoGenerator;
 import de.arthurpicht.barnacle.codeGenerator.sql.SqlGenerator;

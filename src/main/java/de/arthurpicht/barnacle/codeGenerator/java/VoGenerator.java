@@ -3,7 +3,7 @@ package de.arthurpicht.barnacle.codeGenerator.java;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
-import de.arthurpicht.barnacle.helper.Helper;
+import de.arthurpicht.barnacle.helper.StringHelper;
 import de.arthurpicht.barnacle.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,7 +112,7 @@ public class VoGenerator extends VoBaseGenerator {
         if (this.entity.getNrPkAttributes() > 1) {
             // constructor with PK-object as parameter.
             String pkSimpleClassName = this.entity.getPkSimpleClassName();
-            String pkVarName = this.generateVarNameFromSimpleClassName(pkSimpleClassName);
+            String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
             constructorGenerator.defineParameter(pkSimpleClassName, pkVarName);
             for (Attribute attribute : attributes) {
                 String member = "this." + attribute.getFieldName();
@@ -154,7 +154,7 @@ public class VoGenerator extends VoBaseGenerator {
         if (hasReferenceComposedPk) {
 
             String pkSimpleClassName = referenceEntity.getPkSimpleClassName();
-            String pkVarName = generateVarNameFromSimpleClassName(pkSimpleClassName);
+            String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
             List<Attribute> referencePkAttributes = referenceEntity.getPkAttributes();
 
             String lineOfCode = pkSimpleClassName + " "
@@ -191,7 +191,7 @@ public class VoGenerator extends VoBaseGenerator {
         String voCanonicalClassName = referencingForeignKeyWrapper.getParentEntity().getVoCanonicalClassName();
         String daoSimpleClassName = referencingForeignKeyWrapper.getParentEntity().getDaoSimpleClassName();
         String daoCanonicalClassName = referencingForeignKeyWrapper.getParentEntity().getDaoCanonicalClassName();
-        String fkNameShiftedCase = Helper.shiftCaseFirstLetter(referencingForeignKeyWrapper.getForeignKeyName());
+        String fkNameShiftedCase = StringHelper.shiftFirstLetterToUpperCase(referencingForeignKeyWrapper.getForeignKeyName());
 
         this.getImportGenerator().addImport(daoCanonicalClassName);
 
@@ -262,7 +262,7 @@ public class VoGenerator extends VoBaseGenerator {
 
         String vobCanonicalClassName = this.entity.getVobCanonicalClassName();
         String vobSimpleClassName = this.entity.getVobSimpleClassName();
-        String vobVarName = this.generateVarNameFromSimpleClassName(vobSimpleClassName);
+        String vobVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(vobSimpleClassName);
 
         MethodGenerator methodGenerator = this.getNewMethodGenerator();
         methodGenerator.setMethodName("get" + vobSimpleClassName);

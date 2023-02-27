@@ -5,7 +5,6 @@ import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
-import de.arthurpicht.barnacle.helper.Helper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +46,7 @@ public class ClassGenerator {
     }
 
     public String getPackageName() {
-        return Helper.getPackageNameFromCanonicalClassName(this.canonicalClassName);
+        return JavaGeneratorHelper.getPackageNameFromCanonicalClassName(this.canonicalClassName);
     }
 
     public String getCanonicalClassName() {
@@ -55,7 +54,7 @@ public class ClassGenerator {
     }
 
     public String getSimpleClassName() {
-        return Helper.getSimpleClassNameFromCanonicalClassName(this.canonicalClassName);
+        return JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(this.canonicalClassName);
     }
 
     public void setBaseClass(Class baseClass) {
@@ -76,6 +75,10 @@ public class ClassGenerator {
         return this.constantGenerator;
     }
 
+    public LocalStringConstGenerator getLocalStringConstGenerator() {
+        return this.localStringConstGenerator;
+    }
+
     public VoConstructorGenerator getVOConstructorGenerator() throws CodeGeneratorException {
         if (this.constructorGenerator != null) {
             if (constructorGenerator instanceof VoConstructorGenerator) {
@@ -83,7 +86,7 @@ public class ClassGenerator {
             }
             throw new CodeGeneratorException("Constructor preexisting from different type.");
         }
-        String simpleClassName = Helper.getSimpleClassNameFromCanonicalClassName(this.canonicalClassName);
+        String simpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(this.canonicalClassName);
         VoConstructorGenerator voConstructorGenerator = new VoConstructorGenerator(simpleClassName);
         this.constructorGenerator = voConstructorGenerator;
 
@@ -169,7 +172,7 @@ public class ClassGenerator {
     }
 
     private void generateClassSignature(SourceCache sourceCache) {
-        String classSignature = "public class " + Helper.getSimpleClassNameFromCanonicalClassName(this.canonicalClassName);
+        String classSignature = "public class " + JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(this.canonicalClassName);
 
         if (!this.baseClassSimpleName.equals("")) {
             classSignature += " extends " + this.baseClassSimpleName;
@@ -203,10 +206,6 @@ public class ClassGenerator {
         sourceCache.addLine(" *");
         sourceCache.addLine(" * DO NOT CHANGE THIS FILE MANUALLY!");
         sourceCache.addLine(" */");
-    }
-
-    protected String generateVarNameFromSimpleClassName(String simpleClassName) {
-        return simpleClassName.substring(0, 1).toLowerCase() + simpleClassName.substring(1);
     }
 
 }

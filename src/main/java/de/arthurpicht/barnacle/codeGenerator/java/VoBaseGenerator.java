@@ -49,7 +49,7 @@ public class VoBaseGenerator extends ClassGenerator {
 		
 		String pkCanonicalClassName = this.entity.getPkCanonicalClassName();
 		String pkSimpleClassName = this.entity.getPkSimpleClassName();
-		String pkVarName = generateVarNameFromSimpleClassName(pkSimpleClassName);
+		String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
 		
 		MethodGenerator pkGetterGenerator = this.getNewMethodGenerator();
 		pkGetterGenerator.setReturnTypeByCanonicalClassName(pkCanonicalClassName);

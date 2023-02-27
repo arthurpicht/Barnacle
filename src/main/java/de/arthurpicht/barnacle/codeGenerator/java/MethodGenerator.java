@@ -1,7 +1,5 @@
 package de.arthurpicht.barnacle.codeGenerator.java;
 
-import de.arthurpicht.barnacle.helper.Helper;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +51,7 @@ public class MethodGenerator {
 	 */
 	public void setReturnTypeByCanonicalClassName(String returnTypeCanonicalClassName) {
 		this.parentClassGenerator.getImportGenerator().addImport(returnTypeCanonicalClassName);
-		this.returnTypeSimpleName = Helper.getSimpleClassNameFromCanonicalClassName(returnTypeCanonicalClassName);
+		this.returnTypeSimpleName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(returnTypeCanonicalClassName);
 	}
 	
 	/**
@@ -86,7 +84,7 @@ public class MethodGenerator {
 	 */
 	public void setReturnTypeParameter(String typeParameterCanonicalClassName) {
 		this.parentClassGenerator.getImportGenerator().addImport(typeParameterCanonicalClassName);
-		String typeParameterSimpleClassName = Helper.getSimpleClassNameFromCanonicalClassName(typeParameterCanonicalClassName);
+		String typeParameterSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(typeParameterCanonicalClassName);
 		this.returnTypeParameters.add(typeParameterSimpleClassName);
 	}
 	
@@ -120,7 +118,7 @@ public class MethodGenerator {
 	 */
 	public void addAndImportParameter(String parameterCanonicalClassName, String parameterName) {
 		this.parentClassGenerator.getImportGenerator().addImport(parameterCanonicalClassName);
-		String parameterSimpleClassName = Helper.getSimpleClassNameFromCanonicalClassName(parameterCanonicalClassName);
+		String parameterSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(parameterCanonicalClassName);
 		this.addParameter(parameterSimpleClassName, parameterName);
 	}
 	
@@ -137,7 +135,7 @@ public class MethodGenerator {
 	public void addAndImportParameter(Class parameterType, String classParameterCanonicalClassName, String parameterName) {
 		this.parentClassGenerator.getImportGenerator().addImport(parameterType);
 		this.parentClassGenerator.getImportGenerator().addImport(classParameterCanonicalClassName);
-		String classParameterSimpleClassName = Helper.getSimpleClassNameFromCanonicalClassName(classParameterCanonicalClassName);
+		String classParameterSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(classParameterCanonicalClassName);
 		String parameterTypeString = parameterType.getSimpleName() + "<" + classParameterSimpleClassName + ">";
 		this.addParameter(parameterTypeString, parameterName);
 	}
@@ -161,7 +159,7 @@ public class MethodGenerator {
 
 	public void addThrowsException(String exceptionCanonicalClassName) {
 		this.parentClassGenerator.getImportGenerator().addImport(exceptionCanonicalClassName);
-		this.throwsExceptionSimpleNameList.add(Helper.getSimpleClassNameFromCanonicalClassName(exceptionCanonicalClassName));
+		this.throwsExceptionSimpleNameList.add(JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(exceptionCanonicalClassName));
 	}
 	
 	/**

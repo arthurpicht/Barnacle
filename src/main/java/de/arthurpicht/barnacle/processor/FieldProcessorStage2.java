@@ -2,7 +2,7 @@ package de.arthurpicht.barnacle.processor;
 
 import de.arthurpicht.barnacle.annotations.Annotations.Barnacle;
 import de.arthurpicht.barnacle.annotations.Annotations.ForeignKey;
-import de.arthurpicht.barnacle.helper.Helper;
+import de.arthurpicht.barnacle.helper.StringHelper;
 import de.arthurpicht.barnacle.model.*;
 
 import java.lang.reflect.Field;
@@ -184,10 +184,10 @@ public class FieldProcessorStage2 {
 			entityMethodName = "get" 
 				+ foreignKeyWrapper.getTargetEntity().getVoSimpleClassName()
 				+ "By"
-				+ Helper.shiftCaseFirstLetter(foreignKeyName);
+				+ StringHelper.shiftFirstLetterToUpperCase(foreignKeyName);
 		} else {
 
-			entityMethodName = "get" + Helper.shiftCaseFirstLetter(entityMethodName);
+			entityMethodName = "get" + StringHelper.shiftFirstLetterToUpperCase(entityMethodName);
 		}
 		foreignKeyWrapper.setEntityMethodName(entityMethodName);
 		
@@ -203,9 +203,9 @@ public class FieldProcessorStage2 {
 			referenceEntityMethodName = "get"
 				+ entity.getVoSimpleClassName()
 				+ "By"
-				+ Helper.shiftCaseFirstLetter(foreignKeyName);
+				+ StringHelper.shiftFirstLetterToUpperCase(foreignKeyName);
 		}  else {
-			referenceEntityMethodName = "get" + Helper.shiftCaseFirstLetter(referenceEntityMethodName);
+			referenceEntityMethodName = "get" + StringHelper.shiftFirstLetterToUpperCase(referenceEntityMethodName);
 		}
 		
 		foreignKeyWrapper.setReferencedEntityMethodName(referenceEntityMethodName);
