@@ -116,7 +116,7 @@ public abstract class StatementGenerator {
 		return sql.toString();
 	}
 	
-	public abstract String addAutoIncrement(String tablename, String columnName, String sqlType, String defaultValue, boolean notNull);
+	public abstract String addAutoIncrement(String tableName, String columnName);
 	
 	/**
 	 * Generates sql to configure encoding for table;

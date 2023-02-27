@@ -20,17 +20,8 @@ public class StatementGeneratorMySQL extends StatementGenerator {
 	}
 
 	@Override
-	public String addAutoIncrement(String tablename, String columnName, String sqlType, String defaultValue, boolean notNull) {
-		String sql = "ALTER TABLE " + tablename + " MODIFY COLUMN " + columnName + " " + sqlType;
-		if (defaultValue != null) {
-			sql += " DEFAULT '" + defaultValue + "'";
-		}
-		if (notNull) {
-			sql += " NOT NULL";
-		}
-		sql += " AUTO_INCREMENT;";		
-		
-		return sql;
+	public String addAutoIncrement(String tablename, String columnName) {
+		return "ALTER TABLE " + tablename + " MODIFY COLUMN " + columnName + " INTEGER AUTO_INCREMENT;";
 	}
 
 	@Override

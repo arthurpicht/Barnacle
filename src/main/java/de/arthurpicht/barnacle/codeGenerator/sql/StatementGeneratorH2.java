@@ -18,17 +18,8 @@ public class StatementGeneratorH2 extends StatementGenerator {
 	}
 
 	@Override
-	public String addAutoIncrement(String tablename, String columnName, String sqlType, String defaultValue, boolean notNull) {
-		String sql = "ALTER TABLE " + tablename + " MODIFY COLUMN " + columnName + " " + sqlType;
-		if (defaultValue != null) {
-			sql += " DEFAULT '" + defaultValue + "'";
-		}
-		if (notNull) {
-			sql += " NOT NULL";
-		}
-		sql += " AUTO_INCREMENT;";		
-		
-		return sql;
+	public String addAutoIncrement(String tableName, String columnName) {
+		return "ALTER TABLE " + tableName + " ALTER COLUMN " + columnName + " INTEGER AUTO_INCREMENT;";
 	}
 
 	@Override

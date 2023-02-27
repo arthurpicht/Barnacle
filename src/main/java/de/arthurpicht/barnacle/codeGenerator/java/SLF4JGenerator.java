@@ -20,10 +20,10 @@ public class SLF4JGenerator extends LoggerGenerator {
     public void generateInitialization(SourceCache sourceCache) {
         GeneratorConfiguration generatorConfiguration = GeneratorContext.getInstance().getGeneratorConfiguration();
         String loggerName = generatorConfiguration.hasDaoLoggerName() ?
-                generatorConfiguration.getDaoLoggerName() :
-                this.classGenerator.getSimpleClassName();
-        sourceCache.addLine("private static " + Logger.class.getSimpleName() + " logger = "
-                + LoggerFactory.class.getSimpleName() + ".getLogger(\"" + loggerName + "\");");
+                "\"" + generatorConfiguration.getDaoLoggerName() + "\"" :
+                this.classGenerator.getSimpleClassName() + ".class";
+        sourceCache.addLine("private static final " + Logger.class.getSimpleName() + " logger = "
+                + LoggerFactory.class.getSimpleName() + ".getLogger(" + loggerName + ");");
         sourceCache.addLine();
     }
 

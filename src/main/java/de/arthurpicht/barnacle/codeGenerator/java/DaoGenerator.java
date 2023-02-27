@@ -48,7 +48,6 @@ public class DaoGenerator extends ClassGenerator {
 
         // standard methods
         this.addCreateMethod();
-        this.addCreateMethodByConnectionPrep();
         this.addCreateMethodByConnection();
         this.addCreateMethodBatch();
 
@@ -131,7 +130,7 @@ public class DaoGenerator extends ClassGenerator {
         methodGenerator.addCodeLn("}");
     }
 
-    private void addCreateMethodByConnectionPrep() {
+    private void addCreateMethodByConnection() {
 
         addPreparedStatementCreateAsLocalConst();
 
@@ -147,8 +146,14 @@ public class DaoGenerator extends ClassGenerator {
 
         methodGenerator.addThrowsException(SQLException.class);
 
-        methodGenerator.addCodeLn(
-                "PreparedStatement preparedStatement = connection.prepareStatement(CREATE_STATEMENT);");
+        if (entity.hasAutoIncrementAttribute()) {
+            methodGenerator.addCodeLn(
+                    "PreparedStatement preparedStatement = connection.prepareStatement(" +
+                            "CREATE_STATEMENT, Statement.RETURN_GENERATED_KEYS);");
+        } else {
+            methodGenerator.addCodeLn(
+                    "PreparedStatement preparedStatement = connection.prepareStatement(CREATE_STATEMENT);");
+        }
 
         int index = 1;
         List<String> getterList = new ArrayList<>();
@@ -207,77 +212,10 @@ public class DaoGenerator extends ClassGenerator {
         this.localStringConstGenerator.add("CREATE_STATEMENT", statement);
     }
 
-    private void addCreateMethodByConnection() {
-
-        MethodGenerator methodGenerator = this.getNewMethodGenerator();
-        methodGenerator.setIsStatic(true);
-        methodGenerator.setMethodName("createOLD");
-
-        String voSimpleClassName = this.entity.getVoSimpleClassName();
-        String voCanonicalClassName = this.entity.getVoCanonicalClassName();
-        String voVarName = generateVarNameFromSimpleClassName(voSimpleClassName);
-        methodGenerator.addAndImportParameter(voCanonicalClassName, voVarName);
-        methodGenerator.addAndImportParameter(Connection.class, "connection");
-
-        methodGenerator.addThrowsException(SQLException.class);
-
-        methodGenerator.addCodeLn("String sql=\"INSERT INTO \" + " + voSimpleClassName + ".TABLENAME + \" (\"");
-
-//		List<Attribute> attributes = this.entity.getAttributes();
-        List<Attribute> attributes = this.entity.getNonAutoIncrementAttributes();
-        boolean sequence = false;
-        for (Attribute attribute : attributes) {
-            if (sequence) {
-                methodGenerator.addCodeLn("\", \" ");
-            }
-//			methodGenerator.addCode("+ " + voSimpleClassName + "." + attribute.getFieldName().toUpperCase() + " + ");
-            methodGenerator.addCode("+ " + voSimpleClassName + "." + attribute.getConstName() + " + ");
-            sequence = true;
-        }
-        methodGenerator.addCodeLn("\") \"");
-
-        methodGenerator.addCodeLn("+ \"VALUES (\"");
-        sequence = false;
-        for (Attribute attribute : attributes) {
-            if (sequence) {
-                methodGenerator.addCodeLn(" + \", \"");
-            }
-            methodGenerator.addCode("+ getValueExpression(" + voVarName + "." + attribute.generateGetterMethodName() + "(), \"" + attribute.getSqlDataType() + "\")");
-            sequence = true;
-        }
-        methodGenerator.addCodeLn(" + \")\";");
-
-        LoggerGenerator loggerGenerator = this.getLoggerGenerator();
-        methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByVarName("sql"));
-
-        methodGenerator.addCodeLn("Statement statement = connection.createStatement();");
-        methodGenerator.addCodeLn("statement.execute(sql);");
-
-        Attribute autoIncrementAttribute = this.entity.getAutoIncrementAttribute();
-        // FIXME s. Bug 004
-        // Was passiert wenn mehr als ein Attribut mit autoIncrement ausgezeichnet ist?
-        if (autoIncrementAttribute != null) {
-            methodGenerator.addCodeLn("");
-            methodGenerator.addCodeLn("sql = \"SELECT last_insert_id() FROM \" + " + voSimpleClassName + ".TABLENAME;");
-            methodGenerator.addCodeLn("logger.debug(sql);");
-            methodGenerator.addCodeLn("ResultSet resultSet = statement.executeQuery(sql);");
-            methodGenerator.addCodeLn("if (resultSet.next()) {");
-            methodGenerator.addCodeLn("int lastInsertId = (Integer) resultSet.getInt(1);");
-            methodGenerator.addCodeLn(voVarName + "." + autoIncrementAttribute.generateSetterMethodName() + "(lastInsertId);");
-            methodGenerator.addCodeLn("} else {");
-            methodGenerator.addCodeLn("throw new SQLException(\"Could not determine last_insert_id for auto increment field.\");");
-            methodGenerator.addCodeLn("}");
-            methodGenerator.addCodeLn("if (resultSet != null) { try { resultSet.close(); } catch (SQLException e) {}}");
-        }
-
-        methodGenerator.addCodeLn("if (statement != null) { try { statement.close(); } catch (SQLException e) {}}");
-
-    }
-
     private void addCreateMethodBatch() {
 
         // batch create for non-autoincrement entities only
-        if (this.entity.getAutoIncrementAttribute() != null) return;
+        if (this.entity.hasAutoIncrementAttribute()) return;
 
         MethodGenerator methodGenerator = this.getNewMethodGenerator();
         methodGenerator.setIsStatic(true);
