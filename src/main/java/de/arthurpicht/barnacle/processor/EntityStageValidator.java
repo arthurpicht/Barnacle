@@ -14,10 +14,17 @@ public class EntityStageValidator {
 
     public static void validate(EntityRelationshipModel entityRelationshipModel) {
         for (Entity entity : entityRelationshipModel.getEntities()) {
+            asserPrimaryKey(entity);
             List<Attribute> autoIncrementAttributes = selectAutoIncrementAttributes(entity);
             assertMaxOneAutoIncrementField(autoIncrementAttributes, entity);
             assertCorrectType(autoIncrementAttributes, entity);
         }
+    }
+
+    private static void asserPrimaryKey(Entity entity) {
+        List<Attribute> pkAttributes = entity.getPkAttributes();
+        if (pkAttributes.isEmpty()) throw new ERMBuilderException(
+                "No primary field found in VOF file [" + entity.getVofSimpleClassName() + "].");
     }
 
     private static List<Attribute> selectAutoIncrementAttributes(Entity entity) {

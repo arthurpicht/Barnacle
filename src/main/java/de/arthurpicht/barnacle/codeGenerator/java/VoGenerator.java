@@ -177,7 +177,7 @@ public class VoGenerator extends VoBaseGenerator {
             fkGetterGenerator.addCodeLn("return " + referenceEntity.getDaoSimpleClassName() + ".load(" + pkVarName + ");");
 
         } else {
-            Attribute referencePkAttribute = referenceEntity.getPkAttributes().get(0);
+            Attribute referencePkAttribute = referenceEntity.getSinglePkAttribute();
             Attribute localAttribute = foreignKeyWrapper.getKeyFieldAttributeByReferencedFieldAttribute(referencePkAttribute);
             fkGetterGenerator.addCodeLn("return " + referenceEntity.getDaoSimpleClassName() + ".load(this." + localAttribute.getFieldName() + ");");
         }
@@ -272,7 +272,7 @@ public class VoGenerator extends VoBaseGenerator {
         if (this.entity.isComposedPk()) {
             methodGenerator.addCodeLn("(this.getPK());");
         } else {
-            Attribute pkAttribute = this.entity.getPkAttributes().get(0);
+            Attribute pkAttribute = this.entity.getSinglePkAttribute();
             methodGenerator.addCodeLn("(this." + pkAttribute.generateGetterMethodName() + "());");
         }
 

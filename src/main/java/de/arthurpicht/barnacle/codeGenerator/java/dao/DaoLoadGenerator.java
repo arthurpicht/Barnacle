@@ -3,6 +3,7 @@ package de.arthurpicht.barnacle.codeGenerator.java.dao;
 import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
 import de.arthurpicht.barnacle.codeGenerator.java.LoggerGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
+import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Attributes;
 import de.arthurpicht.barnacle.model.Entity;
@@ -10,9 +11,27 @@ import de.arthurpicht.utils.core.strings.Strings;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DaoLoadGenerator {
+
+    public static void addPreparedStatementLoadAsLocalConst(DaoGenerator daoGenerator) {
+        Entity entity = daoGenerator.getEntity();
+        String statement = "SELECT * FROM " + entity.getTableName() + " WHERE ";
+
+        if (entity.isComposedPk()) {
+            List<Attribute> pkAttributes = entity.getPkAttributes();
+            List<String> columnNames = Attributes.getColumnNames(pkAttributes);
+            String listing = Strings.listing(
+                    columnNames, " AND ", "", "", "", " = ?");
+            statement += listing;
+        } else {
+            Attribute pkAttribute = entity.getSinglePkAttribute();
+            statement += pkAttribute.getColumnName() + " = ?";
+        }
+        daoGenerator.getLocalStringConstGenerator().add("LOAD_STATEMENT", statement);
+    }
 
     public static void addLoadMethod(DaoGenerator daoGenerator) {
         Entity entity = daoGenerator.getEntity();
@@ -25,12 +44,11 @@ public class DaoLoadGenerator {
         methodGenerator.setReturnTypeByCanonicalClassName(entity.getVoCanonicalClassName());
         methodGenerator.setMethodName("load");
 
-        Attribute pkAttribute = entity.getAttributes().get(0);
-
         if (entity.isComposedPk()) {
             String pkCanonicalClassName = entity.getPkCanonicalClassName();
             methodGenerator.addAndImportParameter(pkCanonicalClassName, pkVarName);
         } else {
+            Attribute pkAttribute = entity.getSinglePkAttribute();
             methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
         }
 
@@ -42,6 +60,7 @@ public class DaoLoadGenerator {
         if (entity.isComposedPk()) {
             methodGenerator.addCodeLn("return load(" + pkVarName + ", connection);");
         } else {
+            Attribute pkAttribute = entity.getSinglePkAttribute();
             methodGenerator.addCodeLn("return load(" + pkAttribute.getFieldName() + ", connection);");
         }
 
@@ -54,104 +73,101 @@ public class DaoLoadGenerator {
 
     public static void addLoadMethodByConnection(DaoGenerator daoGenerator) {
         Entity entity = daoGenerator.getEntity();
-
-        String voSimpleClassName = entity.getVoSimpleClassName();
-        String voVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(voSimpleClassName);
-        String pkSimpleClassName = entity.getPkSimpleClassName();
-        String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
-
         MethodGenerator methodGenerator = daoGenerator.getNewMethodGenerator();
+        createSignature(daoGenerator, methodGenerator, entity);
+        buildPreparedStatement(daoGenerator, methodGenerator, entity);
+        processResultSet(daoGenerator, methodGenerator, entity);
+    }
+
+    private static void createSignature(DaoGenerator daoGenerator, MethodGenerator methodGenerator, Entity entity) {
         methodGenerator.setIsStatic(true);
         methodGenerator.setReturnTypeByCanonicalClassName(entity.getVoCanonicalClassName());
         methodGenerator.setMethodName("load");
-
-        Attribute pkAttribute = entity.getAttributes().get(0);
-
         if (entity.isComposedPk()) {
             String pkCanonicalClassName = entity.getPkCanonicalClassName();
+            String pkVarName = JavaGeneratorHelper.getPkVarName(entity);
             methodGenerator.addAndImportParameter(pkCanonicalClassName, pkVarName);
         } else {
+            Attribute pkAttribute = entity.getSinglePkAttribute();
             methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
         }
         methodGenerator.addAndImportParameter(Connection.class, "connection");
-
         methodGenerator.addThrowsException(SQLException.class);
         methodGenerator.addThrowsException(daoGenerator.getEntityNotFoundExceptionCanonicalClassName());
+    }
 
+    private static void buildPreparedStatement(
+            DaoGenerator daoGenerator, MethodGenerator methodGenerator, Entity entity) {
 
-        methodGenerator.addCodeLn("String sql = \"SELECT * FROM \" + " + voSimpleClassName + ".TABLENAME + \" WHERE \"");
-
+        methodGenerator.addCodeLn(
+                "PreparedStatement preparedStatement = connection.prepareStatement(LOAD_STATEMENT);");
+        List<String> getterList = new ArrayList<>();
         if (entity.isComposedPk()) {
             List<Attribute> pkAttributes = entity.getPkAttributes();
-            boolean sequence = false;
-            for (Attribute attribute : pkAttributes) {
-                if (sequence) {
-                    methodGenerator.addCodeLn(" + \" AND \"");
-                }
-                methodGenerator.addCode("+ " + voSimpleClassName + "." + attribute.getConstName() + " + \" = \" + getValueExpression(" + pkVarName + "." + attribute.generateGetterMethodName() + "(), \"" + attribute.getSqlDataType() + "\")");
-                sequence = true;
+            String pkVarName = JavaGeneratorHelper.getPkVarName(entity);
+            int i=1;
+            for (Attribute pkAttribute : pkAttributes) {
+                String setMethod = TypeMapper.getPreparedStatementSetMethod(pkAttribute.getJavaTypeSimpleName());
+                String getter = pkVarName + "." + pkAttribute.generateGetterMethodName() + "()";
+                getterList.add(getter);
+                methodGenerator.addCodeLn("preparedStatement." + setMethod + "(" + i + ", " + getter + ");");
+                i++;
             }
-            methodGenerator.addCodeLn(";");
         } else {
-            methodGenerator.addCodeLn("+ " + voSimpleClassName + "." + pkAttribute.getConstName() + " + \" = \" + getValueExpression(" + pkAttribute.getFieldName() + ", \"" + pkAttribute.getSqlDataType() + "\");");
+            Attribute pkAttribute = entity.getSinglePkAttribute();
+            String setMethod = TypeMapper.getPreparedStatementSetMethod(pkAttribute.getJavaTypeSimpleName());
+            String field = pkAttribute.getFieldName();
+            getterList.add(field);
+            methodGenerator.addCodeLn("preparedStatement." + setMethod + "(1, " + field + ");");
         }
 
+        String logStatement = Strings.listing(getterList, " + \"][\" + ", "LOAD_STATEMENT + \" [\" + ", " + \"]\"");
         LoggerGenerator loggerGenerator = daoGenerator.getLoggerGenerator();
-        methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByVarName("sql"));
+        methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByExpression(logStatement));
+    }
 
-        methodGenerator.addCodeLn("Statement statement = connection.createStatement();");
-        methodGenerator.addCodeLn("ResultSet resultSet = statement.executeQuery(sql);");
+    private static void processResultSet(DaoGenerator daoGenerator, MethodGenerator methodGenerator, Entity entity) {
+        methodGenerator.addCodeLn("ResultSet resultSet = preparedStatement.executeQuery();");
         methodGenerator.addCodeLn("try {");
         methodGenerator.addCodeLn("if (resultSet.next()) {");
 
-        methodGenerator.addCode(voSimpleClassName + " " + voVarName + " = new " + voSimpleClassName + "(");
+        String voVarName = JavaGeneratorHelper.getVoVarName(entity);
+        methodGenerator.addCode(
+                entity.getVoSimpleClassName() + " "
+                + voVarName
+                + " = new " + entity.getVoSimpleClassName() + "(");
         if (entity.isComposedPk()) {
-            methodGenerator.addCode(pkVarName);
+            methodGenerator.addCode(JavaGeneratorHelper.getPkVarName(entity));
         } else {
+            Attribute pkAttribute = entity.getSinglePkAttribute();
             methodGenerator.addCode(pkAttribute.getFieldName());
         }
         methodGenerator.addCodeLn(");");
 
         List<Attribute> nonPkAttributes = entity.getNonPkAttributes();
         for (Attribute attribute : nonPkAttributes) {
-            methodGenerator.addCodeLn(daoGenerator.generateLocalVarFromResultSet(entity, attribute));
-            methodGenerator.addCodeLn(voVarName + "." + attribute.generateSetterMethodName() + "(" + attribute.getFieldName() + ");");
+            methodGenerator.addCodeLn(daoGenerator.generateVoAssignmentFromResultSet(entity, attribute));
         }
 
         methodGenerator.addCodeLn("return " + voVarName + ";");
         methodGenerator.addCodeLn("} else {");
 
-        methodGenerator.addCode("throw new " + daoGenerator.getEntityNotFoundExceptionCanonicalClassName()
-                + "(" + voSimpleClassName + ".TABLENAME + \"-Entity with primary key ");
+        methodGenerator.addCode("throw new " + daoGenerator.getEntityNotFoundExceptionSimpleClassName()
+                + "(\"Entity '" + entity.getTableName() + "' with primary key ");
         if (entity.isComposedPk()) {
-            methodGenerator.addCode(pkSimpleClassName + " = \" + " + pkVarName + ".toString()");
+            String pkVarName = JavaGeneratorHelper.getPkVarName(entity);
+            String pkSimpleClassName = entity.getPkSimpleClassName();
+            methodGenerator.addCode(pkSimpleClassName + " = [\" + " + pkVarName);
         } else {
-            methodGenerator.addCode("field '" + pkAttribute.getFieldName() + "' = \" + " + pkAttribute.getFieldName());
+            Attribute pkAttribute = entity.getSinglePkAttribute();
+            methodGenerator.addCode("field '" + pkAttribute.getFieldName() + "' = [\" + " + pkAttribute.getFieldName());
         }
-        methodGenerator.addCodeLn(" + \" does not exist!\");");
+        methodGenerator.addCodeLn(" + \"] not found!\");");
         methodGenerator.addCodeLn("}");
         methodGenerator.addCodeLn("} finally {");
-        methodGenerator.addCodeLn("if (resultSet != null) { try { resultSet.close(); } catch (SQLException e) {}}");
-        methodGenerator.addCodeLn("if (statement != null) { try { statement.close(); } catch (SQLException e) {}}");
+        methodGenerator.addCodeLn("if (resultSet != null) { try { resultSet.close(); } catch (SQLException ignored) {}}");
+        methodGenerator.addCodeLn("try { preparedStatement.close(); } catch (SQLException ignored) {}");
         methodGenerator.addCodeLn("}");
-    }
-
-    public static void addPreparedStatementLoadAsLocalConst(DaoGenerator daoGenerator) {
-        Entity entity = daoGenerator.getEntity();
-        // TODO Check this: PK-Attribute always index 0?
-        Attribute pkAttribute = entity.getAttributes().get(0);
-        String statement = "SELECT * FROM " + entity.getTableName() + " WHERE ";
-
-        if (entity.isComposedPk()) {
-            List<Attribute> pkAttributes = entity.getPkAttributes();
-            List<String> columnNames = Attributes.getColumnNames(pkAttributes);
-            String listing = Strings.listing(
-                    columnNames, " AND ", "", "", "", " = ?");
-            statement += listing;
-        } else {
-            statement += pkAttribute.getColumnName() + " = ?";
-        }
-        daoGenerator.getLocalStringConstGenerator().add("LOAD_STATEMENT", statement);
     }
 
 }

@@ -91,6 +91,12 @@ public class Entity {
 		}
 		return pkAttributes;
 	}
+
+	public Attribute getSinglePkAttribute() {
+		List<Attribute> pkAttributes = getPkAttributes();
+		if (isComposedPk()) throw new IllegalStateException("No single PK attribute. Check before calling.");
+		return pkAttributes.get(0);
+	}
 	
 	public List<Attribute> getNonPkAttributes() {
 		List<Attribute> nonPkAttributes = new ArrayList<>();

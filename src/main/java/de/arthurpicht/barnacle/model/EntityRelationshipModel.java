@@ -1,26 +1,28 @@
 package de.arthurpicht.barnacle.model;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class EntityRelationshipModel {
 
-	private final Set<Entity> entitySet;
+	private final List<Entity> entityList;
 
 	public EntityRelationshipModel() {
-		this.entitySet = new HashSet<>();
+		this.entityList = new ArrayList<>();
 	}
 
 	public void addEntity(Entity entity) {
-		this.entitySet.add(entity);
+		this.entityList.add(entity);
 	}
 	
-	public Set<Entity> getEntities() {
-		return this.entitySet;
+	public List<Entity> getEntities() {
+		return this.entityList;
 	}
 	
 	public Entity getEntityByTableName(String tableName) {
-		for (Entity entity : this.entitySet) {
+		for (Entity entity : this.entityList) {
 			if (entity.getTableName().equals(tableName)) {
 				return entity;
 			}
@@ -30,7 +32,7 @@ public class EntityRelationshipModel {
 	
 	public String debugOut() {
 		StringBuilder string = new StringBuilder("EntityCollection");
-		for (Entity entity : this.entitySet) {
+		for (Entity entity : this.entityList) {
 			string.append("\n").append(entity.toString());
 		}
 		return string.toString();

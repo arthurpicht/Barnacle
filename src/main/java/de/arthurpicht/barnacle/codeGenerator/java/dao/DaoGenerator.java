@@ -1,17 +1,16 @@
 package de.arthurpicht.barnacle.codeGenerator.java.dao;
 
 import de.arthurpicht.barnacle.codeGenerator.java.ClassGenerator;
+import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
 import de.arthurpicht.barnacle.codeGenerator.java.LoggerGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
+import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
-import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
-import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
 import de.arthurpicht.barnacle.helper.StringHelper;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;
 import de.arthurpicht.barnacle.model.ForeignKeyWrapper;
-import de.arthurpicht.utils.core.strings.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class DaoGenerator extends ClassGenerator {
 
@@ -199,7 +197,7 @@ public class DaoGenerator extends ClassGenerator {
 
         String pkSimpleClassName = this.entity.getPkSimpleClassName();
         String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
-        Attribute pkAttribute = this.entity.getPkAttributes().get(0);
+//        Attribute pkAttribute = this.entity.getSinglePkAttribute();
 
         MethodGenerator methodGenerator = this.getNewMethodGenerator();
         methodGenerator.setIsStatic(true);
@@ -208,6 +206,7 @@ public class DaoGenerator extends ClassGenerator {
         if (this.entity.isComposedPk()) {
             methodGenerator.addAndImportParameter(this.entity.getPkCanonicalClassName(), pkVarName);
         } else {
+            Attribute pkAttribute = entity.getSinglePkAttribute();
             methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
         }
 
@@ -221,6 +220,7 @@ public class DaoGenerator extends ClassGenerator {
         if (this.entity.isComposedPk()) {
             methodGenerator.addCodeLn("delete(" + pkVarName + ", connection);");
         } else {
+            Attribute pkAttribute = entity.getSinglePkAttribute();
             methodGenerator.addCodeLn("delete(" + pkAttribute.getFieldName() + ", connection);");
         }
 
@@ -237,7 +237,6 @@ public class DaoGenerator extends ClassGenerator {
 
         String pkSimpleClassName = this.entity.getPkSimpleClassName();
         String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
-        Attribute pkAttribute = this.entity.getPkAttributes().get(0);
         String voSimpleClassName = this.entity.getVoSimpleClassName();
 
         MethodGenerator methodGenerator = this.getNewMethodGenerator();
@@ -247,6 +246,7 @@ public class DaoGenerator extends ClassGenerator {
         if (this.entity.isComposedPk()) {
             methodGenerator.addAndImportParameter(this.entity.getPkCanonicalClassName(), pkVarName);
         } else {
+            Attribute pkAttribute = this.entity.getSinglePkAttribute();
             methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
         }
         methodGenerator.addAndImportParameter(Connection.class, "connection");
@@ -267,6 +267,7 @@ public class DaoGenerator extends ClassGenerator {
             }
             methodGenerator.addCodeLn(";");
         } else {
+            Attribute pkAttribute = this.entity.getSinglePkAttribute();
             methodGenerator.addCodeLn("+ " + voSimpleClassName + "." + pkAttribute.getConstName() + " + \" = \" + getValueExpression(" + pkAttribute.getFieldName() + ", \"" + pkAttribute.getSqlDataType() + "\");");
         }
 
@@ -407,7 +408,7 @@ public class DaoGenerator extends ClassGenerator {
             methodGenerator.addCodeLn(voSimpleClassName + " " + voVarName + " = new " + voSimpleClassName + "(" + pkVarName + ");");
 
         } else {
-            Attribute pkAttribute = this.entity.getPkAttributes().get(0);
+            Attribute pkAttribute = this.entity.getSinglePkAttribute();
 
             methodGenerator.addCodeLn(voSimpleClassName + " " + voVarName + " = new " + voSimpleClassName + "(" + pkAttribute.getFieldName() + ");");
         }
@@ -514,7 +515,7 @@ public class DaoGenerator extends ClassGenerator {
             methodGenerator.addCodeLn(voSimpleClassName + " " + voVarName + " = new " + voSimpleClassName + "(" + pkVarName + ");");
 
         } else {
-            Attribute pkAttribute = this.entity.getPkAttributes().get(0);
+            Attribute pkAttribute = this.entity.getSinglePkAttribute();
 
             methodGenerator.addCodeLn(voSimpleClassName + " " + voVarName + " = new " + voSimpleClassName + "(" + pkAttribute.getFieldName() + ");");
         }
@@ -606,7 +607,7 @@ public class DaoGenerator extends ClassGenerator {
             methodGenerator.addCodeLn(voSimpleClassName + " " + voVarName + " = new " + voSimpleClassName + "(" + pkVarName + ");");
 
         } else {
-            Attribute pkAttribute = this.entity.getPkAttributes().get(0);
+            Attribute pkAttribute = this.entity.getSinglePkAttribute();
 
             methodGenerator.addCodeLn(voSimpleClassName + " " + voVarName + " = new " + voSimpleClassName + "(" + pkAttribute.getFieldName() + ");");
         }
@@ -762,7 +763,7 @@ public class DaoGenerator extends ClassGenerator {
             methodGenerator.addCodeLn(targetEntityVoSimpleClassName + " " + voVarName + " = new " + targetEntityVoSimpleClassName + "(" + pkVarName + ");");
 
         } else {
-            Attribute pkAttribute = targetEntity.getPkAttributes().get(0);
+            Attribute pkAttribute = targetEntity.getSinglePkAttribute();
 
             methodGenerator.addCodeLn(targetEntityVoSimpleClassName + " " + voVarName + " = new " + targetEntityVoSimpleClassName + "(" + pkAttribute.getFieldName() + ");");
         }
@@ -878,6 +879,14 @@ public class DaoGenerator extends ClassGenerator {
         out += "(" + voSimpleClassName + "." + attribute.getConstName() + ");";
 
         return out;
+    }
+
+    public String generateVoAssignmentFromResultSet(Entity entity, Attribute attribute) {
+        // example: personCompositeVO.setAge(resultSet.getInt("age"));
+        return JavaGeneratorHelper.getVoVarName(entity) + "."
+                + attribute.generateSetterMethodName() + "(resultSet."
+                + TypeMapper.getResultSetGetMethod(attribute.getJavaTypeSimpleName()) + "(\""
+                + attribute.getColumnName() + "\"));";
     }
 
     public String createGetConnectionStatement() {

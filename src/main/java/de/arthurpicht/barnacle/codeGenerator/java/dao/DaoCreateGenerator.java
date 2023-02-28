@@ -22,9 +22,9 @@ public class DaoCreateGenerator {
         methodGenerator.setIsStatic(true);
         methodGenerator.setMethodName("create");
 
-        String voSimpleClassName = parentDaoGenerator.getEntity().getVoSimpleClassName();
-        String voCanonicalClassName = parentDaoGenerator.getEntity().getVoCanonicalClassName();
-        String voVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(voSimpleClassName);
+        Entity entity = parentDaoGenerator.getEntity();
+        String voCanonicalClassName = entity.getVoCanonicalClassName();
+        String voVarName = JavaGeneratorHelper.getVoVarName(entity);
         String connectionExceptionName = parentDaoGenerator.getConnectionExceptionCanonicalClassName();
 
         methodGenerator.addAndImportParameter(voCanonicalClassName, voVarName);

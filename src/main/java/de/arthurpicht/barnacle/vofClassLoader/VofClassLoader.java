@@ -25,7 +25,7 @@ public class VofClassLoader {
 		MemoryClassLoader memoryClassLoader = new MemoryClassLoader(javaFileList);
 		
 		// Beziehe alle Klassen und baue Array zur Rückgabe
-		Set<String> classNameSet = memoryClassLoader.getClassNames();
+		List<String> classNameSet = memoryClassLoader.getClassNames();
 		
 		Class<?>[] classArray = new Class<?>[classNameSet.size()];
 		

@@ -22,7 +22,7 @@ public class SqlGenerator {
         this.sqlDispatcher = new SqlDispatcher(generatorConfiguration);
     }
 
-    public void generateBareEntities(Set<Entity> entities, Encoding encoding) {
+    public void generateBareEntities(List<Entity> entities, Encoding encoding) {
 
         // pre drop, e.g. turning off foreign key checks
         preDrop();
