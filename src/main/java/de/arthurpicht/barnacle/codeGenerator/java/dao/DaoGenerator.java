@@ -49,16 +49,17 @@ public class DaoGenerator extends ClassGenerator {
         this.addImportsForNonPrimitiveAttributes();
 
         // standard methods
-        DaoCreateGenerator.addCreateMethod(this);
-        DaoCreateGenerator.addCreateMethodByConnection(this);
+        DaoGeneratorCreate.addCreateMethod(this);
+        DaoGeneratorCreate.addCreateMethodByConnection(this);
         this.addCreateMethodBatch();
 
-        DaoLoadGenerator.addPreparedStatementLoadAsLocalConst(this);
-        DaoLoadGenerator.addLoadMethod(this);
-        DaoLoadGenerator.addLoadMethodByConnection(this);
+        DaoGeneratorLoad.addPreparedStatementLoadAsLocalConst(this);
+        DaoGeneratorLoad.addLoadMethod(this);
+        DaoGeneratorLoad.addLoadMethodByConnection(this);
 
-        this.addDeleteMethod();
-        this.addDeleteMethodByConnection();
+        DaoGeneratorDelete.addPreparedStatementDeleteAsLocalConst(this);
+        DaoGeneratorDelete.addDeleteMethod(this);
+        DaoGeneratorDelete.addDeleteMethodByConnection(this);
 
         this.addUpdateMethod();
         this.addUpdateMethodByConnection();
@@ -191,92 +192,6 @@ public class DaoGenerator extends ClassGenerator {
         methodGenerator.addCodeLn("if (statement != null) { try { statement.close(); } catch (SQLException e) {}}");
         methodGenerator.addCodeLn(generateReleaseConnectionStatement());
         methodGenerator.addCodeLn("}");
-    }
-
-    private void addDeleteMethod() {
-
-        String pkSimpleClassName = this.entity.getPkSimpleClassName();
-        String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
-//        Attribute pkAttribute = this.entity.getSinglePkAttribute();
-
-        MethodGenerator methodGenerator = this.getNewMethodGenerator();
-        methodGenerator.setIsStatic(true);
-        methodGenerator.setMethodName("delete");
-
-        if (this.entity.isComposedPk()) {
-            methodGenerator.addAndImportParameter(this.entity.getPkCanonicalClassName(), pkVarName);
-        } else {
-            Attribute pkAttribute = entity.getSinglePkAttribute();
-            methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
-        }
-
-        methodGenerator.addThrowsException(this.connectionExceptionCanonicalClassName);
-
-//        methodGenerator.addCodeLn("Connection connection = openConnection(" + this.entity.getDaoSimpleClassName() + ".class" + ");");
-//        methodGenerator.addCodeLn("Connection connection = " + this.connectionManagerSimpleClassName + ".getInstance().openConnection(" + this.entity.getDaoSimpleClassName() + ".class);");
-        methodGenerator.addCodeLn(createGetConnectionStatement());
-        methodGenerator.addCodeLn("try {");
-
-        if (this.entity.isComposedPk()) {
-            methodGenerator.addCodeLn("delete(" + pkVarName + ", connection);");
-        } else {
-            Attribute pkAttribute = entity.getSinglePkAttribute();
-            methodGenerator.addCodeLn("delete(" + pkAttribute.getFieldName() + ", connection);");
-        }
-
-        methodGenerator.addCodeLn("} catch (" + SQLException.class.getSimpleName() + " e) {");
-        methodGenerator.addCodeLn("throw new " + this.connectionExceptionSimpleClassName + "(e);");
-        methodGenerator.addCodeLn("} finally {");
-//        methodGenerator.addCodeLn("releaseConnection(connection, " + this.entity.getDaoSimpleClassName() + ".class);");
-//        methodGenerator.addCodeLn(this.connectionManagerSimpleClassName + ".getInstance().releaseConnection(connection, " + this.entity.getDaoSimpleClassName() + ".class);");
-        methodGenerator.addCodeLn(generateReleaseConnectionStatement());
-        methodGenerator.addCodeLn("}");
-    }
-
-    private void addDeleteMethodByConnection() {
-
-        String pkSimpleClassName = this.entity.getPkSimpleClassName();
-        String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
-        String voSimpleClassName = this.entity.getVoSimpleClassName();
-
-        MethodGenerator methodGenerator = this.getNewMethodGenerator();
-        methodGenerator.setIsStatic(true);
-        methodGenerator.setMethodName("delete");
-
-        if (this.entity.isComposedPk()) {
-            methodGenerator.addAndImportParameter(this.entity.getPkCanonicalClassName(), pkVarName);
-        } else {
-            Attribute pkAttribute = this.entity.getSinglePkAttribute();
-            methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
-        }
-        methodGenerator.addAndImportParameter(Connection.class, "connection");
-
-        methodGenerator.addThrowsException(SQLException.class);
-
-        methodGenerator.addCodeLn("String sql = \"DELETE FROM \" + " + voSimpleClassName + ".TABLENAME + \" WHERE \"");
-
-        if (this.entity.isComposedPk()) {
-            List<Attribute> pkAttributes = this.entity.getPkAttributes();
-            boolean sequence = false;
-            for (Attribute attribute : pkAttributes) {
-                if (sequence) {
-                    methodGenerator.addCodeLn(" + \" AND \"");
-                }
-                methodGenerator.addCode("+ " + voSimpleClassName + "." + attribute.getConstName() + " + \" = \" + getValueExpression(" + pkVarName + "." + attribute.generateGetterMethodName() + "(), \"" + attribute.getSqlDataType() + "\")");
-                sequence = true;
-            }
-            methodGenerator.addCodeLn(";");
-        } else {
-            Attribute pkAttribute = this.entity.getSinglePkAttribute();
-            methodGenerator.addCodeLn("+ " + voSimpleClassName + "." + pkAttribute.getConstName() + " + \" = \" + getValueExpression(" + pkAttribute.getFieldName() + ", \"" + pkAttribute.getSqlDataType() + "\");");
-        }
-
-        LoggerGenerator loggerGenerator = this.getLoggerGenerator();
-        methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByVarName("sql"));
-
-        methodGenerator.addCodeLn("Statement statement = connection.createStatement();");
-        methodGenerator.addCodeLn("statement.execute(sql);");
-        methodGenerator.addCodeLn("if (statement != null) { try { statement.close(); } catch (SQLException e) {}}");
     }
 
     private void addUpdateMethod() {

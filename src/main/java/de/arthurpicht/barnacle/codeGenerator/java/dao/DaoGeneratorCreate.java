@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class DaoCreateGenerator {
+public class DaoGeneratorCreate {
 
     public static void addCreateMethod(DaoGenerator parentDaoGenerator) {
         MethodGenerator methodGenerator = parentDaoGenerator.getNewMethodGenerator();

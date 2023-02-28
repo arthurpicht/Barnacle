@@ -5,7 +5,6 @@ import de.arthurpicht.barnacle.codeGenerator.java.LoggerGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
 import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
 import de.arthurpicht.barnacle.model.Attribute;
-import de.arthurpicht.barnacle.model.Attributes;
 import de.arthurpicht.barnacle.model.Entity;
 import de.arthurpicht.utils.core.strings.Strings;
 
@@ -14,22 +13,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DaoLoadGenerator {
+public class DaoGeneratorLoad {
 
     public static void addPreparedStatementLoadAsLocalConst(DaoGenerator daoGenerator) {
         Entity entity = daoGenerator.getEntity();
         String statement = "SELECT * FROM " + entity.getTableName() + " WHERE ";
-
-        if (entity.isComposedPk()) {
-            List<Attribute> pkAttributes = entity.getPkAttributes();
-            List<String> columnNames = Attributes.getColumnNames(pkAttributes);
-            String listing = Strings.listing(
-                    columnNames, " AND ", "", "", "", " = ?");
-            statement += listing;
-        } else {
-            Attribute pkAttribute = entity.getSinglePkAttribute();
-            statement += pkAttribute.getColumnName() + " = ?";
-        }
+        statement += DaoGeneratorCommons.getPreparedStatementSearchConditionForPk(entity);
         daoGenerator.getLocalStringConstGenerator().add("LOAD_STATEMENT", statement);
     }
 
@@ -75,7 +64,8 @@ public class DaoLoadGenerator {
         Entity entity = daoGenerator.getEntity();
         MethodGenerator methodGenerator = daoGenerator.getNewMethodGenerator();
         createSignature(daoGenerator, methodGenerator, entity);
-        buildPreparedStatement(daoGenerator, methodGenerator, entity);
+        DaoGeneratorCommons.buildPreparedStatementByPkAttributes(
+                "LOAD_STATEMENT", daoGenerator, methodGenerator, entity);
         processResultSet(daoGenerator, methodGenerator, entity);
     }
 
@@ -94,36 +84,6 @@ public class DaoLoadGenerator {
         methodGenerator.addAndImportParameter(Connection.class, "connection");
         methodGenerator.addThrowsException(SQLException.class);
         methodGenerator.addThrowsException(daoGenerator.getEntityNotFoundExceptionCanonicalClassName());
-    }
-
-    private static void buildPreparedStatement(
-            DaoGenerator daoGenerator, MethodGenerator methodGenerator, Entity entity) {
-
-        methodGenerator.addCodeLn(
-                "PreparedStatement preparedStatement = connection.prepareStatement(LOAD_STATEMENT);");
-        List<String> getterList = new ArrayList<>();
-        if (entity.isComposedPk()) {
-            List<Attribute> pkAttributes = entity.getPkAttributes();
-            String pkVarName = JavaGeneratorHelper.getPkVarName(entity);
-            int i=1;
-            for (Attribute pkAttribute : pkAttributes) {
-                String setMethod = TypeMapper.getPreparedStatementSetMethod(pkAttribute.getJavaTypeSimpleName());
-                String getter = pkVarName + "." + pkAttribute.generateGetterMethodName() + "()";
-                getterList.add(getter);
-                methodGenerator.addCodeLn("preparedStatement." + setMethod + "(" + i + ", " + getter + ");");
-                i++;
-            }
-        } else {
-            Attribute pkAttribute = entity.getSinglePkAttribute();
-            String setMethod = TypeMapper.getPreparedStatementSetMethod(pkAttribute.getJavaTypeSimpleName());
-            String field = pkAttribute.getFieldName();
-            getterList.add(field);
-            methodGenerator.addCodeLn("preparedStatement." + setMethod + "(1, " + field + ");");
-        }
-
-        String logStatement = Strings.listing(getterList, " + \"][\" + ", "LOAD_STATEMENT + \" [\" + ", " + \"]\"");
-        LoggerGenerator loggerGenerator = daoGenerator.getLoggerGenerator();
-        methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByExpression(logStatement));
     }
 
     private static void processResultSet(DaoGenerator daoGenerator, MethodGenerator methodGenerator, Entity entity) {
