@@ -14,6 +14,10 @@ import java.util.List;
 
 public class DaoGeneratorCommons {
 
+    public static String initializePreparedStatement(String statementConstName) {
+        return "PreparedStatement preparedStatement = connection.prepareStatement(" + statementConstName + ");";
+    }
+
     public static String getPreparedStatementSearchConditionForPk(Entity entity) {
         if (entity.isComposedPk()) {
             List<Attribute> pkAttributes = entity.getPkAttributes();
@@ -24,6 +28,21 @@ public class DaoGeneratorCommons {
             Attribute pkAttribute = entity.getSinglePkAttribute();
             return pkAttribute.getColumnName() + " = ?";
         }
+    }
+
+    public static String generatePreparedStatementSetterFromVO(int index, Entity entity, Attribute attribute, List<String> valueList) {
+        String preparedStatementSetMethod = TypeMapper.getPreparedStatementSetMethod(attribute.getJavaTypeSimpleName());
+        String voVarName = JavaGeneratorHelper.getVoVarName(entity);
+        String getterMethodName = attribute.generateGetterMethodName();
+        String value = voVarName + "." + getterMethodName + "()";
+        valueList.add(value);
+        return "preparedStatement." + preparedStatementSetMethod + "(" + index + ", " + value + ");";
+    }
+
+    public static String generateLogStringForPreparedStatement(String preparedStatementConstName, List<String> values) {
+        return Strings.listing(
+                values, " + \"][\" + ",preparedStatementConstName + " + \" [\" + ", " + \"]\""
+        );
     }
 
     public static void buildPreparedStatementByPkAttributes(

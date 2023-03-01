@@ -61,8 +61,9 @@ public class DaoGenerator extends ClassGenerator {
         DaoGeneratorDelete.addDeleteMethod(this);
         DaoGeneratorDelete.addDeleteMethodByConnection(this);
 
-        this.addUpdateMethod();
-        this.addUpdateMethodByConnection();
+        DaoGeneratorUpdate.addPreparedStatementUpdateAsLocalConst(this);
+        DaoGeneratorUpdate.addUpdateMethod(this);
+        DaoGeneratorUpdate.addUpdateMethodByConnection(this);
 
         this.addFindAllMethod();
 
@@ -193,82 +194,6 @@ public class DaoGenerator extends ClassGenerator {
         methodGenerator.addCodeLn(generateReleaseConnectionStatement());
         methodGenerator.addCodeLn("}");
     }
-
-    private void addUpdateMethod() {
-
-        String voSimpleClassName = this.entity.getVoSimpleClassName();
-        String voCanonicalClassName = this.entity.getVoCanonicalClassName();
-        String voVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(voSimpleClassName);
-
-        MethodGenerator methodGenerator = this.getNewMethodGenerator();
-        methodGenerator.setIsStatic(true);
-        methodGenerator.setMethodName("update");
-        methodGenerator.addAndImportParameter(voCanonicalClassName, voVarName);
-        methodGenerator.addThrowsException(this.connectionExceptionCanonicalClassName);
-
-//        methodGenerator.addCodeLn("Connection connection = openConnection(" + this.entity.getDaoSimpleClassName() + ".class" + ");");
-//        methodGenerator.addCodeLn("Connection connection = " + this.connectionManagerSimpleClassName + ".getInstance().openConnection(" + this.entity.getDaoSimpleClassName() + ".class);");
-        methodGenerator.addCodeLn(createGetConnectionStatement());
-        methodGenerator.addCodeLn("try {");
-
-        methodGenerator.addCodeLn("update(" + voVarName + ", connection);");
-
-        methodGenerator.addCodeLn("} catch (" + SQLException.class.getSimpleName() + " e) {");
-        methodGenerator.addCodeLn("throw new " + this.connectionExceptionSimpleClassName + "(e);");
-        methodGenerator.addCodeLn("} finally {");
-//        methodGenerator.addCodeLn("releaseConnection(connection, " + this.entity.getDaoSimpleClassName() + ".class);");
-//        methodGenerator.addCodeLn(this.connectionManagerSimpleClassName + ".getInstance().releaseConnection(connection, " + this.entity.getDaoSimpleClassName() + ".class);");
-        methodGenerator.addCodeLn(generateReleaseConnectionStatement());
-        methodGenerator.addCodeLn("}");
-    }
-
-
-    private void addUpdateMethodByConnection() {
-
-        String voSimpleClassName = this.entity.getVoSimpleClassName();
-        String voCanonicalClassName = this.entity.getVoCanonicalClassName();
-        String voVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(voSimpleClassName);
-
-        MethodGenerator methodGenerator = this.getNewMethodGenerator();
-        methodGenerator.setIsStatic(true);
-        methodGenerator.setMethodName("update");
-        methodGenerator.addAndImportParameter(voCanonicalClassName, voVarName);
-        methodGenerator.addAndImportParameter(Connection.class, "connection");
-        methodGenerator.addThrowsException(SQLException.class);
-
-        methodGenerator.addCodeLn("String sql = \"UPDATE \" + " + voSimpleClassName + ".TABLENAME + \" SET \"");
-
-        List<Attribute> nonPkAttributes = this.entity.getNonPkAttributes();
-        boolean sequence = false;
-        for (Attribute attribute : nonPkAttributes) {
-            if (sequence) {
-                methodGenerator.addCodeLn(" + \", \"");
-            }
-            methodGenerator.addCode("+ " + voSimpleClassName + "." + attribute.getConstName() + " + \" = \" + getValueExpression(" + voVarName + "." + attribute.generateGetterMethodName() + "(), \"" + attribute.getSqlDataType() + "\")");
-            sequence = true;
-        }
-        methodGenerator.addCodeLn("");
-        methodGenerator.addCodeLn("+ \" WHERE \"");
-
-        List<Attribute> pkAttributes = this.entity.getPkAttributes();
-        sequence = false;
-        for (Attribute attribute : pkAttributes) {
-            if (sequence) {
-                methodGenerator.addCodeLn(" + \" AND \"");
-            }
-            methodGenerator.addCode("+ " + voSimpleClassName + "." + attribute.getConstName() + " + \" = \" + getValueExpression(" + voVarName + "." + attribute.generateGetterMethodName() + "(), \"" + attribute.getSqlDataType() + "\")");
-            sequence = true;
-        }
-        methodGenerator.addCodeLn(";");
-
-        LoggerGenerator loggerGenerator = this.getLoggerGenerator();
-        methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByVarName("sql"));
-
-        methodGenerator.addCodeLn("Statement statement = connection.createStatement();");
-        methodGenerator.addCodeLn("statement.execute(sql);");
-        methodGenerator.addCodeLn("if (statement != null) { try { statement.close(); } catch (SQLException e) {}}");
-    }
-
 
     private void addFindAllMethod() {
 

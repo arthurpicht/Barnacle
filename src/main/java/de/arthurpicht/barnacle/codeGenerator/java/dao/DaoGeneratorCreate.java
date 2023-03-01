@@ -17,6 +17,26 @@ import java.util.stream.Collectors;
 
 public class DaoGeneratorCreate {
 
+    public static void addPreparedStatementCreateAsLocalConst(DaoGenerator daoGenerator) {
+        Entity entity = daoGenerator.getEntity();
+        String statement = "INSERT INTO " + entity.getTableName();
+
+        List<Attribute> attributes = entity.getNonAutoIncrementAttributes();
+        List<String> columnNames = Attributes.getColumnNames(attributes);
+        String columnNameListing = Strings.listing(columnNames, ", ", " (", ") ");
+        statement += columnNameListing;
+
+        statement += "VALUES";
+
+        List<String> questionMarks = attributes.stream()
+                .map(a -> "?")
+                .collect(Collectors.toList());
+        String questionMarkListing = Strings.listing(questionMarks, ", ", " (", ")");
+        statement += questionMarkListing;
+
+        daoGenerator.getLocalStringConstGenerator().add("CREATE_STATEMENT", statement);
+    }
+
     public static void addCreateMethod(DaoGenerator parentDaoGenerator) {
         MethodGenerator methodGenerator = parentDaoGenerator.getNewMethodGenerator();
         methodGenerator.setIsStatic(true);
@@ -99,26 +119,6 @@ public class DaoGeneratorCreate {
         }
 
         methodGenerator.addCodeLn("try { preparedStatement.close(); } catch (SQLException ignored) {}");
-    }
-
-    public static void addPreparedStatementCreateAsLocalConst(DaoGenerator daoGenerator) {
-        Entity entity = daoGenerator.getEntity();
-        String statement = "INSERT INTO " + entity.getTableName();
-
-        List<Attribute> attributes = entity.getNonAutoIncrementAttributes();
-        List<String> columnNames = Attributes.getColumnNames(attributes);
-        String columnNameListing = Strings.listing(columnNames, ", ", " (", ") ");
-        statement += columnNameListing;
-
-        statement += "VALUES";
-
-        List<String> questionMarks = attributes.stream()
-                .map(a -> "?")
-                .collect(Collectors.toList());
-        String questionMarkListing = Strings.listing(questionMarks, ", ", " (", ")");
-        statement += questionMarkListing;
-
-        daoGenerator.getLocalStringConstGenerator().add("CREATE_STATEMENT", statement);
     }
 
 }
