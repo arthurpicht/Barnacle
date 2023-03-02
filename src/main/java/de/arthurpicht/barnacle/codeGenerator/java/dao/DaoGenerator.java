@@ -65,7 +65,11 @@ public class DaoGenerator extends ClassGenerator {
         DaoGeneratorUpdate.addUpdateMethod(this);
         DaoGeneratorUpdate.addUpdateMethodByConnection(this);
 
-        this.addFindAllMethod();
+        DaoGeneratorFindAll.addPreparedStatementFindAllAsLocalConst(this);
+        DaoGeneratorFindAll.addFindAllMethod(this);
+        DaoGeneratorFindAll.addFindAllMethodByConnection(this);
+
+//        this.addFindAllMethod();
 
         // one finder method for each foreign key
         for (ForeignKeyWrapper foreignKeyWrapper : this.entity.getAllForeignKeys()) {
@@ -195,83 +199,6 @@ public class DaoGenerator extends ClassGenerator {
         methodGenerator.addCodeLn("}");
     }
 
-    private void addFindAllMethod() {
-
-        String voSimpleClassName = this.entity.getVoSimpleClassName();
-        String voVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(voSimpleClassName);
-        String voListVarName = voVarName + "List";
-        String pkSimpleClassName = this.entity.getPkSimpleClassName();
-        String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
-
-        MethodGenerator methodGenerator = this.getNewMethodGenerator();
-        methodGenerator.setIsStatic(true);
-        methodGenerator.setReturnType(List.class);
-        methodGenerator.setReturnTypeParameter(this.entity.getVoCanonicalClassName());
-        methodGenerator.setMethodName("findAll");
-        methodGenerator.addThrowsException(this.connectionExceptionCanonicalClassName);
-
-//        methodGenerator.addCodeLn("Connection connection = openConnection(" + this.entity.getDaoSimpleClassName() + ".class" + ");");
-//        methodGenerator.addCodeLn("Connection connection = " + this.connectionManagerSimpleClassName + ".getInstance().openConnection(" + this.entity.getDaoSimpleClassName() + ".class);");
-        methodGenerator.addCodeLn(createGetConnectionStatement());
-        methodGenerator.addCodeLn("Statement statement = null;");
-        methodGenerator.addCodeLn("ResultSet resultSet = null;");
-        methodGenerator.addCodeLn("try {");
-
-        methodGenerator.addCodeLn("statement = connection.createStatement();");
-        methodGenerator.addCodeLn("String sql = \"SELECT * FROM \" + " + voSimpleClassName + ".TABLENAME;");
-
-        LoggerGenerator loggerGenerator = this.getLoggerGenerator();
-        methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByVarName("sql"));
-
-        methodGenerator.addCodeLn("resultSet = statement.executeQuery(sql);");
-
-        methodGenerator.addCodeLn("List<" + voSimpleClassName + "> " + voListVarName + " = new ArrayList<" + voSimpleClassName + ">();");
-        methodGenerator.addCodeLn("while (resultSet.next()) {");
-
-        List<Attribute> attributes = this.entity.getAttributes();
-        for (Attribute attribute : attributes) {
-            methodGenerator.addCodeLn(generateLocalVarFromResultSet(this.entity, attribute));
-        }
-
-        if (this.entity.isComposedPk()) {
-            methodGenerator.addCode(pkSimpleClassName + " " + pkVarName + " = new " + pkSimpleClassName + "(");
-            List<Attribute> pkAttributes = this.entity.getPkAttributes();
-            boolean sequence = false;
-            for (Attribute attribute : pkAttributes) {
-                if (sequence) {
-                    methodGenerator.addCode(", ");
-                }
-                methodGenerator.addCode(attribute.getFieldName());
-                sequence = true;
-            }
-            methodGenerator.addCodeLn(");");
-            methodGenerator.addCodeLn(voSimpleClassName + " " + voVarName + " = new " + voSimpleClassName + "(" + pkVarName + ");");
-
-        } else {
-            Attribute pkAttribute = this.entity.getSinglePkAttribute();
-
-            methodGenerator.addCodeLn(voSimpleClassName + " " + voVarName + " = new " + voSimpleClassName + "(" + pkAttribute.getFieldName() + ");");
-        }
-
-        List<Attribute> nonPkAttributes = this.entity.getNonPkAttributes();
-        for (Attribute attribute : nonPkAttributes) {
-            methodGenerator.addCodeLn(voVarName + "." + attribute.generateSetterMethodName() + "(" + attribute.getFieldName() + ");");
-        }
-
-        methodGenerator.addCodeLn(voListVarName + ".add(" + voVarName + ");");
-        methodGenerator.addCodeLn("}");
-        methodGenerator.addCodeLn("return " + voListVarName + ";");
-        methodGenerator.addCodeLn("} catch (" + SQLException.class.getSimpleName() + " e) {");
-        methodGenerator.addCodeLn("throw new " + this.connectionExceptionSimpleClassName + "(e);");
-        methodGenerator.addCodeLn("} finally {");
-        methodGenerator.addCodeLn("if (resultSet != null) { try { resultSet.close(); } catch (SQLException e) {}}");
-        methodGenerator.addCodeLn("if (statement != null) { try { statement.close(); } catch (SQLException e) {}}");
-//        methodGenerator.addCodeLn("releaseConnection(connection, " + this.entity.getDaoSimpleClassName() + ".class);");
-//        methodGenerator.addCodeLn(this.connectionManagerSimpleClassName + ".getInstance().releaseConnection(connection, " + this.entity.getDaoSimpleClassName() + ".class);");
-        methodGenerator.addCodeLn(generateReleaseConnectionStatement());
-        methodGenerator.addCodeLn("}");
-    }
-
     private void addFindByForeignKeyMethod(ForeignKeyWrapper foreignKeyWrapper) {
 
         List<Attribute> fkAttributes = foreignKeyWrapper.getKeyFieldAttributes();
@@ -336,7 +263,7 @@ public class DaoGenerator extends ClassGenerator {
                 }
             }
             if (!exceptAttribute) {
-                methodGenerator.addCodeLn(generateLocalVarFromResultSet(this.entity, attribute));
+                methodGenerator.addCodeLn(DaoGeneratorCommons.generateLocalVarFromResultSet(this.entity, attribute));
             }
         }
 
@@ -427,7 +354,7 @@ public class DaoGenerator extends ClassGenerator {
         List<Attribute> attributes = this.entity.getAttributes();
         for (Attribute attribute : attributes) {
             if (!uniqueKeyAttributeList.contains(attribute)) {
-                methodGenerator.addCodeLn(generateLocalVarFromResultSet(this.entity, attribute));
+                methodGenerator.addCodeLn(DaoGeneratorCommons.generateLocalVarFromResultSet(this.entity, attribute));
             }
         }
 
@@ -584,7 +511,7 @@ public class DaoGenerator extends ClassGenerator {
         // Make for every entity-attribute an assignment from result set to local var
         List<Attribute> attributes = targetEntity.getAttributes();
         for (Attribute attribute : attributes) {
-            methodGenerator.addCodeLn(generateLocalVarFromResultSet(targetEntity, attribute));
+            methodGenerator.addCodeLn(DaoGeneratorCommons.generateLocalVarFromResultSet(targetEntity, attribute));
         }
 
         if (targetEntity.isComposedPk()) {
@@ -693,32 +620,6 @@ public class DaoGenerator extends ClassGenerator {
         methodGenerator.addCodeLn("if (o == null) { return \"NULL\"; }");
         methodGenerator.addCodeLn("if (sqlType.startsWith(\"VARCHAR\") || sqlType.equals(\"DATE\")) { return \"'\" + o + \"'\"; }");
         methodGenerator.addCodeLn("return \"\" + o;");
-    }
-
-    /**
-     * Generates assignment of a result set column to a local variable, named as
-     * the original field name. If the field type is not a basic type, the value
-     * is determined by using the getObject-method in conjunction with appropriate
-     * casting.
-     *
-     * @param entity
-     * @param attribute
-     * @return
-     */
-    public String generateLocalVarFromResultSet(Entity entity, Attribute attribute) {
-        String voSimpleClassName = entity.getVoSimpleClassName();
-        String fieldType = attribute.getJavaTypeSimpleName();
-        String out = fieldType + " " + attribute.getFieldName() + " = ";
-//        if (attribute.isPrimitiveType()) {
-//            String resultSetGetter = fieldType.substring(0, 1).toUpperCase() + fieldType.substring(1);
-        String resultSetGetter = TypeMapper.getResultSetGetMethod(fieldType);
-            out += "resultSet." + resultSetGetter;
-//        } else {
-//            out += "(" + fieldType + ") resultSet.getObject";
-//        }
-        out += "(" + voSimpleClassName + "." + attribute.getConstName() + ");";
-
-        return out;
     }
 
     public String generateVoAssignmentFromResultSet(Entity entity, Attribute attribute) {

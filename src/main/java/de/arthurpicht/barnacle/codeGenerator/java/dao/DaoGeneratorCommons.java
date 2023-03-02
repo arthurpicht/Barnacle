@@ -78,4 +78,29 @@ public class DaoGeneratorCommons {
         methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByExpression(logStatement));
     }
 
+    /**
+     * Generates assignment of a result set column to a local variable, named as
+     * the original field name. If the field type is not a basic type, the value
+     * is determined by using the getObject-method in conjunction with appropriate
+     * casting.
+     *
+     * @param entity
+     * @param attribute
+     * @return
+     */
+    public static String generateLocalVarFromResultSet(Entity entity, Attribute attribute) {
+        String voSimpleClassName = entity.getVoSimpleClassName();
+        String fieldType = attribute.getJavaTypeSimpleName();
+        String out = fieldType + " " + attribute.getFieldName() + " = ";
+//        if (attribute.isPrimitiveType()) {
+//            String resultSetGetter = fieldType.substring(0, 1).toUpperCase() + fieldType.substring(1);
+        String resultSetGetter = TypeMapper.getResultSetGetMethod(fieldType);
+            out += "resultSet." + resultSetGetter;
+//        } else {
+//            out += "(" + fieldType + ") resultSet.getObject";
+//        }
+        out += "(" + voSimpleClassName + "." + attribute.getConstName() + ");";
+
+        return out;
+    }
 }
