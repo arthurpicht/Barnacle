@@ -25,6 +25,10 @@ public class JavaGeneratorHelper {
 		return getVarNameFromSimpleClassName(voSimpleClassName);
 	}
 
+	public static String getVoVarListName(Entity entity) {
+		return getVoVarName(entity) + "s";
+	}
+
 	public static String getPkVarName(Entity entity) {
 		String pkSimpleClassName = entity.getPkSimpleClassName();
 		return getVarNameFromSimpleClassName(pkSimpleClassName);

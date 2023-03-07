@@ -288,7 +288,7 @@ public class VoGenerator extends VoBaseGenerator {
         MethodGenerator methodGenerator = this.getNewMethodGenerator();
         methodGenerator.setMethodName("equals");
         methodGenerator.setReturnTypeBySimpleClassName("boolean");
-        methodGenerator.addParameter("Object", "o");
+        methodGenerator.addParameter(Object.class, "o");
 
         methodGenerator.addCodeLn("if (o == null) return false;");
         methodGenerator.addCodeLn("if (o == this) return true;");

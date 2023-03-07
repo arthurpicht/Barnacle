@@ -12,7 +12,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class DaoGeneratorUpdate {
 
@@ -40,7 +39,7 @@ public class DaoGeneratorUpdate {
         MethodGenerator methodGenerator = daoGenerator.getNewMethodGenerator();
         methodGenerator.setIsStatic(true);
         methodGenerator.setMethodName("update");
-        methodGenerator.addAndImportParameter(voCanonicalClassName, voVarName);
+        methodGenerator.addParameter(voCanonicalClassName, voVarName);
         methodGenerator.addThrowsException(daoGenerator.getConnectionExceptionCanonicalClassName());
 
         methodGenerator.addCodeLn(daoGenerator.createGetConnectionStatement());
@@ -65,8 +64,8 @@ public class DaoGeneratorUpdate {
         MethodGenerator methodGenerator = daoGenerator.getNewMethodGenerator();
         methodGenerator.setIsStatic(true);
         methodGenerator.setMethodName("update");
-        methodGenerator.addAndImportParameter(voCanonicalClassName, voVarName);
-        methodGenerator.addAndImportParameter(Connection.class, "connection");
+        methodGenerator.addParameter(voCanonicalClassName, voVarName);
+        methodGenerator.addParameter(Connection.class, "connection");
         methodGenerator.addThrowsException(SQLException.class);
 
         methodGenerator.addCodeLn(

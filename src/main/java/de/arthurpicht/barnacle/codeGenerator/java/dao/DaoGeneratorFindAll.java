@@ -9,7 +9,6 @@ import de.arthurpicht.utils.core.strings.Strings;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -56,7 +55,7 @@ public class DaoGeneratorFindAll {
         methodGenerator.setReturnType(List.class);
         methodGenerator.setReturnTypeParameter(entity.getVoCanonicalClassName());
         methodGenerator.setMethodName("findAll");
-        methodGenerator.addAndImportParameter(Connection.class, "connection");
+        methodGenerator.addParameter(Connection.class, "connection");
         methodGenerator.addThrowsException(SQLException.class);
 
         methodGenerator.addCodeLn("Statement statement = connection.createStatement();");

@@ -1,16 +1,12 @@
 package de.arthurpicht.barnacle.codeGenerator.java.dao;
 
 import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
-import de.arthurpicht.barnacle.codeGenerator.java.LoggerGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
-import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;
-import de.arthurpicht.utils.core.strings.Strings;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class DaoGeneratorLoad {
@@ -35,10 +31,10 @@ public class DaoGeneratorLoad {
 
         if (entity.isComposedPk()) {
             String pkCanonicalClassName = entity.getPkCanonicalClassName();
-            methodGenerator.addAndImportParameter(pkCanonicalClassName, pkVarName);
+            methodGenerator.addParameter(pkCanonicalClassName, pkVarName);
         } else {
             Attribute pkAttribute = entity.getSinglePkAttribute();
-            methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
+            methodGenerator.addParameter(pkAttribute.getType(), pkAttribute.getFieldName());
         }
 
         methodGenerator.addThrowsException(daoGenerator.getConnectionExceptionCanonicalClassName());
@@ -76,12 +72,12 @@ public class DaoGeneratorLoad {
         if (entity.isComposedPk()) {
             String pkCanonicalClassName = entity.getPkCanonicalClassName();
             String pkVarName = JavaGeneratorHelper.getPkVarName(entity);
-            methodGenerator.addAndImportParameter(pkCanonicalClassName, pkVarName);
+            methodGenerator.addParameter(pkCanonicalClassName, pkVarName);
         } else {
             Attribute pkAttribute = entity.getSinglePkAttribute();
-            methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
+            methodGenerator.addParameter(pkAttribute.getType(), pkAttribute.getFieldName());
         }
-        methodGenerator.addAndImportParameter(Connection.class, "connection");
+        methodGenerator.addParameter(Connection.class, "connection");
         methodGenerator.addThrowsException(SQLException.class);
         methodGenerator.addThrowsException(daoGenerator.getEntityNotFoundExceptionCanonicalClassName());
     }

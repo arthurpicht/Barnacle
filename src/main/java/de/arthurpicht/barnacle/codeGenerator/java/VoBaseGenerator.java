@@ -96,7 +96,7 @@ public class VoBaseGenerator extends ClassGenerator {
 		MethodGenerator setterGenerator = this.getNewMethodGenerator();
 		setterGenerator.setMethodName(attribute.generateSetterMethodName());
 		String fieldName = attribute.getFieldName();
-		setterGenerator.addParameter(attribute.getJavaTypeSimpleName(), fieldName);
+		setterGenerator.addParameter(attribute.getType(), fieldName);
 		
 		setterGenerator.addCodeLn("this." + fieldName + "=" + fieldName + ";");		
 	}

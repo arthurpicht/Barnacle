@@ -1,11 +1,10 @@
 package de.arthurpicht.barnacle.codeGenerator.java.dao;
 
+import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
 import de.arthurpicht.barnacle.codeGenerator.java.LoggerGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
-import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
 import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
 import de.arthurpicht.barnacle.model.Attribute;
-import de.arthurpicht.barnacle.model.Attributes;
 import de.arthurpicht.barnacle.model.Entity;
 import de.arthurpicht.utils.core.strings.Strings;
 
@@ -13,29 +12,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class DaoGeneratorCreate {
-
-    public static void addPreparedStatementCreateAsLocalConst(DaoGenerator daoGenerator) {
-        Entity entity = daoGenerator.getEntity();
-        String statement = "INSERT INTO " + entity.getTableName();
-
-        List<Attribute> attributes = entity.getNonAutoIncrementAttributes();
-        List<String> columnNames = Attributes.getColumnNames(attributes);
-        String columnNameListing = Strings.listing(columnNames, ", ", " (", ") ");
-        statement += columnNameListing;
-
-        statement += "VALUES";
-
-        List<String> questionMarks = attributes.stream()
-                .map(a -> "?")
-                .collect(Collectors.toList());
-        String questionMarkListing = Strings.listing(questionMarks, ", ", " (", ")");
-        statement += questionMarkListing;
-
-        daoGenerator.getLocalStringConstGenerator().add("CREATE_STATEMENT", statement);
-    }
+public class DaoGeneratorCreateBatch {
 
     public static void addCreateMethod(DaoGenerator parentDaoGenerator) {
         MethodGenerator methodGenerator = parentDaoGenerator.getNewMethodGenerator();
@@ -44,14 +22,15 @@ public class DaoGeneratorCreate {
 
         Entity entity = parentDaoGenerator.getEntity();
         String voCanonicalClassName = entity.getVoCanonicalClassName();
-        String voVarName = JavaGeneratorHelper.getVoVarName(entity);
+        String voVarListName = JavaGeneratorHelper.getVoVarListName(entity);
         String connectionExceptionName = parentDaoGenerator.getConnectionExceptionCanonicalClassName();
 
-        methodGenerator.addParameter(voCanonicalClassName, voVarName);
+        methodGenerator.addParameter(List.class, voCanonicalClassName, voVarListName);
         methodGenerator.addThrowsException(connectionExceptionName);
+
         methodGenerator.addCodeLn(parentDaoGenerator.createGetConnectionStatement());
         methodGenerator.addCodeLn("try {");
-        methodGenerator.addCodeLn("create(" + voVarName + ", connection);");
+        methodGenerator.addCodeLn("create(" + voVarListName + ", connection);");
         methodGenerator.addCodeLn("} catch (" + SQLException.class.getSimpleName() + " sqlEx) {");
         methodGenerator.addCodeLn("throw new "
                 + JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(connectionExceptionName) + "(sqlEx);");
@@ -61,17 +40,17 @@ public class DaoGeneratorCreate {
     }
 
     public static void addCreateMethodByConnection(DaoGenerator daoGenerator) {
-        addPreparedStatementCreateAsLocalConst(daoGenerator);
 
         MethodGenerator methodGenerator = daoGenerator.getNewMethodGenerator();
         methodGenerator.setIsStatic(true);
         methodGenerator.setMethodName("create");
 
         Entity entity = daoGenerator.getEntity();
-        String voSimpleClassName = entity.getVoSimpleClassName();
         String voCanonicalClassName = entity.getVoCanonicalClassName();
-        String voVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(voSimpleClassName);
-        methodGenerator.addParameter(voCanonicalClassName, voVarName);
+        String voSimpleClassName = entity.getVoSimpleClassName();
+        String voVarName = JavaGeneratorHelper.getVoVarName(entity);
+        String voVarListName = JavaGeneratorHelper.getVoVarListName(entity);
+        methodGenerator.addParameter(List.class, voCanonicalClassName, voVarListName);
         methodGenerator.addParameter(Connection.class, "connection");
 
         methodGenerator.addThrowsException(SQLException.class);
@@ -86,6 +65,8 @@ public class DaoGeneratorCreate {
             methodGenerator.addCodeLn(
                     "PreparedStatement preparedStatement = connection.prepareStatement(CREATE_STATEMENT);");
         }
+
+        methodGenerator.addCodeLn("for (" + voSimpleClassName + " " + voVarName + " : " + voVarListName + ") {");
 
         int index = 1;
         List<String> getterList = new ArrayList<>();
@@ -103,19 +84,24 @@ public class DaoGeneratorCreate {
         String logStatement = Strings.listing(getterList, " + \"][\" + ", "CREATE_STATEMENT + \" [\" + ", " + \"]\"");
         LoggerGenerator loggerGenerator = daoGenerator.getLoggerGenerator();
         methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByExpression(logStatement));
+        methodGenerator.addCodeLn("preparedStatement.addBatch();");
+        methodGenerator.addCodeLn("}");
 
-        methodGenerator.addCodeLn("preparedStatement.executeUpdate();");
+        methodGenerator.addCodeLn("preparedStatement.executeBatch();");
 
         if (entity.hasAutoIncrementAttribute()) {
-            Attribute autoIncrementAttribute = entity.getAutoIncrementAttribute();
             methodGenerator.addCodeLn("ResultSet resultSet = preparedStatement.getGeneratedKeys();");
+            methodGenerator.addCodeLn("for (" + voSimpleClassName + " " + voVarName + " : " + voVarListName + ") {");
+
+            Attribute autoIncrementAttribute = entity.getAutoIncrementAttribute();
             methodGenerator.addCodeLn("if (resultSet.next()) {");
             methodGenerator.addCodeLn("int generatedKey = resultSet.getInt(1);");
             methodGenerator.addCodeLn(voVarName + "." + autoIncrementAttribute.generateSetterMethodName()
                     + "(generatedKey);");
             methodGenerator.addCodeLn("} else {");
             methodGenerator.addCodeLn("throw new " + daoGenerator.getConnectionExceptionSimpleClassName()
-                    + "(\"Could not obtain generated key for auto increment field.\");");
+                    + "(\"Could not obtain generated key(s) for auto increment field on batch create.\");");
+            methodGenerator.addCodeLn("}");
             methodGenerator.addCodeLn("}");
             methodGenerator.addCodeLn("try { resultSet.close(); } catch (SQLException ignored) {}");
         }

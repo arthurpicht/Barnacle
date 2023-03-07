@@ -3,52 +3,42 @@ package de.arthurpicht.barnacle.codeGenerator.java;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("rawtypes")
 public class MethodGenerator {
 	
 	public enum Accessibility {PRIVATE, PUBLIC, PROTECTED};
 
-	private ClassGenerator parentClassGenerator;
-	private String returnTypeSimpleName;
-	private List<String> returnTypeParameters;
-	private String methodName;
-	private List<String> parameterTypeSimpleNameList;
-	private List<String> parameterNameList;
-	private List<String> throwsExceptionSimpleNameList;
-	private List<String> bodyCodeLines;
+	private final ClassGenerator parentClassGenerator;
 	private Accessibility accessibility;
 	private boolean isStatic;
-	
+	private String returnTypeSimpleName;
+	private final List<String> returnTypeParameters;
+	private String methodName;
+	private final List<String> parameterTypePlainStringList;
+	private final List<String> parameterNameList;
+	private final List<String> throwsExceptionSimpleNameList;
+	private final List<String> bodyCodeLines;
+
 	private String lineBuffer;
 	
 	public MethodGenerator(ClassGenerator parentClassGenerator) {
 		this.parentClassGenerator = parentClassGenerator;
 		this.returnTypeSimpleName = "void";
-		this.returnTypeParameters = new ArrayList<String>();
-		this.methodName = new String();
-		this.parameterTypeSimpleNameList = new ArrayList<String>();
-		this.parameterNameList = new ArrayList<String>();
-		this.throwsExceptionSimpleNameList = new ArrayList<String>();
-		this.bodyCodeLines = new ArrayList<String>();
+		this.returnTypeParameters = new ArrayList<>();
+		this.methodName = "";
+		this.parameterTypePlainStringList = new ArrayList<>();
+		this.parameterNameList = new ArrayList<>();
+		this.throwsExceptionSimpleNameList = new ArrayList<>();
+		this.bodyCodeLines = new ArrayList<>();
 		this.accessibility = Accessibility.PUBLIC;
 		this.isStatic = false;
-		this.lineBuffer = new String();
+		this.lineBuffer = "";
 	}
 	
-	/**
-	 * Sets return type. Adds type to import.
-	 * @param returnType
-	 */
-	public void setReturnType(Class returnType) {
+	public void setReturnType(Class<?> returnType) {
 		this.parentClassGenerator.getImportGenerator().addImport(returnType);
 		this.returnTypeSimpleName = returnType.getSimpleName();
 	}
 	
-	/**
-	 * Sets return type by canonical class name. Adds class name to import.
-	 * 
-	 * @param returnTypeCanonicalClassName
-	 */
 	public void setReturnTypeByCanonicalClassName(String returnTypeCanonicalClassName) {
 		this.parentClassGenerator.getImportGenerator().addImport(returnTypeCanonicalClassName);
 		this.returnTypeSimpleName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(returnTypeCanonicalClassName);
@@ -65,94 +55,47 @@ public class MethodGenerator {
 		this.returnTypeSimpleName = simpleClassName;
 	}
 	
-	/**
-	 * Adds a class to the list of return type parameters. Passed
-	 * class is also added to import statements.
-	 * 
-	 * @param returnTypeParameter
-	 */
-	public void setReturnTypeParameter(Class returnTypeParameter) {
+	public void setReturnTypeParameter(Class<?> returnTypeParameter) {
 		this.parentClassGenerator.getImportGenerator().addImport(returnTypeParameter);
 		this.returnTypeParameters.add(returnTypeParameter.getSimpleName());
 	}
 	
-	/**
-	 * Adds a class to the list of return type parameters. Passed
-	 * canonical class name is also added to import statements.
-	 * 
-	 * @param typeParameterCanonicalClassName
-	 */
 	public void setReturnTypeParameter(String typeParameterCanonicalClassName) {
 		this.parentClassGenerator.getImportGenerator().addImport(typeParameterCanonicalClassName);
 		String typeParameterSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(typeParameterCanonicalClassName);
 		this.returnTypeParameters.add(typeParameterSimpleClassName);
 	}
 	
-	/**
-	 * Sets name of method.
-	 * 
-	 * @param methodName
-	 */
 	public void setMethodName(String methodName) {
 		this.methodName = methodName;
 	}
 	
-	/**
-	 * Adds pair of parameter and name to method signature definition.
-	 * Parameter type is added to import statements.
-	 * 
-	 * @param parameterType
-	 * @param parameterName
-	 */
-	public void addAndImportParameter(Class parameterType, String parameterName) {
+	public void addParameter(Class<?> parameterType, String parameterName) {
 		this.parentClassGenerator.getImportGenerator().addImport(parameterType);
-		this.addParameter(parameterType.getSimpleName(), parameterName);
+		this.addToParameterLists(parameterType.getSimpleName(), parameterName);
 	}
 	
-	/**
-	 * Adds pair of parameter and name to method signature definition.
-	 * Parameter type is added to import statements.
-	 * 
-	 * @param parameterCanonicalClassName
-	 * @param parameterName
-	 */
-	public void addAndImportParameter(String parameterCanonicalClassName, String parameterName) {
+	public void addParameter(String parameterCanonicalClassName, String parameterName) {
 		this.parentClassGenerator.getImportGenerator().addImport(parameterCanonicalClassName);
 		String parameterSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(parameterCanonicalClassName);
-		this.addParameter(parameterSimpleClassName, parameterName);
+		this.addToParameterLists(parameterSimpleClassName, parameterName);
 	}
 	
-	/**
-	 * Adds pair of parameter and name to method signature definition.
-	 * Parameter itself is class parameterized. Applicable especially when parameterized collection class
-	 * is used.
-	 * Parameter type is added to import statement.
-	 * 
-	 * @param parameterType
-	 * @param classParameterCanonicalClassName
-	 * @param parameterName
-	 */
-	public void addAndImportParameter(Class parameterType, String classParameterCanonicalClassName, String parameterName) {
+	public void addParameter(Class<?> parameterType, String parameterParameterCanonicalClassName, String parameterName) {
 		this.parentClassGenerator.getImportGenerator().addImport(parameterType);
-		this.parentClassGenerator.getImportGenerator().addImport(classParameterCanonicalClassName);
-		String classParameterSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(classParameterCanonicalClassName);
-		String parameterTypeString = parameterType.getSimpleName() + "<" + classParameterSimpleClassName + ">";
-		this.addParameter(parameterTypeString, parameterName);
+		this.parentClassGenerator.getImportGenerator().addImport(parameterParameterCanonicalClassName);
+		String parameterParameterSimpleClassName
+				= JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(parameterParameterCanonicalClassName);
+		String parameterTypeString = parameterType.getSimpleName() + "<" + parameterParameterSimpleClassName + ">";
+		this.addToParameterLists(parameterTypeString, parameterName);
 	}
 	
-	/**
-	 * Adds pair of parameter and name to method signature definition.
-	 * Parameter type is NOT added to import statements.
-	 * 
-	 * @param parameterType type of parameter, given as simple class name or basis data type
-	 * @param parameterName name of parameter
-	 */
-	public void addParameter(String parameterType, String parameterName) {
-		this.parameterTypeSimpleNameList.add(parameterType);
+	private void addToParameterLists(String parameterTypeSimpleClassName, String parameterName) {
+		this.parameterTypePlainStringList.add(parameterTypeSimpleClassName);
 		this.parameterNameList.add(parameterName);
 	}
 	
-	public void addThrowsException(Class exceptionClass) {
+	public void addThrowsException(Class<?> exceptionClass) {
 		this.parentClassGenerator.getImportGenerator().addImport(exceptionClass);
 		this.throwsExceptionSimpleNameList.add(exceptionClass.getSimpleName());
 	}
@@ -162,11 +105,6 @@ public class MethodGenerator {
 		this.throwsExceptionSimpleNameList.add(JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(exceptionCanonicalClassName));
 	}
 	
-	/**
-	 * Adds given class to import statements.
-	 * 
-	 * @param canonicalClassName
-	 */
 	public void addImport(String canonicalClassName) {
 		this.parentClassGenerator.getImportGenerator().addImport(canonicalClassName);
 	}
@@ -174,8 +112,7 @@ public class MethodGenerator {
 	private boolean hasThrowsException() {
 		return this.throwsExceptionSimpleNameList.size() > 0;
 	}
-	
-	
+
 	public void addCodeLn(String codeLine) {
 		this.bodyCodeLines.add(this.lineBuffer + codeLine);
 		this.lineBuffer = "";
@@ -233,11 +170,11 @@ public class MethodGenerator {
 		sourceCache.add(" " + this.methodName + "(");
 		
 		boolean sequence = false;
-		for (int i=0; i<this.parameterTypeSimpleNameList.size(); i++) {
+		for (int i = 0; i<this.parameterTypePlainStringList.size(); i++) {
 			if (sequence) {
 				sourceCache.add(", ");
 			}
-			String parameterTypeSimpleName = this.parameterTypeSimpleNameList.get(i);
+			String parameterTypeSimpleName = this.parameterTypePlainStringList.get(i);
 			String parameterName = this.parameterNameList.get(i);
 			sourceCache.add(parameterTypeSimpleName + " " + parameterName);
 			sequence = true;

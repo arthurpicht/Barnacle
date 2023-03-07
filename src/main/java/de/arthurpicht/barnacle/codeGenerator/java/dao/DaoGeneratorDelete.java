@@ -1,14 +1,12 @@
 package de.arthurpicht.barnacle.codeGenerator.java.dao;
 
 import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
-import de.arthurpicht.barnacle.codeGenerator.java.LoggerGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.List;
 
 public class DaoGeneratorDelete {
 
@@ -30,10 +28,10 @@ public class DaoGeneratorDelete {
         methodGenerator.setMethodName("delete");
 
         if (entity.isComposedPk()) {
-            methodGenerator.addAndImportParameter(entity.getPkCanonicalClassName(), pkVarName);
+            methodGenerator.addParameter(entity.getPkCanonicalClassName(), pkVarName);
         } else {
             Attribute pkAttribute = entity.getSinglePkAttribute();
-            methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
+            methodGenerator.addParameter(pkAttribute.getType(), pkAttribute.getFieldName());
         }
 
         methodGenerator.addThrowsException(daoGenerator.getConnectionExceptionCanonicalClassName());
@@ -72,12 +70,12 @@ public class DaoGeneratorDelete {
 
         if (entity.isComposedPk()) {
             String pkVarName = JavaGeneratorHelper.getPkVarName(entity);
-            methodGenerator.addAndImportParameter(entity.getPkCanonicalClassName(), pkVarName);
+            methodGenerator.addParameter(entity.getPkCanonicalClassName(), pkVarName);
         } else {
             Attribute pkAttribute = entity.getSinglePkAttribute();
-            methodGenerator.addParameter(pkAttribute.getJavaTypeSimpleName(), pkAttribute.getFieldName());
+            methodGenerator.addParameter(pkAttribute.getType(), pkAttribute.getFieldName());
         }
-        methodGenerator.addAndImportParameter(Connection.class, "connection");
+        methodGenerator.addParameter(Connection.class, "connection");
         methodGenerator.addThrowsException(SQLException.class);
     }
 

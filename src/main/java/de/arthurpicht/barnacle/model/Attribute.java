@@ -117,11 +117,10 @@ public class Attribute {
         this.sqlDataType = sqlDataType;
     }
 
-    /**
-     * Returns java type for represented field.
-     *
-     * @return
-     */
+    public Class<?> getType() {
+        return this.field.getType();
+    }
+
     public String getJavaTypeSimpleName() {
         return this.field.getType().getSimpleName();
     }
