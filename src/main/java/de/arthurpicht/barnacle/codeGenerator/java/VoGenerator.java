@@ -78,7 +78,6 @@ public class VoGenerator extends VoBaseGenerator {
         // foreign key getter methods
         Set<ForeignKeyWrapper> foreignKeyWrapperSet = entity.getAllForeignKeys();
         for (ForeignKeyWrapper foreignKeyWrapper : foreignKeyWrapperSet) {
-
             if (foreignKeyWrapper.isGetEntityMethod()) {
                 this.addFkGetter(foreignKeyWrapper);
             }

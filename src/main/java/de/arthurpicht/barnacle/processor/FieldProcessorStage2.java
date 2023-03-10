@@ -41,71 +41,71 @@ public class FieldProcessorStage2 {
 			boolean[] setReferenceEntityMethod = foreignKey.setReferenceEntityMethod();
 			String[] referenceEntityMethodName = foreignKey.referenceEntityMethodName();
 			
-			List<ForeignKeyAnnotationWrapper> foreignKeyAnnotations = new ArrayList<>();
+			List<ForeignKeyAnnotation> foreignKeyAnnotationList = new ArrayList<>();
 						
 			int length = referenceTableName.length;
 			for (int i=0; i<length; i++) {
-				ForeignKeyAnnotationWrapper annotationWrapper = new ForeignKeyAnnotationWrapper();
-				foreignKeyAnnotations.add(annotationWrapper);
+				ForeignKeyAnnotation foreignKeyAnnotation = new ForeignKeyAnnotation();
+				foreignKeyAnnotationList.add(foreignKeyAnnotation);
 				
-				annotationWrapper.setReferenceTableName(referenceTableName[i]);
+				foreignKeyAnnotation.setReferenceTableName(referenceTableName[i]);
 				
 				try {
-					annotationWrapper.setReferenceColumnName(referenceColumnName[i]);
+					foreignKeyAnnotation.setReferenceColumnName(referenceColumnName[i]);
 				} catch (IndexOutOfBoundsException e) {
 					throw new ERMBuilderException("referenceColumnName missing");
 				}
 
 				try {
-					annotationWrapper.setForeignKeyName(foreignKeyName[i]);
+					foreignKeyAnnotation.setForeignKeyName(foreignKeyName[i]);
 				} catch (IndexOutOfBoundsException e) {
-					annotationWrapper.setForeignKeyName("");
+					foreignKeyAnnotation.setForeignKeyName("");
 				}
 				
 				try {
-					annotationWrapper.setOnDeleteCascade(onDeleteCascade[i]);
-				} catch (IndexOutOfBoundsException e) {
+					foreignKeyAnnotation.setOnDeleteCascade(onDeleteCascade[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 
 				try {
-					annotationWrapper.setOnUpdateCascade(onUpdateCascade[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setOnUpdateCascade(onUpdateCascade[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 				
 				try {
-					annotationWrapper.setGetEntityMethod(getEntityMethod[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setGetEntityMethod(getEntityMethod[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 				
 				try {
-					annotationWrapper.setSetEntityMethod(setEntityMethod[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setSetEntityMethod(setEntityMethod[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 				
 				try {
-					annotationWrapper.setEntityMethodName(entityMethodName[i]);
-				} catch (IndexOutOfBoundsException e) {
+					foreignKeyAnnotation.setEntityMethodName(entityMethodName[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 					
 				}
 				
 				try {
-					annotationWrapper.setGetReferenceEntityMethod(getReferenceEntityMethod[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setGetReferenceEntityMethod(getReferenceEntityMethod[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 				
 				try {
-					annotationWrapper.setSetReferenceEntityMethod(setReferenceEntityMethod[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setSetReferenceEntityMethod(setReferenceEntityMethod[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 				
 				try {
-					annotationWrapper.setReferenceEntityMethodName(referenceEntityMethodName[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setReferenceEntityMethodName(referenceEntityMethodName[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 			}
 			
-			for (ForeignKeyAnnotationWrapper foreignKeyAnnotationWrapper : foreignKeyAnnotations) {
-				processForeignKey(entityRelationshipModel, foreignKeyAnnotationWrapper, entity, field);
+			for (ForeignKeyAnnotation foreignKeyAnnotation : foreignKeyAnnotationList) {
+				processForeignKey(entityRelationshipModel, foreignKeyAnnotation, entity, field);
 			}
 		}
 		
@@ -113,7 +113,7 @@ public class FieldProcessorStage2 {
 	
 	private static void processForeignKey(
 			EntityRelationshipModel entityRelationshipModel,
-			ForeignKeyAnnotationWrapper annotationWrapper,
+			ForeignKeyAnnotation annotationWrapper,
 			Entity entity,
 			Field field) {
 		

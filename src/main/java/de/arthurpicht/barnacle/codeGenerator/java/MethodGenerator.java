@@ -1,5 +1,7 @@
 package de.arthurpicht.barnacle.codeGenerator.java;
 
+import de.arthurpicht.barnacle.model.Attribute;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -88,6 +90,12 @@ public class MethodGenerator {
 				= JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(parameterParameterCanonicalClassName);
 		String parameterTypeString = parameterType.getSimpleName() + "<" + parameterParameterSimpleClassName + ">";
 		this.addToParameterLists(parameterTypeString, parameterName);
+	}
+
+	public void addAsParameters(List<Attribute> attributes) {
+		for (Attribute attribute : attributes) {
+			addParameter(attribute.getType(), attribute.getFieldName());
+		}
 	}
 	
 	private void addToParameterLists(String parameterTypeSimpleClassName, String parameterName) {

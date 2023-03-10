@@ -1,6 +1,6 @@
 package de.arthurpicht.barnacle.processor;
 
-public class ForeignKeyAnnotationWrapper {
+public class ForeignKeyAnnotation {
 	
 	private String referenceTableName; 
 	private String referenceColumnName; 
@@ -14,12 +14,12 @@ public class ForeignKeyAnnotationWrapper {
 	private boolean setReferenceEntityMethod = false;
 	private String referenceEntityMethodName;
 	
-	public ForeignKeyAnnotationWrapper() {
-		this.referenceTableName = new String();
-		this.referenceColumnName = new String();
-		this.foreignKeyName = new String();
-		this.entityMethodName = new String();
-		this.referenceEntityMethodName = new String();
+	public ForeignKeyAnnotation() {
+		this.referenceTableName = "";
+		this.referenceColumnName = "";
+		this.foreignKeyName = "";
+		this.entityMethodName = "";
+		this.referenceEntityMethodName = "";
 	}
 
 	public String getEntityMethodName() {
@@ -109,8 +109,5 @@ public class ForeignKeyAnnotationWrapper {
 	public void setSetReferenceEntityMethod(boolean setReferenceEntityMethod) {
 		this.setReferenceEntityMethod = setReferenceEntityMethod;
 	}
-	
-	
-
 
 }

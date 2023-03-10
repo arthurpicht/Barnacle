@@ -79,14 +79,6 @@ public class Annotations {
 	public @interface AssociationTable {
 		String foreignKeyNameA();
 		String foreignKeyNameB();
-//		boolean getMethodA() default false;
-//		boolean addMethodA() default false;
-//		boolean removeMethodA() default false;
-//		String methodNameA() default "";
-//		boolean getMethodB() default false;
-//		boolean addMethodB() default false;
-//		boolean removeMethodB() default false;
-//		String methodNameB() default "";
 	}
 
 }

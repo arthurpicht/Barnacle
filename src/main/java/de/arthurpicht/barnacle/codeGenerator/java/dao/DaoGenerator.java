@@ -73,7 +73,9 @@ public class DaoGenerator extends ClassGenerator {
 
         // one finder method for each foreign key
         for (ForeignKeyWrapper foreignKeyWrapper : this.entity.getAllForeignKeys()) {
-            this.addFindByForeignKeyMethod(foreignKeyWrapper);
+            DaoGeneratorFindByForeignKey.addPreparedStatement(foreignKeyWrapper, this);
+            DaoGeneratorFindByForeignKey.addFindByFkMethod(foreignKeyWrapper, this);
+            DaoGeneratorFindByForeignKey.addFindByForeignKeyMethod(foreignKeyWrapper, this);
         }
 
         // one finder methode for each unique key

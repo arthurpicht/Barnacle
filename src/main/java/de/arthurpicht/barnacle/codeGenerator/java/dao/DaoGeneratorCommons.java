@@ -7,6 +7,7 @@ import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Attributes;
 import de.arthurpicht.barnacle.model.Entity;
+import de.arthurpicht.barnacle.model.ForeignKeyWrapper;
 import de.arthurpicht.utils.core.strings.Strings;
 
 import java.util.ArrayList;
@@ -28,6 +29,12 @@ public class DaoGeneratorCommons {
             Attribute pkAttribute = entity.getSinglePkAttribute();
             return pkAttribute.getColumnName() + " = ?";
         }
+    }
+
+    public static String getPreparedStatementSearchConditionForFk(ForeignKeyWrapper foreignKeyWrapper) {
+        List<Attribute> fkAttributes = foreignKeyWrapper.getKeyFieldAttributes();
+        List<String> columnNames = Attributes.getColumnNames(fkAttributes);
+        return Strings.listing(columnNames, " AND ", "", "", "", " = ?");
     }
 
     public static String generatePreparedStatementSetterFromVO(int index, Entity entity, Attribute attribute, List<String> valueList) {
@@ -89,18 +96,11 @@ public class DaoGeneratorCommons {
      * @return
      */
     public static String generateLocalVarFromResultSet(Entity entity, Attribute attribute) {
-        String voSimpleClassName = entity.getVoSimpleClassName();
         String fieldType = attribute.getJavaTypeSimpleName();
         String out = fieldType + " " + attribute.getFieldName() + " = ";
-//        if (attribute.isPrimitiveType()) {
-//            String resultSetGetter = fieldType.substring(0, 1).toUpperCase() + fieldType.substring(1);
         String resultSetGetter = TypeMapper.getResultSetGetMethod(fieldType);
             out += "resultSet." + resultSetGetter;
-//        } else {
-//            out += "(" + fieldType + ") resultSet.getObject";
-//        }
-        out += "(" + voSimpleClassName + "." + attribute.getConstName() + ");";
-
+        out += "(\"" + attribute.getColumnName() + "\");";
         return out;
     }
 }
