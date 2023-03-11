@@ -21,12 +21,13 @@ public class BarnacleGenerator {
     private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
 
     public static void process() {
-
-        logger.info(Const.VERSION);
-
         GeneratorContext generatorContext = GeneratorContext.getInstance();
         GeneratorConfiguration generatorConfiguration = generatorContext.getGeneratorConfiguration();
+        process(generatorConfiguration);
+    }
 
+    public static void process(GeneratorConfiguration generatorConfiguration) {
+        logger.info(Const.VERSION);
         try {
             GeneratorPreconditions.assure(generatorConfiguration);
             List<Class<?>> classList = loadVofClasses(generatorConfiguration);

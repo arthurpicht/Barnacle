@@ -44,8 +44,8 @@ public class DaoTest {
         attribute = attributeList.get(2);
         assertEquals("String", attribute.getJavaTypeSimpleName());
 
-        DaoGenerator daoGenerator = new DaoGenerator(entity);
-        daoGenerator.generate(Paths.get("src/test/temp/TestDAO.java"), generatorConfiguration);
+        DaoGenerator daoGenerator = new DaoGenerator(entity, generatorConfiguration);
+        daoGenerator.generate(Paths.get("src/test/temp/TestDAO.java"));
     }
 
 }

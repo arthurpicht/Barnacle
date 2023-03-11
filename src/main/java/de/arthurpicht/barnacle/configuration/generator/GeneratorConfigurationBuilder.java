@@ -4,6 +4,7 @@ import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.connectionManager.ConnectionManager;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import de.arthurpicht.barnacle.exceptions.EntityNotFoundException;
+import de.arthurpicht.utils.core.assertion.MethodPreconditions;
 
 public class GeneratorConfigurationBuilder {
 
@@ -31,7 +32,7 @@ public class GeneratorConfigurationBuilder {
             String daoPackageName
     ) {
         this.dialect = Const.Dialect.MYSQL;
-        this.srcDir = "src";
+        this.srcDir = "src/";
         this.srcGenDir = "src-gen/";
         this.vofPackageName = vofPackageName;
         this.voPackageName = voPackageName;
@@ -54,11 +55,15 @@ public class GeneratorConfigurationBuilder {
     }
 
     public GeneratorConfigurationBuilder withSrcDir(String srcDir) {
+        MethodPreconditions.assertArgumentNotNullAndNotEmpty("srcDir", srcDir);
+        if (!srcDir.endsWith("/")) srcDir += "/";
         this.srcDir = srcDir;
         return this;
     }
 
     public GeneratorConfigurationBuilder withSrcGenDir(String srcGenDir) {
+        MethodPreconditions.assertArgumentNotNullAndNotEmpty("srcGenDir", srcGenDir);
+        if (!srcGenDir.endsWith("/")) srcGenDir += "/";
         this.srcGenDir = srcGenDir;
         return this;
     }

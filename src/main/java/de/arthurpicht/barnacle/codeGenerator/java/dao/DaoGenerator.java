@@ -30,18 +30,18 @@ public class DaoGenerator extends ClassGenerator {
     private final String entityNotFoundExceptionCanonicalClassName;
     private final String entityNotFoundExceptionSimpleClassName;
 
-    public DaoGenerator(Entity entity) {
-        super(entity.getDaoCanonicalClassName());
+    public DaoGenerator(Entity entity, GeneratorConfiguration generatorConfiguration) {
+        super(entity.getDaoCanonicalClassName(), generatorConfiguration);
 
         logger.debug("Assembling class " + entity.getDaoSimpleClassName());
 
         this.entity = entity;
 
-        String connectionManagerCanonicalClassName = GeneratorContext.getInstance().getGeneratorConfiguration().getConnectionManagerCanonicalClassName();
+        String connectionManagerCanonicalClassName = generatorConfiguration.getConnectionManagerCanonicalClassName();
         this.connectionManagerSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(connectionManagerCanonicalClassName);
-        this.connectionExceptionCanonicalClassName = getGeneratorConfiguration().getConnectionExceptionCanonicalClassName();
+        this.connectionExceptionCanonicalClassName = generatorConfiguration.getConnectionExceptionCanonicalClassName();
         this.connectionExceptionSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(this.connectionExceptionCanonicalClassName);
-        this.entityNotFoundExceptionCanonicalClassName = getGeneratorConfiguration().getEntityNotFoundExceptionCanonicalClassName();
+        this.entityNotFoundExceptionCanonicalClassName = generatorConfiguration.getEntityNotFoundExceptionCanonicalClassName();
         this.entityNotFoundExceptionSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(this.entityNotFoundExceptionCanonicalClassName);
 
         // standard imports
@@ -122,8 +122,7 @@ public class DaoGenerator extends ClassGenerator {
     }
 
     private void addStandardImports() {
-        this.importGenerator.addImport(
-                GeneratorContext.getInstance().getGeneratorConfiguration().getConnectionManagerCanonicalClassName());
+        this.importGenerator.addImport(this.generatorConfiguration.getConnectionManagerCanonicalClassName());
         this.importGenerator.addImport(List.class);
         this.importGenerator.addImport(ArrayList.class);
         this.importGenerator.addImport(Connection.class);
@@ -581,10 +580,6 @@ public class DaoGenerator extends ClassGenerator {
     public String generateReleaseConnectionStatement() {
         return this.connectionManagerSimpleClassName + ".releaseConnection(connection, "
                 + this.entity.getDaoSimpleClassName() + ".class);";
-    }
-
-    private GeneratorConfiguration getGeneratorConfiguration() {
-        return GeneratorContext.getInstance().getGeneratorConfiguration();
     }
 
 }

@@ -1,5 +1,6 @@
 package de.arthurpicht.barnacle.model;
 
+import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.annotations.Annotations;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
@@ -33,7 +34,7 @@ public class Attribute {
 
     private final String sqlDataType;
 
-    public Attribute(Field field, Entity entity) {
+    public Attribute(Field field, Entity entity, TypeMapper typeMapper) {
 
         this.field = field;
 
@@ -106,9 +107,8 @@ public class Attribute {
         }
 
         // Determine SQL datatype by requesting database specific TypeMapper
-        GeneratorConfiguration generatorConfiguration = GeneratorContext.getInstance().getGeneratorConfiguration();
+//        TypeMapper typeMapper = TypeMapper.getInstance(dialect);
         String sqlDataType;
-        TypeMapper typeMapper = TypeMapper.getInstance(generatorConfiguration.getDialect());
         try {
             sqlDataType = typeMapper.getSQLType(this);
         } catch (UnknownTypeException e) {

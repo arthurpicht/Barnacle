@@ -20,15 +20,15 @@ public class CodeGenerator {
 
         for (Entity entity : entityRelationshipModel.getEntities()) {
 
-            VoGenerator voGenerator = new VoGenerator(entity, entityRelationshipModel);
+            VoGenerator voGenerator = new VoGenerator(entity, entityRelationshipModel, generatorConfiguration);
             voGenerator.generate();
 
             if (entity.isComposedPk()) {
-                PkGenerator pkGenerator = new PkGenerator(entity);
+                PkGenerator pkGenerator = new PkGenerator(entity, generatorConfiguration);
                 pkGenerator.generate();
             }
 
-            DaoGenerator daoGenerator = new DaoGenerator(entity);
+            DaoGenerator daoGenerator = new DaoGenerator(entity, generatorConfiguration);
             daoGenerator.generate();
         }
 

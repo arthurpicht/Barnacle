@@ -1,5 +1,6 @@
 package de.arthurpicht.barnacle.codeGenerator.java;
 
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.exceptions.BarnacleRuntimeException;
 
 /**
@@ -7,7 +8,7 @@ import de.arthurpicht.barnacle.exceptions.BarnacleRuntimeException;
  */
 public abstract class LoggerGenerator {
 	
-	public enum LoggerTypes {SLF4J};
+	public enum LoggerType {SLF4J};
 
 	protected ClassGenerator classGenerator;
 	
@@ -15,9 +16,9 @@ public abstract class LoggerGenerator {
 		this.classGenerator = classGenerator;
 	}
 	
-	public static LoggerGenerator getInstance(ClassGenerator classGenerator, LoggerTypes loggerType) {
-		if (loggerType == LoggerTypes.SLF4J) {
-			LoggerGenerator loggerGenerator = new SLF4JGenerator(classGenerator);
+	public static LoggerGenerator getInstance(ClassGenerator classGenerator, LoggerType loggerType, GeneratorConfiguration generatorConfiguration) {
+		if (loggerType == LoggerType.SLF4J) {
+			LoggerGenerator loggerGenerator = new SLF4JGenerator(classGenerator, generatorConfiguration);
 			loggerGenerator.addToImport();
 			return loggerGenerator;
 		}

@@ -1,5 +1,6 @@
 package de.arthurpicht.barnacle.codeGenerator.java;
 
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;
 
@@ -18,8 +19,8 @@ public class VoBaseGenerator extends ClassGenerator {
 	
 	protected Entity entity;
 	
-	public VoBaseGenerator(String canonicalClassName, Entity entity) {
-		super(canonicalClassName);
+	public VoBaseGenerator(String canonicalClassName, Entity entity, GeneratorConfiguration generatorConfiguration) {
+		super(canonicalClassName, generatorConfiguration);
 		this.entity = entity;
 		this.setBaseClass(entity.getVofClass());
 	}

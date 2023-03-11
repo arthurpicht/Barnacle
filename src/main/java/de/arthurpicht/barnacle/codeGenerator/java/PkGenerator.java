@@ -1,6 +1,6 @@
 package de.arthurpicht.barnacle.codeGenerator.java;
 
-import de.arthurpicht.barnacle.context.GeneratorContext;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;
@@ -18,9 +18,9 @@ import java.util.List;
  */
 public class PkGenerator extends VoBaseGenerator {
 	
-	public PkGenerator(Entity entity) throws CodeGeneratorException {
+	public PkGenerator(Entity entity, GeneratorConfiguration generatorConfiguration) throws CodeGeneratorException {
 		
-		super(getPKcanonicalClassNameFromEntity(entity), entity);
+		super(getPkCanonicalClassName(entity, generatorConfiguration), entity, generatorConfiguration);
 
 		this.addImportsForNonPrimitiveAttributes();
 
@@ -73,11 +73,10 @@ public class PkGenerator extends VoBaseGenerator {
 	 * @param entity
 	 * @return
 	 */
-	private static String getPKcanonicalClassNameFromEntity(Entity entity) {		
+	private static String getPkCanonicalClassName(Entity entity, GeneratorConfiguration generatorConfiguration) {
 		String vofClassName = entity.getVofClass().getSimpleName();
 		String voSimpleClassName = vofClassName.substring(0, vofClassName.length()-3) + "PK";
-		String voCanonicalClassName = GeneratorContext.getInstance().getGeneratorConfiguration().getVoPackageName() + "." + voSimpleClassName;
-		return voCanonicalClassName;
+		return generatorConfiguration.getVoPackageName() + "." + voSimpleClassName;
 	}
 	
 	private void addToStringMethod() {

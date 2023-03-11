@@ -3,6 +3,7 @@ package de.arthurpicht.barnacle.processor;
 import de.arthurpicht.barnacle.annotations.Annotations;
 import de.arthurpicht.barnacle.annotations.Annotations.TableName;
 import de.arthurpicht.barnacle.annotations.Annotations.VobFactory;
+import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.ERMBuilderException;
@@ -30,8 +31,9 @@ public class VOFProcessorEntityStage {
 		if (vofClass.isAnnotationPresent(VobFactory.class)) {
 			entity.setVobFactoryMethod(true);
 		}
-		
-		analyzeFields(vofClass, entity);
+
+		TypeMapper typeMapper = TypeMapper.getInstance(generatorConfiguration.getDialect());
+		analyzeFields(vofClass, entity, typeMapper);
 
 		return entity;
 	}
@@ -55,17 +57,17 @@ public class VOFProcessorEntityStage {
 		return tableNameString.toLowerCase();
 	}
 
-	private static void analyzeFields(Class<?> vofClass, Entity entity) {
+	private static void analyzeFields(Class<?> vofClass, Entity entity, TypeMapper typeMapper) {
 		Field[] fields = vofClass.getDeclaredFields();
 		for (Field field : fields) {
 			if (field.isAnnotationPresent(Annotations.Barnacle.class)) {
-				processField(field, entity);
+				processField(field, entity, typeMapper);
 			}
 		}
 	}
 
-	private static void processField(Field field, Entity entity) {
-		Attribute attribute = new Attribute(field, entity);
+	private static void processField(Field field, Entity entity, TypeMapper typeMapper) {
+		Attribute attribute = new Attribute(field, entity, typeMapper);
 		entity.addAttribute(attribute);
 	}
 

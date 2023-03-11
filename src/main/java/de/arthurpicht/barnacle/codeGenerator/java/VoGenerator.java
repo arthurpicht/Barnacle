@@ -33,13 +33,12 @@ public class VoGenerator extends VoBaseGenerator {
      * @param entity
      * @throws CodeGeneratorException
      */
-    public VoGenerator(Entity entity, EntityRelationshipModel entityRelationshipModel) throws CodeGeneratorException {
+    public VoGenerator(Entity entity, EntityRelationshipModel entityRelationshipModel, GeneratorConfiguration generatorConfiguration) throws CodeGeneratorException {
 
-        super(getVOcanonicalClassNameFromEntity(entity), entity);
+        super(getVOcanonicalClassNameFromEntity(entity, generatorConfiguration), entity, generatorConfiguration);
 
         logger.debug("Assembling class " + entity.getVoSimpleClassName());
 
-        GeneratorConfiguration generatorConfiguration = GeneratorContext.getInstance().getGeneratorConfiguration();
         this.connectionExceptionCanonicalClassName = generatorConfiguration.getConnectionExceptionCanonicalClassName();
         this.entityNotFoundExceptionCanonicalClassName = generatorConfiguration.getEntityNotFoundExceptionCanonicalClassName();
 
@@ -318,10 +317,10 @@ public class VoGenerator extends VoBaseGenerator {
      * @param entity
      * @return
      */
-    private static String getVOcanonicalClassNameFromEntity(Entity entity) {
+    private static String getVOcanonicalClassNameFromEntity(Entity entity, GeneratorConfiguration generatorConfiguration) {
         String vofClassName = entity.getVofClass().getSimpleName();
         String voSimpleClassName = vofClassName.substring(0, vofClassName.length()-3) + "VO";
-        String voCanonicalClassName = GeneratorContext.getInstance().getGeneratorConfiguration().getVoPackageName() + "." + voSimpleClassName;
+        String voCanonicalClassName = generatorConfiguration.getVoPackageName() + "." + voSimpleClassName;
         return voCanonicalClassName;
     }
 }

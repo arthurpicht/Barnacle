@@ -39,9 +39,7 @@ public class GeneratorConfigurationFactory {
             generatorConfigurationBuilder.withSrcDir(configuration.getString(SRC_DIR));
 
         if (configuration.containsKey(SRC_GEN_DIR)) {
-            String srcGenDir = configuration.getString("src_gen_dir", "src-gen");
-            if (!srcGenDir.endsWith("/")) srcGenDir += "/";
-            generatorConfigurationBuilder.withSrcGenDir(srcGenDir);
+            generatorConfigurationBuilder.withSrcGenDir(configuration.getString(SRC_GEN_DIR));
         }
 
         if (configuration.containsKey(EXECUTE_ON_DB))

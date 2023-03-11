@@ -3,7 +3,6 @@ package de.arthurpicht.barnacle.codeGenerator.java;
 import de.arthurpicht.barnacle.Const.Encoding;
 import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
-import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +23,7 @@ public class ClassGenerator {
 
     private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
 
+    protected GeneratorConfiguration generatorConfiguration;
     protected String canonicalClassName;
     protected String baseClassSimpleName;
     protected List<String> implementedInterfaces;
@@ -34,7 +34,8 @@ public class ClassGenerator {
     protected LoggerGenerator loggerGenerator;
     protected LocalStringConstGenerator localStringConstGenerator;
 
-    public ClassGenerator(String canonicalClassName) {
+    public ClassGenerator(String canonicalClassName, GeneratorConfiguration generatorConfiguration) {
+        this.generatorConfiguration = generatorConfiguration;
         this.canonicalClassName = canonicalClassName;
         this.baseClassSimpleName = "";
         this.implementedInterfaces = new ArrayList<>();
@@ -101,25 +102,24 @@ public class ClassGenerator {
 
     public LoggerGenerator getLoggerGenerator() {
         if (this.loggerGenerator == null)
-            this.loggerGenerator = LoggerGenerator.getInstance(this, LoggerGenerator.LoggerTypes.SLF4J);
+            this.loggerGenerator = LoggerGenerator.getInstance(this, LoggerGenerator.LoggerType.SLF4J, this.generatorConfiguration);
         return this.loggerGenerator;
     }
 
     public void generate() throws CodeGeneratorException {
-        GeneratorConfiguration generatorConfiguration = GeneratorContext.getInstance().getGeneratorConfiguration();
 
-        String sourceGenFolder = generatorConfiguration.getSrcGenDir();
+        String sourceGenFolder = this.generatorConfiguration.getSrcGenDir();
         String fileName = sourceGenFolder + this.canonicalClassName.replace('.', '/') + ".java";
 
-        generate(Paths.get(fileName), generatorConfiguration);
+        generate(Paths.get(fileName));
     }
 
-    public void generate(Path destination, GeneratorConfiguration generatorConfiguration) throws CodeGeneratorException {
+    public void generate(Path destination) throws CodeGeneratorException {
         logger.debug("Generating " + destination.toString());
 
         try {
             PrintWriter printWriter;
-            Encoding encoding = generatorConfiguration.getEncodingSource();
+            Encoding encoding = this.generatorConfiguration.getEncodingSource();
             if (encoding.equals(Const.Encoding.UTF)) {
                 printWriter = new PrintWriter(new OutputStreamWriter(new FileOutputStream(destination.toFile()), StandardCharsets.UTF_8));
             } else if (encoding.equals(Const.Encoding.ISO)) {

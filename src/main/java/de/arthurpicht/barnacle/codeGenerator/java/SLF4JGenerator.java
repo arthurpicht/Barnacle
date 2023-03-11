@@ -7,8 +7,11 @@ import org.slf4j.LoggerFactory;
 
 public class SLF4JGenerator extends LoggerGenerator {
 
-    protected SLF4JGenerator(ClassGenerator classGenerator) {
+    private GeneratorConfiguration generatorConfiguration;
+
+    protected SLF4JGenerator(ClassGenerator classGenerator, GeneratorConfiguration generatorConfiguration) {
         super(classGenerator);
+        this.generatorConfiguration = generatorConfiguration;
     }
 
     public void addToImport() {
@@ -18,9 +21,8 @@ public class SLF4JGenerator extends LoggerGenerator {
     }
 
     public void generateInitialization(SourceCache sourceCache) {
-        GeneratorConfiguration generatorConfiguration = GeneratorContext.getInstance().getGeneratorConfiguration();
-        String loggerName = generatorConfiguration.hasDaoLoggerName() ?
-                "\"" + generatorConfiguration.getDaoLoggerName() + "\"" :
+        String loggerName = this.generatorConfiguration.hasDaoLoggerName() ?
+                "\"" + this.generatorConfiguration.getDaoLoggerName() + "\"" :
                 this.classGenerator.getSimpleClassName() + ".class";
         sourceCache.addLine("private static final " + Logger.class.getSimpleName() + " logger = "
                 + LoggerFactory.class.getSimpleName() + ".getLogger(" + loggerName + ");");
