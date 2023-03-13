@@ -4,6 +4,7 @@ import de.arthurpicht.barnacle.Const.Dialect;
 import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.ForeignKeyWrapper;
+import de.arthurpicht.utils.core.strings.Strings;
 
 import java.util.List;
 
@@ -63,19 +64,27 @@ public abstract class StatementGenerator {
 		return sql.toString();
 	}
 
-	public String addUniqueKey(String tablename, String indexName, List<String> columnNames) {
-		StringBuilder sql = new StringBuilder("ALTER TABLE " + tablename + " ADD UNIQUE KEY " + indexName + " (");
-		boolean sequence = false;
-		for (String columnName : columnNames) {
-			if (sequence) {
-				sql.append(", ");
-			}
-			sql.append(columnName);
-			sequence = true;
-		}
-		sql.append(");");
-		return sql.toString();
+	public String addUniqueKey(String tableName, String indexName, List<String> columnNames) {
+		return "ALTER TABLE " + tableName + " ADD CONSTRAINT " + indexName
+				+ " UNIQUE (" + Strings.listing(columnNames, ", ") + ");";
 	}
+
+	// worked for mysql until 1.2
+	// TODO Check if new method works as well. New one is also applicable for H2.
+	// see https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
+//	public String addUniqueKey(String tablename, String indexName, List<String> columnNames) {
+//		StringBuilder sql = new StringBuilder("ALTER TABLE " + tablename + " ADD UNIQUE KEY " + indexName + " (");
+//		boolean sequence = false;
+//		for (String columnName : columnNames) {
+//			if (sequence) {
+//				sql.append(", ");
+//			}
+//			sql.append(columnName);
+//			sequence = true;
+//		}
+//		sql.append(");");
+//		return sql.toString();
+//	}
 
 	public String dropTempColumn(String tablename) {
 		return "ALTER TABLE " + tablename + " DROP COLUMN " + tempColName + ";";
