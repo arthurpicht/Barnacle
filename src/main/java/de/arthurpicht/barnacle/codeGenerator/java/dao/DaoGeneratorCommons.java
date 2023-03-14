@@ -22,9 +22,7 @@ public class DaoGeneratorCommons {
     public static String getPreparedStatementSearchConditionForPk(Entity entity) {
         if (entity.isComposedPk()) {
             List<Attribute> pkAttributes = entity.getPkAttributes();
-            List<String> columnNames = Attributes.getColumnNames(pkAttributes);
-            return Strings.listing(
-                    columnNames, " AND ", "", "", "", " = ?");
+            return getPreparedStatementSearchCondition(pkAttributes);
         } else {
             Attribute pkAttribute = entity.getSinglePkAttribute();
             return pkAttribute.getColumnName() + " = ?";
@@ -33,7 +31,15 @@ public class DaoGeneratorCommons {
 
     public static String getPreparedStatementSearchConditionForFk(ForeignKeyWrapper foreignKeyWrapper) {
         List<Attribute> fkAttributes = foreignKeyWrapper.getKeyFieldAttributes();
-        List<String> columnNames = Attributes.getColumnNames(fkAttributes);
+        return getPreparedStatementSearchCondition(fkAttributes);
+    }
+
+    public static String getPreparedStatementSearchCondition(List<Attribute> attributeList) {
+        List<String> columnNames = Attributes.getColumnNames(attributeList);
+        return getSearchCondition(columnNames);
+    }
+
+    private static String getSearchCondition(List<String> columnNames) {
         return Strings.listing(columnNames, " AND ", "", "", "", " = ?");
     }
 
