@@ -71,7 +71,7 @@ public class DaoGeneratorFindByForeignKey {
         methodGenerator.setIsStatic(true);
         methodGenerator.setReturnType(List.class);
         methodGenerator.setReturnTypeParameter(entity.getVoCanonicalClassName());
-        methodGenerator.setMethodName("findBy" + getMethodName(foreignKeyWrapper));
+        methodGenerator.setMethodName(getMethodName(foreignKeyWrapper));
         methodGenerator.addAsParameters(fkAttributes);
         methodGenerator.addParameter(Connection.class, "connection");
         methodGenerator.addThrowsException(SQLException.class);
