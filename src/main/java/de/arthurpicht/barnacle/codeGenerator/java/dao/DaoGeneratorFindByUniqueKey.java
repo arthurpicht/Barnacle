@@ -31,11 +31,6 @@ public class DaoGeneratorFindByUniqueKey {
 
         Entity entity = daoGenerator.getEntity();
 
-        String voSimpleClassName = entity.getVoSimpleClassName();
-        String voVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(voSimpleClassName);
-        String pkSimpleClassName = entity.getPkSimpleClassName();
-        String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
-
         MethodGenerator methodGenerator = daoGenerator.getNewMethodGenerator();
         methodGenerator.setIsStatic(true);
         methodGenerator.setReturnTypeByCanonicalClassName(entity.getVoCanonicalClassName());
@@ -91,29 +86,6 @@ public class DaoGeneratorFindByUniqueKey {
         methodGenerator.addCodeLn("try {");
         methodGenerator.addCodeLn("if (resultSet.next()) {");
 
-//        methodGenerator.addCodeLn(daoGenerator.createGetConnectionStatement());
-//        methodGenerator.addCodeLn("Statement statement = null;");
-//        methodGenerator.addCodeLn("ResultSet resultSet = null;");
-//        methodGenerator.addCodeLn("try {");
-//        methodGenerator.addCodeLn("statement = connection.createStatement();");
-//        methodGenerator.addCodeLn("String sql = \"SELECT * FROM \" + " + voSimpleClassName + ".TABLENAME + \" WHERE \"");
-//
-//        boolean sequence = false;
-//        for (Attribute attribute : uKAttributeList) {
-//            if (sequence) {
-//                methodGenerator.addCodeLn(" + \" AND \"");
-//            }
-//            methodGenerator.addCode("+ " + voSimpleClassName + "." + attribute.getConstName() + " + \" = \" + getValueExpression(" + attribute.getFieldName() + ", \"" + attribute.getSqlDataType() + "\")");
-//            sequence = true;
-//        }
-//        methodGenerator.addCodeLn(";");
-//
-//        LoggerGenerator loggerGenerator = daoGenerator.getLoggerGenerator();
-//        methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByVarName("sql"));
-
-//        methodGenerator.addCodeLn("resultSet = statement.executeQuery(sql);");
-//        methodGenerator.addCodeLn("if (resultSet.next()) {");
-
         List<Attribute> attributes = entity.getAttributes();
         for (Attribute attribute : attributes) {
             if (!uKAttributeList.contains(attribute)) {
@@ -144,14 +116,6 @@ public class DaoGeneratorFindByUniqueKey {
 
         methodGenerator.addCode("throw new " + daoGenerator.getEntityNotFoundExceptionSimpleClassName()
                 + "(\"" + entity.getTableName() + "-Entity with unique key '" + uniqueKeyName + "'[");
-//        sequence = false;
-//        for (Attribute attribute : uKAttributeList) {
-//            if (sequence) {
-//                methodGenerator.addCode(" + \", ");
-//            }
-//            methodGenerator.addCode(attribute.getFieldName() + " = \" + " + attribute.getFieldName());
-//            sequence = true;
-//        }
         List<String> attributeValueList = new ArrayList<>();
         for (Attribute attribute : uKAttributeList) {
             String attributeValue = attribute.getFieldName() + " = \" + " + attribute.getFieldName();
