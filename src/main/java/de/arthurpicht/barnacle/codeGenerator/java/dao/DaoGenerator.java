@@ -2,12 +2,8 @@ package de.arthurpicht.barnacle.codeGenerator.java.dao;
 
 import de.arthurpicht.barnacle.codeGenerator.java.ClassGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
-import de.arthurpicht.barnacle.codeGenerator.java.LoggerGenerator;
-import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
 import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
-import de.arthurpicht.barnacle.context.GeneratorContext;
-import de.arthurpicht.barnacle.helper.StringHelper;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;
 import de.arthurpicht.barnacle.model.ForeignKeyWrapper;
@@ -90,13 +86,17 @@ public class DaoGenerator extends ClassGenerator {
         // two finder methods for association
         // addAssociation method for association
         if (this.entity.isAssociationTable()) {
-            this.addGetAssociatedEntites(this.entity.getAssociationForeignKeyA(), this.entity.getAssociationForeignKeyB());
-            this.addGetAssociatedEntites(this.entity.getAssociationForeignKeyB(), this.entity.getAssociationForeignKeyA());
+            DaoGeneratorAssociation.addPreparedStatement(this.entity.getAssociationForeignKeyA(), this.entity.getAssociationForeignKeyB(), this);
+            DaoGeneratorAssociation.addPreparedStatement(this.entity.getAssociationForeignKeyB(), this.entity.getAssociationForeignKeyA(), this);
 
-            this.addAssociation(this.entity.getAssociationForeignKeyA(), this.entity.getAssociationForeignKeyB());
+            DaoGeneratorAssociation.addGetAssociatedEntities(this.entity.getAssociationForeignKeyA(), this.entity.getAssociationForeignKeyB(), this);
+            DaoGeneratorAssociation.addGetAssociatedEntitiesByConnection(this.entity.getAssociationForeignKeyA(), this.entity.getAssociationForeignKeyB(), this);
+
+            DaoGeneratorAssociation.addGetAssociatedEntities(this.entity.getAssociationForeignKeyB(), this.entity.getAssociationForeignKeyA(), this);
+            DaoGeneratorAssociation.addGetAssociatedEntitiesByConnection(this.entity.getAssociationForeignKeyB(), this.entity.getAssociationForeignKeyA(), this);
+
+            DaoGeneratorAssociation.addAssociation(this.entity.getAssociationForeignKeyA(), this.entity.getAssociationForeignKeyB(), this);
         }
-
-        this.addGetValueExpressionMethod();
     }
 
     public Entity getEntity() {
@@ -105,10 +105,6 @@ public class DaoGenerator extends ClassGenerator {
 
     public String getConnectionExceptionCanonicalClassName() {
         return this.connectionExceptionCanonicalClassName;
-    }
-
-    public String getConnectionManagerSimpleClassName() {
-        return connectionManagerSimpleClassName;
     }
 
     public String getConnectionExceptionSimpleClassName() {
@@ -143,216 +139,6 @@ public class DaoGenerator extends ClassGenerator {
         }
     }
 
-    private void addGetAssociatedEntites(ForeignKeyWrapper foreignKeyWrapperA, ForeignKeyWrapper foreignKeyWrapperB) {
-
-        Entity sourceEntity = foreignKeyWrapperA.getTargetEntity();
-        Entity targetEntity = foreignKeyWrapperB.getTargetEntity();
-        String sourceEntityVoCanonicalClassName = sourceEntity.getVoCanonicalClassName();
-        String sourceEntityVoSimpleClassName = sourceEntity.getVoSimpleClassName();
-        String targetEntityVoCanonicalClassName = targetEntity.getVoCanonicalClassName();
-        String targetEntityVoSimpleClassName = targetEntity.getVoSimpleClassName();
-        String associationEntityVoSimpleClassName = this.entity.getVoSimpleClassName();
-        String voListVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(targetEntityVoSimpleClassName) + "List";
-        String pkSimpleClassName = foreignKeyWrapperB.getTargetEntity().getPkSimpleClassName();
-        String pkCanonicalClassName = foreignKeyWrapperB.getTargetEntity().getPkCanonicalClassName();
-        String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
-        String voVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(targetEntityVoSimpleClassName);
-
-        MethodGenerator methodGenerator = this.getNewMethodGenerator();
-        methodGenerator.setIsStatic(true);
-        methodGenerator.setReturnType(List.class);
-        methodGenerator.setReturnTypeParameter(targetEntityVoCanonicalClassName);
-
-        methodGenerator.setMethodName("getAssociated" + targetEntityVoSimpleClassName);
-
-        String sourceEntityVoVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(sourceEntityVoSimpleClassName);
-        methodGenerator.addParameter(sourceEntityVoCanonicalClassName, sourceEntityVoVarName);
-
-        methodGenerator.addThrowsException(this.connectionExceptionCanonicalClassName);
-
-        List<Attribute> targetEntityAttributes = foreignKeyWrapperB.getTargetEntity().getAttributes();
-        List<Attribute> targetFkTargetAttributes = foreignKeyWrapperB.getTargetFieldAttributes();
-        List<Attribute> targetFkKeyAttributes = foreignKeyWrapperB.getKeyFieldAttributes();
-
-        methodGenerator.addCode("String sql = \"SELECT ");
-        boolean sequence = false;
-
-        for (int i=0; i<targetEntityAttributes.size(); i++) {
-            Attribute attribute = targetEntityAttributes.get(i);
-            if (sequence) {
-                methodGenerator.addCode(" + \", ");
-            }
-            methodGenerator.addCode("t.\" + " + targetEntityVoSimpleClassName + "." + attribute.getConstName());
-//					+ " + \" = \" + getValueExpression(" + fkAttribute.getFieldName() + ", \"" + fkAttribute.getSqlDataType() + "\")");			
-            sequence = true;
-        }
-        methodGenerator.addLn();
-
-        methodGenerator.addCodeLn("+ \" FROM \" + "
-                + targetEntityVoSimpleClassName + ".TABLENAME + \" AS t, \" + "
-                + associationEntityVoSimpleClassName + ".TABLENAME + \" AS a\"");
-
-        methodGenerator.addCode("+ \" WHERE \" ");
-        sequence = false;
-        for (int i=0; i<targetFkKeyAttributes.size(); i++) {
-            Attribute keyAttribute = targetFkKeyAttributes.get(i);
-            Attribute targetAttribute = targetFkTargetAttributes.get(i);
-            if (sequence) {
-                methodGenerator.addCodeLn(" + \" AND \" ");
-            }
-            methodGenerator.addCode("+ \"a.\" + " + associationEntityVoSimpleClassName + "." + keyAttribute.getConstName()
-                    + " + \" = \" + \"t.\" + " + targetEntityVoSimpleClassName + "." + targetAttribute.getConstName());
-            sequence = true;
-        }
-
-        List<Attribute> sourceFkTargetAttributes = foreignKeyWrapperA.getTargetFieldAttributes();
-        List<Attribute> sourceFkKeyAttributes = foreignKeyWrapperA.getKeyFieldAttributes();
-
-        methodGenerator.addCodeLn(" + \" AND \" ");
-        sequence = false;
-        for (int i=0; i<sourceFkKeyAttributes.size(); i++) {
-            Attribute keyAttribute = sourceFkKeyAttributes.get(i);
-            Attribute targetAttribute = sourceFkTargetAttributes.get(i);
-            if (sequence) {
-                methodGenerator.addCodeLn(" + \" AND \" ");
-            }
-            methodGenerator.addCode("+ \"a.\" + " + associationEntityVoSimpleClassName + "." + keyAttribute.getConstName()
-                    + " + \" = \" + getValueExpression(" + sourceEntityVoVarName + "." + targetAttribute.generateGetterMethodName() + "(), \"" + targetAttribute.getSqlDataType() + "\")");
-            sequence = true;
-        }
-
-        methodGenerator.addCodeLn(";");
-
-        LoggerGenerator loggerGenerator = this.getLoggerGenerator();
-        methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByVarName("sql"));
-
-//        methodGenerator.addCodeLn("Connection connection = openConnection(" + this.entity.getDaoSimpleClassName() + ".class" + ");");
-//        methodGenerator.addCodeLn("Connection connection = " + this.connectionManagerSimpleClassName + ".getInstance().openConnection(" + this.entity.getDaoSimpleClassName() + ".class);");
-        methodGenerator.addCodeLn(createGetConnectionStatement());
-        methodGenerator.addCodeLn("Statement statement = null;");
-        methodGenerator.addCodeLn("ResultSet resultSet = null;");
-        methodGenerator.addCodeLn("try {");
-        methodGenerator.addCodeLn("statement = connection.createStatement();");
-        methodGenerator.addCodeLn("resultSet = statement.executeQuery(sql);");
-
-        methodGenerator.addCodeLn("List<" + targetEntityVoSimpleClassName + "> " + voListVarName + " = new ArrayList<" + targetEntityVoSimpleClassName + ">();");
-
-        methodGenerator.addCodeLn("while (resultSet.next()) {");
-
-        // Make for every entity-attribute an assignment from result set to local var
-        List<Attribute> attributes = targetEntity.getAttributes();
-        for (Attribute attribute : attributes) {
-            methodGenerator.addCodeLn(DaoGeneratorCommons.generateLocalVarFromResultSet(targetEntity, attribute));
-        }
-
-        if (targetEntity.isComposedPk()) {
-            methodGenerator.addImport(pkCanonicalClassName);
-            methodGenerator.addCode(pkSimpleClassName + " " + pkVarName + " = new " + pkSimpleClassName + "(");
-            List<Attribute> pkAttributes = targetEntity.getPkAttributes();
-            sequence = false;
-            for (Attribute attribute : pkAttributes) {
-                if (sequence) {
-                    methodGenerator.addCode(", ");
-                }
-                methodGenerator.addCode(attribute.getFieldName());
-                sequence = true;
-            }
-            methodGenerator.addCodeLn(");");
-            methodGenerator.addCodeLn(targetEntityVoSimpleClassName + " " + voVarName + " = new " + targetEntityVoSimpleClassName + "(" + pkVarName + ");");
-
-        } else {
-            Attribute pkAttribute = targetEntity.getSinglePkAttribute();
-
-            methodGenerator.addCodeLn(targetEntityVoSimpleClassName + " " + voVarName + " = new " + targetEntityVoSimpleClassName + "(" + pkAttribute.getFieldName() + ");");
-        }
-
-        List<Attribute> nonPkAttributes = targetEntity.getNonPkAttributes();
-        for (Attribute attribute : nonPkAttributes) {
-            methodGenerator.addCodeLn(voVarName + "." + attribute.generateSetterMethodName() + "(" + attribute.getFieldName() + ");");
-        }
-
-        methodGenerator.addCodeLn(voListVarName + ".add(" + voVarName + ");");
-
-        methodGenerator.addCodeLn("}");
-        methodGenerator.addCodeLn("return " + voListVarName + ";");
-
-
-        methodGenerator.addCodeLn("} catch (SQLException e) {");
-        methodGenerator.addCodeLn("throw new " + this.connectionExceptionSimpleClassName + "(e);");
-        methodGenerator.addCodeLn("} finally {");
-        methodGenerator.addCodeLn("if (resultSet != null) { try { resultSet.close(); } catch (SQLException e) {}}");
-        methodGenerator.addCodeLn("if (statement != null) { try { statement.close(); } catch (SQLException e) {}}");
-//        methodGenerator.addCodeLn("releaseConnection(connection, " + this.entity.getDaoSimpleClassName() + ".class);");
-//        methodGenerator.addCodeLn(this.connectionManagerSimpleClassName + ".getInstance().releaseConnection(connection, " + this.entity.getDaoSimpleClassName() + ".class);");
-        methodGenerator.addCodeLn(generateReleaseConnectionStatement());
-        methodGenerator.addCodeLn("}");
-
-    }
-
-    private void addAssociation(ForeignKeyWrapper foreignKeyWrapperA, ForeignKeyWrapper foreignKeyWrapperB) {
-
-        Entity entityA = foreignKeyWrapperA.getTargetEntity();
-        Entity entityB = foreignKeyWrapperB.getTargetEntity();
-
-        MethodGenerator methodGenerator = this.getNewMethodGenerator();
-        methodGenerator.setIsStatic(true);
-//		methodGenerator.setReturnType(List.class);
-
-        methodGenerator.setMethodName("addAssociation");
-
-        String entityAVoVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(entityA.getVoSimpleClassName());
-        String entityBVoVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(entityB.getVoSimpleClassName());
-        methodGenerator.addParameter(entityA.getVoCanonicalClassName(), entityAVoVarName);
-        methodGenerator.addParameter(entityB.getVoCanonicalClassName(), entityBVoVarName);
-
-        methodGenerator.addThrowsException(this.connectionExceptionCanonicalClassName);
-
-        String pkClassName = this.entity.getPkSimpleClassName();
-        String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkClassName);
-        methodGenerator.addCode(pkClassName + " " + pkVarName + " = new " + pkClassName + "(");
-
-        List<Attribute> pkAttributes = this.entity.getPkAttributes();
-        boolean sequence = false;
-        for (Attribute pkAttribute : pkAttributes) {
-            if (sequence) {
-                methodGenerator.addCode(", ");
-            }
-            Attribute referencedAttribute = foreignKeyWrapperA.getReferencedFieldAttributeByReferencingFieldAttribute(pkAttribute);
-            if (referencedAttribute != null) {
-                methodGenerator.addCode(entityAVoVarName + "." + referencedAttribute.generateGetterMethodName() + "()");
-            } else {
-                referencedAttribute = foreignKeyWrapperB.getReferencedFieldAttributeByReferencingFieldAttribute(pkAttribute);
-                methodGenerator.addCode(entityBVoVarName + "." + referencedAttribute.generateGetterMethodName() + "()");
-            }
-            sequence = true;
-        }
-
-        methodGenerator.addCodeLn(");");
-
-        String voClassName = this.entity.getVoSimpleClassName();
-        String voVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(voClassName);
-
-        methodGenerator.addCodeLn(voClassName + " " + voVarName + " = new " + voClassName + "(" + pkVarName + ");");
-        methodGenerator.addCodeLn(this.entity.getDaoSimpleClassName() + ".create(" + voVarName + ");");
-    }
-
-    private void addGetValueExpressionMethod() {
-
-        MethodGenerator methodGenerator = this.getNewMethodGenerator();
-
-        methodGenerator.setAccessibility(MethodGenerator.Accessibility.PRIVATE);
-        methodGenerator.setIsStatic(true);
-        methodGenerator.setReturnType(String.class);
-
-        methodGenerator.setMethodName("getValueExpression");
-        methodGenerator.addParameter(Object.class, "o");
-        methodGenerator.addParameter(String.class, "sqlType");
-
-        methodGenerator.addCodeLn("if (o == null) { return \"NULL\"; }");
-        methodGenerator.addCodeLn("if (sqlType.startsWith(\"VARCHAR\") || sqlType.equals(\"DATE\")) { return \"'\" + o + \"'\"; }");
-        methodGenerator.addCodeLn("return \"\" + o;");
-    }
-
     public String generateVoAssignmentFromResultSet(Entity entity, Attribute attribute) {
         // example: personCompositeVO.setAge(resultSet.getInt("age"));
         return JavaGeneratorHelper.getVoVarName(entity) + "."
@@ -372,4 +158,3 @@ public class DaoGenerator extends ClassGenerator {
     }
 
 }
-
