@@ -2,12 +2,8 @@ package de.arthurpicht.barnacle.processor;
 
 import de.arthurpicht.barnacle.annotations.Annotations.Barnacle;
 import de.arthurpicht.barnacle.annotations.Annotations.ForeignKey;
-import de.arthurpicht.barnacle.exceptions.GeneratorException;
-import de.arthurpicht.barnacle.helper.Helper;
-import de.arthurpicht.barnacle.mapping.Attribute;
-import de.arthurpicht.barnacle.mapping.Entity;
-import de.arthurpicht.barnacle.mapping.EntityCollection;
-import de.arthurpicht.barnacle.mapping.ForeignKeyWrapper;
+import de.arthurpicht.barnacle.helper.StringHelper;
+import de.arthurpicht.barnacle.model.*;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -16,22 +12,22 @@ import java.util.List;
 
 public class FieldProcessorStage2 {
 	
-	public static void process(Entity entity) throws GeneratorException {
+	public static void process(Entity entity, EntityRelationshipModel entityRelationshipModel) {
 
 		Class<?> vofClass = entity.getVofClass();
 		Field[] fields = vofClass.getDeclaredFields();
 		for (Field field : fields) {
 			if (field.isAnnotationPresent(Barnacle.class)) {
-				processField(field, entity);				
+				processField(field, entity, entityRelationshipModel);
 			}
 		}
 	}
 	
-	private static void processField(Field field, Entity entity) throws GeneratorException {
+	private static void processField(Field field, Entity entity, EntityRelationshipModel entityRelationshipModel) {
 		
 		if (field.isAnnotationPresent(ForeignKey.class)) {
 			
-			ForeignKey foreignKey = (ForeignKey) field.getAnnotation(ForeignKey.class);
+			ForeignKey foreignKey = field.getAnnotation(ForeignKey.class);
 			
 			String[] referenceTableName = foreignKey.referenceTableName();
 			String[] referenceColumnName = foreignKey.referenceColumnName();
@@ -45,77 +41,81 @@ public class FieldProcessorStage2 {
 			boolean[] setReferenceEntityMethod = foreignKey.setReferenceEntityMethod();
 			String[] referenceEntityMethodName = foreignKey.referenceEntityMethodName();
 			
-			List<ForeignKeyAnnotationWrapper> foreignKeyAnnotations = new ArrayList<ForeignKeyAnnotationWrapper>();
+			List<ForeignKeyAnnotation> foreignKeyAnnotationList = new ArrayList<>();
 						
 			int length = referenceTableName.length;
 			for (int i=0; i<length; i++) {
-				ForeignKeyAnnotationWrapper annotationWrapper = new ForeignKeyAnnotationWrapper();
-				foreignKeyAnnotations.add(annotationWrapper);
+				ForeignKeyAnnotation foreignKeyAnnotation = new ForeignKeyAnnotation();
+				foreignKeyAnnotationList.add(foreignKeyAnnotation);
 				
-				annotationWrapper.setReferenceTableName(referenceTableName[i]);
+				foreignKeyAnnotation.setReferenceTableName(referenceTableName[i]);
 				
 				try {
-					annotationWrapper.setReferenceColumnName(referenceColumnName[i]);
+					foreignKeyAnnotation.setReferenceColumnName(referenceColumnName[i]);
 				} catch (IndexOutOfBoundsException e) {
-					throw new GeneratorException("referenceColumnName missing");
+					throw new ERMBuilderException("referenceColumnName missing");
 				}
 
 				try {
-					annotationWrapper.setForeignKeyName(foreignKeyName[i]);
+					foreignKeyAnnotation.setForeignKeyName(foreignKeyName[i]);
 				} catch (IndexOutOfBoundsException e) {
-					annotationWrapper.setForeignKeyName("");
+					foreignKeyAnnotation.setForeignKeyName("");
 				}
 				
 				try {
-					annotationWrapper.setOnDeleteCascade(onDeleteCascade[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setOnDeleteCascade(onDeleteCascade[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 
 				try {
-					annotationWrapper.setOnUpdateCascade(onUpdateCascade[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setOnUpdateCascade(onUpdateCascade[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 				
 				try {
-					annotationWrapper.setGetEntityMethod(getEntityMethod[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setGetEntityMethod(getEntityMethod[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 				
 				try {
-					annotationWrapper.setSetEntityMethod(setEntityMethod[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setSetEntityMethod(setEntityMethod[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 				
 				try {
-					annotationWrapper.setEntityMethodName(entityMethodName[i]);
-				} catch (IndexOutOfBoundsException e) {
+					foreignKeyAnnotation.setEntityMethodName(entityMethodName[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 					
 				}
 				
 				try {
-					annotationWrapper.setGetReferenceEntityMethod(getReferenceEntityMethod[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setGetReferenceEntityMethod(getReferenceEntityMethod[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 				
 				try {
-					annotationWrapper.setSetReferenceEntityMethod(setReferenceEntityMethod[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setSetReferenceEntityMethod(setReferenceEntityMethod[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 				
 				try {
-					annotationWrapper.setReferenceEntityMethodName(referenceEntityMethodName[i]);
-				} catch (IndexOutOfBoundsException e) {					
+					foreignKeyAnnotation.setReferenceEntityMethodName(referenceEntityMethodName[i]);
+				} catch (IndexOutOfBoundsException ignored) {
 				}
 			}
 			
-			for (ForeignKeyAnnotationWrapper foreignKeyAnnotationWrapper : foreignKeyAnnotations) {
-				processForeignKey(foreignKeyAnnotationWrapper, entity, field);
+			for (ForeignKeyAnnotation foreignKeyAnnotation : foreignKeyAnnotationList) {
+				processForeignKey(entityRelationshipModel, foreignKeyAnnotation, entity, field);
 			}
 		}
 		
 	}
 	
-	private static void processForeignKey(ForeignKeyAnnotationWrapper annotationWrapper, Entity entity, Field field) throws GeneratorException {
+	private static void processForeignKey(
+			EntityRelationshipModel entityRelationshipModel,
+			ForeignKeyAnnotation annotationWrapper,
+			Entity entity,
+			Field field) {
 		
 		//
 		// foreign key Name
@@ -129,9 +129,9 @@ public class FieldProcessorStage2 {
 		// reference table name 
 		//
 		String referenceTableName = annotationWrapper.getReferenceTableName();
-		Entity referenceEntity = EntityCollection.getEntityByTableName(referenceTableName);
+		Entity referenceEntity = entityRelationshipModel.getEntityByTableName(referenceTableName);
 		if (referenceEntity == null) {
-			throw new GeneratorException("Error in foreign key definition. "
+			throw new ERMBuilderException("Error in foreign key definition. "
 					+ "class: " + entity.getVofClass().getSimpleName() + ", field: " + field.getName() + ", 'referenceTableName=" 
 					+ referenceTableName + "'. Entity does not exist!");
 					
@@ -139,8 +139,8 @@ public class FieldProcessorStage2 {
 		
 		boolean success = foreignKeyWrapper.setTargetEntity(referenceEntity);
 		if (!success) {
-			throw new GeneratorException("Inconsistent foreign key definition: same index name but different target tables. VOF class: "
-					+ entity.getVofClass().getSimpleName() + "; field: " + field.getName());
+			throw new ERMBuilderException("Inconsistent foreign key definition: same index name but different target " +
+					"tables. VOF class: " + entity.getVofClass().getSimpleName() + "; field: " + field.getName());
 		}
 		
 		String fieldName = field.getName();
@@ -153,7 +153,7 @@ public class FieldProcessorStage2 {
 		Attribute referenceAttribute = referenceEntity.getAttributeByColumnName(referenceColumnName);
 		
 		if (referenceAttribute == null) {
-			throw new GeneratorException("Error in foreign key definition. "
+			throw new ERMBuilderException("Error in foreign key definition. "
 					+ "class: " + entity.getVofClass().getSimpleName() + ", field: " + field.getName() + ", 'referenceTableName="
 					+ referenceTableName + "', 'referenceColumnName="	+ referenceColumnName + "'. Column does not exist.");
 		}
@@ -184,10 +184,10 @@ public class FieldProcessorStage2 {
 			entityMethodName = "get" 
 				+ foreignKeyWrapper.getTargetEntity().getVoSimpleClassName()
 				+ "By"
-				+ Helper.shiftCaseFirstLetter(foreignKeyName);
+				+ StringHelper.shiftFirstLetterToUpperCase(foreignKeyName);
 		} else {
 
-			entityMethodName = "get" + Helper.shiftCaseFirstLetter(entityMethodName);
+			entityMethodName = "get" + StringHelper.shiftFirstLetterToUpperCase(entityMethodName);
 		}
 		foreignKeyWrapper.setEntityMethodName(entityMethodName);
 		
@@ -203,9 +203,9 @@ public class FieldProcessorStage2 {
 			referenceEntityMethodName = "get"
 				+ entity.getVoSimpleClassName()
 				+ "By"
-				+ Helper.shiftCaseFirstLetter(foreignKeyName);
+				+ StringHelper.shiftFirstLetterToUpperCase(foreignKeyName);
 		}  else {
-			referenceEntityMethodName = "get" + Helper.shiftCaseFirstLetter(referenceEntityMethodName);
+			referenceEntityMethodName = "get" + StringHelper.shiftFirstLetterToUpperCase(referenceEntityMethodName);
 		}
 		
 		foreignKeyWrapper.setReferencedEntityMethodName(referenceEntityMethodName);

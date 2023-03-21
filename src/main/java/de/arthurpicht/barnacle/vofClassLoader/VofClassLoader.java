@@ -4,15 +4,10 @@ import de.arthurpicht.barnacle.exceptions.VofClassLoaderException;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-/**
- * 
- * 
- * @author Arthur Picht, Arthur Picht GmbH, 5.12.2012
- *
- */
 public class VofClassLoader {
 	
 	public static Class<?>[] getClassesFromPackage(String srcDir, String pckgname) throws VofClassLoaderException {
@@ -20,27 +15,17 @@ public class VofClassLoader {
 		String path = pckgname.replace('.', '/');
 		File directory = new File(srcDir, path);
 		
-		if (!directory.exists()) throw new VofClassLoaderException("Package directory " + directory.getAbsolutePath() + " does not exist.");
-		
-		// Erzeuge Liste von java-files im übergebenen Package.
-		String[] files = directory.list();
-		List<File> javaFileList = new ArrayList<File>();
-		for (int i = 0; i < files.length; i++) {
-			// we are only interested in .java files
-			if (files[i].endsWith(".java")) {			
-				
-//				System.out.println("gefunden: " + files[i]);
-				
-				javaFileList.add(new File(directory, files[i]));
-			}
-		}
+		if (!directory.exists()) throw new VofClassLoaderException(
+				"Package directory [" + directory.getAbsolutePath() + "] does not exist.");
+
+		List<File> javaFileList = getJavaFiles(directory);
 
 		// Erzeuge speziellen ClassLoader, der SourceDateien kompiliert
 		// und im Speicher hält.
 		MemoryClassLoader memoryClassLoader = new MemoryClassLoader(javaFileList);
 		
 		// Beziehe alle Klassen und baue Array zur Rückgabe
-		Set<String> classNameSet = memoryClassLoader.getClassNames();
+		List<String> classNameSet = memoryClassLoader.getClassNames();
 		
 		Class<?>[] classArray = new Class<?>[classNameSet.size()];
 		
@@ -56,6 +41,18 @@ public class VofClassLoader {
 		}
 		
 		return classArray;
+	}
+
+	private static List<File> getJavaFiles(File directory) {
+		String[] files = directory.list();
+		List<File> javaFileList = new ArrayList<>();
+		//noinspection DataFlowIssue
+		for (String file : files) {
+			if (file.endsWith(".java"))
+				javaFileList.add(new File(directory, file));
+		}
+		Collections.sort(javaFileList);
+		return javaFileList;
 	}
 
 }

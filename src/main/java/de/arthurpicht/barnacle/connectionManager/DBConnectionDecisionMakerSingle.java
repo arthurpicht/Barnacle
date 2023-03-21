@@ -10,7 +10,7 @@ public class DBConnectionDecisionMakerSingle extends DBConnectionDecisionMaker {
 	}
 
 	@Override
-	public ConnectionWrapper getDBCoonectionByDaoClass(String canonicalClassName) {
+	public ConnectionWrapper getDBConnectionByDaoClass(String canonicalClassName) {
 		return this.connectionWrapper;
 	}
 		

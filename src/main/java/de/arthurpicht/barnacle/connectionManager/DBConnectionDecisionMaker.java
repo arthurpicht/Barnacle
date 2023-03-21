@@ -44,6 +44,6 @@ public abstract class DBConnectionDecisionMaker {
 		return new DBConnectionDecisionMakerMultiple(dbConnections);
 	}
 	
-	public abstract ConnectionWrapper getDBCoonectionByDaoClass(String canonicalClassName) throws DBConnectionException;
+	public abstract ConnectionWrapper getDBConnectionByDaoClass(String canonicalClassName) throws DBConnectionException;
 
 }

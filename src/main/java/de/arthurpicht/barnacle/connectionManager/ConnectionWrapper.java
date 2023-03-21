@@ -1,6 +1,7 @@
 package de.arthurpicht.barnacle.connectionManager;
 
 import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
+import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,7 @@ public class ConnectionWrapper {
 	private static final int JNDI_DATASOURCE = 3;
 	private static final int CONNECTION_POOL = 4;
 
-	protected static Logger logger = LoggerFactory.getLogger(BarnacleConfiguration.getLoggerName());
+	protected static Logger logger = LoggerFactory.getLogger(GeneratorContext.getInstance().getGeneralConfiguration().getLogger());
 	
 	private DBConnectionType dbConnectionType;
 	

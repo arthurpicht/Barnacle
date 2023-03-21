@@ -20,50 +20,40 @@ import java.io.IOException;
  */
 public class BarnacleConfiguration {
 	
-	private static ConfigurationFactory configurationFactory;
-	private static Configuration generalConfiguration;
-	private static Configuration generatorConfiguration;
+	private final ConfigurationFactory configurationFactory;
+	private final Configuration generalConfiguration;
+	private final Configuration generatorConfiguration;
 	
-	static {
-		
-		configurationFactory = new ConfigurationFactory();	
+	public BarnacleConfiguration() {
+
+		configurationFactory = new ConfigurationFactory();
 		
 		// barnacle-default.conf laden
-
 		try {
 			configurationFactory.addConfigurationFileFromClasspath("barnacle-default.conf");
 		} catch (ConfigurationFileNotFoundException | IOException e) {
-			// TODO suboptimal. static initializer aufheben, besseres Exception-Konzept
 			throw new RuntimeException("Barnacle default configuration 'barnacle-default.conf' not found!");
 		}
 
 		// Konfigurationsdatei laden, deren Namen als SysProp barnacle.conf übergeben wurde.
 		// Wenn SysProp nicht besteht, barnacle.conf laden.
-		
-//		String barnacleConfFileName = "barnacle.conf";
 		String barnacleConfBySystemProp = null;
-		
 		try {
 			barnacleConfBySystemProp = System.getProperty("barnacle.conf");			
-		} catch (SecurityException e) {
-			// do nothing
+		} catch (SecurityException ignore) {
 		}
 		
 		if (barnacleConfBySystemProp != null) {
-			String barnacleConfFileName = barnacleConfBySystemProp;
-
 			try {
-				configurationFactory.addConfigurationFileFromFilesystem(new File(barnacleConfFileName));
+				configurationFactory.addConfigurationFileFromFilesystem(new File(barnacleConfBySystemProp));
 			} catch (ConfigurationFileNotFoundException | IOException e) {
-				throw new RuntimeException("Barnacle project specific configuration '" + barnacleConfFileName + "' not found!");
+				throw new RuntimeException("Barnacle project specific configuration '"
+						+ barnacleConfBySystemProp + "' not found!");
 			}
-
 		} else {
-
 			try {
 				configurationFactory.addConfigurationFileFromClasspath("barnacle.conf");
 			} catch (ConfigurationFileNotFoundException | IOException e) {
-				// TODO suboptimal. static initializer aufheben, besseres Exception-Konzept
 				throw new RuntimeException("Barnacle project specific configuration 'barnacle.conf' not found!");
 			}
 		}
@@ -73,34 +63,27 @@ public class BarnacleConfiguration {
 		
 		// Sektion [generator] auswerten, sonst null hinterlegen.
 		generatorConfiguration = configurationFactory.getConfiguration("generator");
-		
 	}
 	
-	public static Configuration getGeneralConfiguration() {
-		return generalConfiguration;
-	}
-	
-	public static ConfigurationFactory getConfigurationFactory() {
+
+	public ConfigurationFactory getConfigurationFactory() {
 		return configurationFactory;
 	}
 	
-	public static String getLoggerName() {
-		return generalConfiguration.getString("logger", "BARNACLE");
+	public boolean hasGeneralConfiguration() {
+		return generalConfiguration != null;
+	}
+
+	public Configuration getGeneralConfiguration() {
+		return generalConfiguration;
+	}
+
+	public boolean hasGeneratorConfiguration() {
+		return generatorConfiguration != null;
 	}
 	
-	public static boolean isLogConfigOnInit() {
-		return generalConfiguration.getBoolean("log_init_config", true);
-	}
-	
-	public static boolean hasGeneratorConfiguration() {
-		if (generatorConfiguration == null) {
-			return false;
-		}
-		return true;
-	}
-	
-	public static Configuration getGeneratorConfiguration() {
+	public Configuration getGeneratorConfiguration() {
 		return generatorConfiguration;
 	}
-	
+
 }

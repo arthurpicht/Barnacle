@@ -1,14 +1,11 @@
 package de.arthurpicht.barnacle.vofClassLoader;
 
-
 import javax.tools.JavaCompiler;
 import javax.tools.JavaFileObject;
 import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 import java.io.File;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class MemoryClassLoader extends ClassLoader {
 	
@@ -55,15 +52,13 @@ public class MemoryClassLoader extends ClassLoader {
      * 
      * @return
      */
-    public Set<String> getClassNames() {
+    public List<String> getClassNames() {
     	
     	// Deep Clone des Keyset erstellen, um java.util.ConcurrentModificationException zu vermeiden.
-    	Set<String> classNameSet = new HashSet<>();
-    	for (String className : this.manager.map.keySet()) {
-    		classNameSet.add(className);
-    	}
-    	
-    	return classNameSet;
+        List<String> classNameList = new ArrayList<>(this.manager.map.keySet());
+        Collections.sort(classNameList);
+
+    	return classNameList;
     }
 
 }

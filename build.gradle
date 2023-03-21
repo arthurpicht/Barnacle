@@ -1,11 +1,15 @@
 plugins {
-    id 'java-library'
+    id 'java'
 }
 
 group 'com.github.arthurpicht'
-version '0.2.2-SNAPSHOT'
+version '0.3.0-SNAPSHOT'
 
-//sourceCompatibility = 1.8
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(11)
+    }
+}
 
 repositories {
     mavenCentral()
@@ -13,13 +17,21 @@ repositories {
 }
 
 dependencies {
-    api 'com.github.arthurpicht:AP-Configuration:0.1.0'
+    implementation 'com.github.arthurpicht:AP-Configuration:0.1.6'
+    implementation 'com.github.arthurpicht:utils-core:1.11.0'
+    implementation 'com.github.arthurpicht:utils-io:0.0.17'
 
     // TODO: remove logback-classic declaration, add slf4j and leave declaration of logging framework to the user.
-    implementation 'ch.qos.logback:logback-classic:1.2.3'
+    implementation 'ch.qos.logback:logback-classic:1.2.9'
 
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.4.3'
-    testImplementation group: 'junit', name: 'junit', version: '4.12'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 task extractDependencies(type: Copy) {

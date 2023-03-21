@@ -27,7 +27,7 @@ public class DBConnectionDecisionMakerMultiple extends DBConnectionDecisionMaker
 	 * 
 	 */
 	@Override
-	public ConnectionWrapper getDBCoonectionByDaoClass(String canonicalClassName) throws DBConnectionException {
+	public ConnectionWrapper getDBConnectionByDaoClass(String canonicalClassName) throws DBConnectionException {
 		
 		// Wenn im Cache schon vorhanden, dann nimm Inhalt
 		// Performance!
