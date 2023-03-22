@@ -24,6 +24,7 @@ public class GeneratorConfigurationBuilder {
     private String connectionExceptionCanonicalClassName;
     private String entityNotFoundExceptionCanonicalClassName;
     private String daoLoggerName;
+    private boolean omitJavaDoc;
 
     public GeneratorConfigurationBuilder(
             String vofPackageName,
@@ -47,6 +48,7 @@ public class GeneratorConfigurationBuilder {
         this.connectionExceptionCanonicalClassName = DBConnectionException.class.getCanonicalName();
         this.entityNotFoundExceptionCanonicalClassName = EntityNotFoundException.class.getCanonicalName();
         this.daoLoggerName = "";
+        this.omitJavaDoc = false;
     }
 
     public GeneratorConfigurationBuilder withDialect(Const.Dialect dialect) {
@@ -113,6 +115,11 @@ public class GeneratorConfigurationBuilder {
         return this;
     }
 
+    public GeneratorConfigurationBuilder withOmitJavaDoc() {
+        this.omitJavaDoc = true;
+        return this;
+    }
+
     public GeneratorConfiguration build() {
         return new GeneratorConfiguration(
                 this.dialect,
@@ -130,7 +137,8 @@ public class GeneratorConfigurationBuilder {
                 this.connectionManagerCanonicalClassName,
                 this.connectionExceptionCanonicalClassName,
                 this.entityNotFoundExceptionCanonicalClassName,
-                this.daoLoggerName
+                this.daoLoggerName,
+                this.omitJavaDoc
         );
     }
 

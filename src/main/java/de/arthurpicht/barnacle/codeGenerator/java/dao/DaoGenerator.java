@@ -29,16 +29,21 @@ public class DaoGenerator extends ClassGenerator {
     public DaoGenerator(Entity entity, GeneratorConfiguration generatorConfiguration) {
         super(entity.getDaoCanonicalClassName(), generatorConfiguration);
 
-        logger.debug("Assembling class " + entity.getDaoSimpleClassName());
+        logger.debug("Generating class [" + entity.getDaoSimpleClassName() + "]");
 
         this.entity = entity;
 
         String connectionManagerCanonicalClassName = generatorConfiguration.getConnectionManagerCanonicalClassName();
-        this.connectionManagerSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(connectionManagerCanonicalClassName);
-        this.connectionExceptionCanonicalClassName = generatorConfiguration.getConnectionExceptionCanonicalClassName();
-        this.connectionExceptionSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(this.connectionExceptionCanonicalClassName);
-        this.entityNotFoundExceptionCanonicalClassName = generatorConfiguration.getEntityNotFoundExceptionCanonicalClassName();
-        this.entityNotFoundExceptionSimpleClassName = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(this.entityNotFoundExceptionCanonicalClassName);
+        this.connectionManagerSimpleClassName
+                = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(connectionManagerCanonicalClassName);
+        this.connectionExceptionCanonicalClassName
+                = generatorConfiguration.getConnectionExceptionCanonicalClassName();
+        this.connectionExceptionSimpleClassName
+                = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(this.connectionExceptionCanonicalClassName);
+        this.entityNotFoundExceptionCanonicalClassName
+                = generatorConfiguration.getEntityNotFoundExceptionCanonicalClassName();
+        this.entityNotFoundExceptionSimpleClassName
+                = JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(this.entityNotFoundExceptionCanonicalClassName);
 
         // standard imports
         this.addStandardImports();

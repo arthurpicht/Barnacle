@@ -134,7 +134,8 @@ public class ClassGenerator {
 
             this.importGenerator.generate(sourceCache);
 
-            this.generateJavaDocHeader(sourceCache);
+            if (!this.generatorConfiguration.isOmitJavaDoc())
+                this.generateJavaDocHeader(sourceCache);
 
             this.generateClassSignature(sourceCache);
 

@@ -20,6 +20,7 @@ public class GeneratorConfiguration {
     public static final String VO_PACKAGE_NAME = "vo_package_name";
     public static final String VOB_PACKAGE_NAME = "vob_package_name";
     public static final String DAO_PACKAGE_NAME = "dao_package_name";
+    public static final String OMIT_JAVADOC = "omit_javadoc";
 
     private final Dialect dialect;
     private final String srcDir;
@@ -37,6 +38,7 @@ public class GeneratorConfiguration {
     private final String connectionExceptionCanonicalClassName;
     private final String entityNotFoundExceptionCanonicalClassName;
     private final String daoLoggerName;
+    private final boolean omitJavaDoc;
 
     public GeneratorConfiguration(
             Dialect dialect,
@@ -54,7 +56,8 @@ public class GeneratorConfiguration {
             String connectionManagerCanonicalClassName,
             String connectionExceptionCanonicalClassName,
             String entityNotFoundExceptionCanonicalClassName,
-            String daoLoggerName) {
+            String daoLoggerName,
+            boolean omitJavaDoc) {
 
         this.dialect = dialect;
         this.srcDir = srcDir;
@@ -72,6 +75,7 @@ public class GeneratorConfiguration {
         this.connectionExceptionCanonicalClassName = connectionExceptionCanonicalClassName;
         this.entityNotFoundExceptionCanonicalClassName = entityNotFoundExceptionCanonicalClassName;
         this.daoLoggerName = daoLoggerName;
+        this.omitJavaDoc = omitJavaDoc;
     }
 
     public Dialect getDialect() {
@@ -141,4 +145,9 @@ public class GeneratorConfiguration {
     public boolean hasDaoLoggerName() {
         return this.daoLoggerName != null && !this.daoLoggerName.equals("");
     }
+
+    public boolean isOmitJavaDoc() {
+        return this.omitJavaDoc;
+    }
+
 }
