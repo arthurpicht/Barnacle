@@ -175,25 +175,13 @@ public class Entity {
 	}
 	
 	public Set<ForeignKeyWrapper> getAllForeignKeys() {
-		Set<ForeignKeyWrapper> foreignKeySet = new HashSet<>();
+		Set<ForeignKeyWrapper> foreignKeySet = new LinkedHashSet<>();
 		for (String foreignKeyName : this.foreignKeyConstraints.keySet()) {
 			ForeignKeyWrapper foreignKeyWrapper = this.foreignKeyConstraints.get(foreignKeyName);
 			foreignKeySet.add(foreignKeyWrapper);
 		}
 		return foreignKeySet;
 	}
-	
-//	public Set<ForeignKeyWrapper> getAllReferencingForeignKeys() {
-//		Set<ForeignKeyWrapper> referencingForeignKeyWrapper = new HashSet<>();
-//		for (Entity entity : EntityCollection.getEntities()) {
-//			for (ForeignKeyWrapper foreignKeyWrapper : entity.getAllForeignKeys()) {
-//				if (foreignKeyWrapper.getTargetEntity().getTableName().equals(this.getTableName())) {
-//					referencingForeignKeyWrapper.add(foreignKeyWrapper);
-//				}
-//			}
-//		}
-//		return referencingForeignKeyWrapper;
-//	}
 	
 	public List<Attribute> getAttributesByUniqueIndexName(String indexName) {
 		return this.uniqueConstraints.get(indexName);
