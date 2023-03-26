@@ -1,9 +1,9 @@
 package de.arthurpicht.barnacle.codeGenerator.java;
 
-import de.arthurpicht.barnacle.Const.Encoding;
 import de.arthurpicht.barnacle.Const;
-import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
+import de.arthurpicht.barnacle.Const.Encoding;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +18,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("rawtypes")
 public class ClassGenerator {
 
     private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
@@ -50,15 +49,11 @@ public class ClassGenerator {
         return JavaGeneratorHelper.getPackageNameFromCanonicalClassName(this.canonicalClassName);
     }
 
-    public String getCanonicalClassName() {
-        return this.canonicalClassName;
-    }
-
     public String getSimpleClassName() {
         return JavaGeneratorHelper.getSimpleClassNameFromCanonicalClassName(this.canonicalClassName);
     }
 
-    public void setBaseClass(Class baseClass) {
+    public void setBaseClass(Class<?> baseClass) {
         this.importGenerator.addImport(baseClass);
         this.baseClassSimpleName = baseClass.getSimpleName();
     }
@@ -67,7 +62,7 @@ public class ClassGenerator {
         return this.importGenerator;
     }
 
-    public void addImplementedInterface(Class implementedInterface) {
+    public void addImplementedInterface(Class<?> implementedInterface) {
         this.importGenerator.addImport(implementedInterface);
         this.implementedInterfaces.add(implementedInterface.getSimpleName());
     }
