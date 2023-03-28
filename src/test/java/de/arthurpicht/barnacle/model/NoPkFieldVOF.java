@@ -1,9 +1,8 @@
 package de.arthurpicht.barnacle.model;
 
 import de.arthurpicht.barnacle.annotations.Annotations.Barnacle;
-import de.arthurpicht.barnacle.annotations.Annotations.ColumnName;
-import de.arthurpicht.barnacle.annotations.Annotations.PrimaryKey;
 
+@SuppressWarnings("unused")
 @Barnacle
 public class NoPkFieldVOF {
 

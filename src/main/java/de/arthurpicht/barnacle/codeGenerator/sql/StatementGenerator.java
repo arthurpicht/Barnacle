@@ -25,21 +25,21 @@ public abstract class StatementGenerator {
 	
 	public abstract String[] activateForeignKeyChecks();
 
-	public String dropTableIfExists(String tablename) {
-		return "DROP TABLE IF EXISTS " + tablename + ";";
+	public String dropTableIfExists(String tableName) {
+		return "DROP TABLE IF EXISTS " + tableName + ";";
 
-		// Oracle-SQL: 'drop {tablename} cascade constraints'
+		// Oracle-SQL: 'drop {tableName} cascade constraints'
 		// deletes all foreign keys
-		// that reference the table to be dropped, than
+		// that reference the table to be dropped, then
 		// drops the table
 	}
 
-	public String createTable(String tablename) {
-		return "CREATE TABLE " + tablename + " (" + tempColName + " varchar(1));";
+	public String createTable(String tableName) {
+		return "CREATE TABLE " + tableName + " (" + tempColName + " varchar(1));";
 	}
 
-	public String addColumn(String tablename, String columnName, String sqlType, String defaultValue, boolean notNull) {
-		String sql = "ALTER TABLE " + tablename + " ADD COLUMN (" + columnName + " " + sqlType;
+	public String addColumn(String tableName, String columnName, String sqlType, String defaultValue, boolean notNull) {
+		String sql = "ALTER TABLE " + tableName + " ADD COLUMN (" + columnName + " " + sqlType;
 		if (defaultValue != null) {
 			sql += " DEFAULT '" + defaultValue + "'";
 		}
@@ -50,8 +50,8 @@ public abstract class StatementGenerator {
 		return sql;
 	}
 
-	public String addPrimaryKey(String tablename, List<String> columnNames) {
-		StringBuilder sql = new StringBuilder("ALTER TABLE " + tablename + " ADD PRIMARY KEY (");
+	public String addPrimaryKey(String tableName, List<String> columnNames) {
+		StringBuilder sql = new StringBuilder("ALTER TABLE " + tableName + " ADD PRIMARY KEY (");
 		boolean sequence = false;
 		for (String columnName : columnNames) {
 			if (sequence) {
@@ -72,8 +72,8 @@ public abstract class StatementGenerator {
 	// worked for mysql until 1.2
 	// TODO Check if new method works as well. New one is also applicable for H2.
 	// see https://dev.mysql.com/doc/refman/8.0/en/alter-table.html
-//	public String addUniqueKey(String tablename, String indexName, List<String> columnNames) {
-//		StringBuilder sql = new StringBuilder("ALTER TABLE " + tablename + " ADD UNIQUE KEY " + indexName + " (");
+//	public String addUniqueKey(String tableName, String indexName, List<String> columnNames) {
+//		StringBuilder sql = new StringBuilder("ALTER TABLE " + tableName + " ADD UNIQUE KEY " + indexName + " (");
 //		boolean sequence = false;
 //		for (String columnName : columnNames) {
 //			if (sequence) {
@@ -86,12 +86,12 @@ public abstract class StatementGenerator {
 //		return sql.toString();
 //	}
 
-	public String dropTempColumn(String tablename) {
-		return "ALTER TABLE " + tablename + " DROP COLUMN " + tempColName + ";";
+	public String dropTempColumn(String tableName) {
+		return "ALTER TABLE " + tableName + " DROP COLUMN " + tempColName + ";";
 	}
 
-	public String addForeignKey(String tablename, String foreignKeyName, ForeignKeyWrapper foreignKeyWrapper) {
-		StringBuilder sql = new StringBuilder("ALTER TABLE " + tablename + " ADD CONSTRAINT " + foreignKeyName + " FOREIGN KEY (");
+	public String addForeignKey(String tableName, String foreignKeyName, ForeignKeyWrapper foreignKeyWrapper) {
+		StringBuilder sql = new StringBuilder("ALTER TABLE " + tableName + " ADD CONSTRAINT " + foreignKeyName + " FOREIGN KEY (");
 		boolean sequence = false;
 		for (Attribute attribute : foreignKeyWrapper.getKeyFieldAttributes()) {
 			if (sequence) {
@@ -136,6 +136,6 @@ public abstract class StatementGenerator {
 	 * @param encoding
 	 * @return
 	 */
-	public abstract String configureEncoding(String tablename, Const.Encoding encoding);
+	public abstract String configureEncoding(String tableName, Const.Encoding encoding);
 
 }

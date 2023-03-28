@@ -8,9 +8,9 @@ import de.arthurpicht.barnacle.exceptions.BarnacleRuntimeException;
  */
 public abstract class LoggerGenerator {
 	
-	public enum LoggerType {SLF4J};
+	public enum LoggerType {SLF4J}
 
-	protected ClassGenerator classGenerator;
+	protected final ClassGenerator classGenerator;
 	
 	protected LoggerGenerator(ClassGenerator classGenerator) {
 		this.classGenerator = classGenerator;

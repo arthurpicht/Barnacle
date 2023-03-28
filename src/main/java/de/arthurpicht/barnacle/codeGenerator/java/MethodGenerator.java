@@ -7,7 +7,7 @@ import java.util.List;
 
 public class MethodGenerator {
 	
-	public enum Accessibility {PRIVATE, PUBLIC, PROTECTED};
+	public enum Accessibility {PRIVATE, PUBLIC, PROTECTED}
 
 	private final ClassGenerator parentClassGenerator;
 	private Accessibility accessibility;
@@ -51,7 +51,7 @@ public class MethodGenerator {
 	 * added to import statements. Use this method only in cases of basic data
 	 * types and cases that need no automatic adding to import.
 	 * 
-	 * @param simpleClassName
+	 * @param simpleClassName simple class name
 	 */
 	public void setReturnTypeBySimpleClassName(String simpleClassName) {
 		this.returnTypeSimpleName = simpleClassName;
@@ -143,10 +143,7 @@ public class MethodGenerator {
 	}
 	
 	public void generate(SourceCache sourceCache) {
-		// 
 		// signature
-		//
-//		String methodSignatur = new String();
 		switch (this.accessibility) {
 			case PROTECTED: sourceCache.add("protected");
 				break;

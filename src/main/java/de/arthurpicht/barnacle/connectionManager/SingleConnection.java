@@ -8,8 +8,8 @@ import java.sql.SQLException;
 
 public class SingleConnection extends DBConnectionType {
 	
-	private Connection connection = null;
-	private String jdbcConnectionString;
+	private Connection connection;
+	private final String jdbcConnectionString;
 	
 	public SingleConnection(DBConfiguration dbConfiguration) {
 		super(dbConfiguration);
@@ -18,41 +18,24 @@ public class SingleConnection extends DBConnectionType {
 	}
 	
 	public Connection getConnection() throws DBConnectionException {
-		
-		try {			
-			
+		try {
 			if ((this.connection != null) && (!this.connection.isClosed())) {
-				
 				return this.connection;
-				
 			} else {
-			
 				String driverName = this.dbConfiguration.getDriverName();
-				Class.forName(driverName).newInstance();
-				
+				Class.forName(driverName);
 				Connection con = DriverManager.getConnection(this.jdbcConnectionString);
-				
 				this.connection = con;
-				
 				return con;
 			}
-			
-		} catch (InstantiationException e) {
-			throw new DBConnectionException(e);
-		} catch (IllegalAccessException e) {
-			throw new DBConnectionException(e);
-		} catch (ClassNotFoundException e) {
-			throw new DBConnectionException(e);
-		} catch (SQLException e) {
+		} catch (ClassNotFoundException | SQLException e) {
 			throw new DBConnectionException(e);
 		}
 	}
 
 	@Override
 	public void releaseConnection(Connection con) throws DBConnectionException {
-		// do nothing
+		// do intentionally nothing
 	}
-	
-	
 
 }

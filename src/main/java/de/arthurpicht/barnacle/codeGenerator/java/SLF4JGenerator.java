@@ -1,13 +1,12 @@
 package de.arthurpicht.barnacle.codeGenerator.java;
 
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
-import de.arthurpicht.barnacle.context.GeneratorContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class SLF4JGenerator extends LoggerGenerator {
 
-    private GeneratorConfiguration generatorConfiguration;
+    private final GeneratorConfiguration generatorConfiguration;
 
     protected SLF4JGenerator(ClassGenerator classGenerator, GeneratorConfiguration generatorConfiguration) {
         super(classGenerator);

@@ -19,7 +19,7 @@ public class ConnectionManagerBackend {
 
     private static final DBConnectionDecisionMaker dbConnectionDecisionMaker;
 
-    protected static Logger BARNACLE_LOGGER;
+    protected final static Logger BARNACLE_LOGGER;
 
     static {
 

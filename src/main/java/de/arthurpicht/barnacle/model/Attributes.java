@@ -1,7 +1,5 @@
 package de.arthurpicht.barnacle.model;
 
-import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
-
 import java.util.List;
 import java.util.stream.Collectors;
 

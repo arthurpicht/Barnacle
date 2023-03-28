@@ -1,20 +1,11 @@
 package de.arthurpicht.barnacle.model;
 
-import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.annotations.Annotations;
-import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
-import de.arthurpicht.barnacle.context.GeneratorContext;
-import de.arthurpicht.barnacle.exceptions.UnknownTypeException;
 import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
+import de.arthurpicht.barnacle.exceptions.UnknownTypeException;
 
 import java.lang.reflect.Field;
 
-/**
- * Representing mapped attribute: object field and DB column.
- * <p>
- * <p>
- * This code is part of Barnacle: https://github.com/arthurpicht/Barnacle *
- */
 public class Attribute {
 
     private final Field field;
@@ -38,8 +29,8 @@ public class Attribute {
 
         this.field = field;
 
-        // determine columnname
-        // set as fieldname if not given
+        // determine column name
+        // set as field name if not given
         String columnName;
         if (field.isAnnotationPresent(Annotations.ColumnName.class)) {
             Annotations.ColumnName columnNameAnnotation = field.getAnnotation(Annotations.ColumnName.class);
@@ -153,8 +144,6 @@ public class Attribute {
      * Returns the default value for the intended column.
      * Null means no default, empty string means explicit
      * empty string as default.
-     *
-     * @return
      */
     public String getDefaultValue() {
         return defaultValue;
@@ -163,18 +152,14 @@ public class Attribute {
     /**
      * Determines if a custom type is defined for this
      * attribute.
-     *
-     * @return
      */
     public boolean hasCustomType() {
         return this.type != null;
     }
 
     /**
-     * Returns the cusom type string, defined using the TYPE-
+     * Returns the custom type string, defined using the TYPE-
      * annotation.
-     *
-     * @return
      */
     public String getCustomType() {
         String typeString = this.type;
@@ -210,8 +195,6 @@ public class Attribute {
      * Returns the name of the public constant as part of the value objects.
      * Constant name is defined as attribute`s field name in uppercase letters.
      * The values given in the VOs represent the corresponding column names.
-     *
-     * @return
      */
     public String getConstName() {
         return this.getFieldName().toUpperCase();
@@ -219,8 +202,6 @@ public class Attribute {
 
     /**
      * Gets SQL-Datatype.
-     *
-     * @return
      */
     public String getSqlDataType() {
         return this.sqlDataType;
@@ -229,8 +210,6 @@ public class Attribute {
     /**
      * Determines whether this attribute represents a java
      * primitive type field.
-     *
-     * @return
      */
     public boolean isPrimitiveType() {
         return this.field.getType().isPrimitive();
@@ -239,9 +218,6 @@ public class Attribute {
     /**
      * Checks for equality. Two attributes are defined as equal, if they share
      * the same field name.
-     *
-     * @param attribute
-     * @return
      */
     public boolean equals(Attribute attribute) {
         return this.getFieldName().equals(attribute.getFieldName());

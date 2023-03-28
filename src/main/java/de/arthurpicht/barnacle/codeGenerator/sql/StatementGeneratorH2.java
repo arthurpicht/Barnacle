@@ -23,7 +23,7 @@ public class StatementGeneratorH2 extends StatementGenerator {
 	}
 
 	@Override
-	public String configureEncoding(String tablename, Encoding encoding) {
+	public String configureEncoding(String tableName, Encoding encoding) {
 		// from the docs: http://www.h2database.com/html/advanced.html
 		// H2 internally uses Unicode, and supports all character encoding systems and character sets supported by the
 		// virtual machine you use.

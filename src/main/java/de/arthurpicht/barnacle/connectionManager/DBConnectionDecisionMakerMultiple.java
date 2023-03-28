@@ -10,14 +10,14 @@ import java.util.Set;
 public class DBConnectionDecisionMakerMultiple extends DBConnectionDecisionMaker{
 
 	// Map: String = daoPackageName
-	private Map<String, ConnectionWrapper> dbConnections;
+	private final Map<String, ConnectionWrapper> dbConnections;
 	
 	// Map: String = canonicalClassName
-	private Map<String, ConnectionWrapper> dbConnectionsCache;
+	private final Map<String, ConnectionWrapper> dbConnectionsCache;
 	
 	public DBConnectionDecisionMakerMultiple(Map<String, ConnectionWrapper> dbConnections) {
 		this.dbConnections = dbConnections;
-		this.dbConnectionsCache = Collections.synchronizedMap(new HashMap<String, ConnectionWrapper>());
+		this.dbConnectionsCache = Collections.synchronizedMap(new HashMap<>());
 	}
 
 	/**
@@ -39,8 +39,8 @@ public class DBConnectionDecisionMakerMultiple extends DBConnectionDecisionMaker
 		// Auswahl treffen.
 		// 1. Es muss passen
 		// 2. Wenn mehrere passen, dann nimm den mit der höchsten Spezifität,
-		//    d.h. der längesten Package-Teilbezeichnung.
-//		System.out.println("Totale Anazahl der DBConnections: " + this.dbConnections.keySet().size());
+		//    d.h. der längsten Package-Teilbezeichnung.
+//		System.out.println("Totale Anzahl der DBConnections: " + this.dbConnections.keySet().size());
 		
 		Set<String> packageNames = this.dbConnections.keySet();
 		
@@ -56,7 +56,7 @@ public class DBConnectionDecisionMakerMultiple extends DBConnectionDecisionMaker
 			}
 		}
 		
-//		System.out.println("Gematchte Package-Deklarationen: " + matchedPackageName);
+//		System.out.println("matched package declarations: " + matchedPackageName);
 		
 		// Wenn nichts zutreffen ist, dann Exception werfen
 		if (length < 0) {
@@ -69,7 +69,7 @@ public class DBConnectionDecisionMakerMultiple extends DBConnectionDecisionMaker
 //		// TODO debug
 //		if (connectionWrapper == null) {
 //			System.out.println("------------");
-//			System.out.println("Entahltene Packagedeklarationen:");
+//			System.out.println("Enthaltene Packagedeklarationen:");
 //			for (String packageName : packageNames) {
 //				System.out.println(packageName);
 //			}

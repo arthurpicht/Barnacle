@@ -11,8 +11,8 @@ Andere Entitäten werden nicht gelöscht.
 
 Daher:
 
-* Funktionalität grundsätzlich beibehalten, aber per default nicht ausführen, sondern nur mit entsprechender Aufrufkonfiguration.
-* Oder besser: Durch einen unabhängigen anderen Mechanismus ersetzen, der eine vollstänidge Löschung vornimmt. Diesen inhaltlich
+* Funktionalität grundsätzlich beibehalten, aber per Default nicht ausführen, sondern nur mit entsprechender Aufrufkonfiguration.
+* Oder besser: Durch einen unabhängigen anderen Mechanismus ersetzen, der eine vollständige Löschung vornimmt. Diesen inhaltlich
 vom Skript trennen.
 
 ## Equals-Method VOs

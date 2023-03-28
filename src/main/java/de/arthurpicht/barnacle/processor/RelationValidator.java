@@ -21,7 +21,7 @@ import java.util.List;
  * be in the same order. If not, referencing attributes are
  * reordered. 
  * 
- * For additional infotmation see: MySQL reference guide,
+ * For additional information see: MySQL reference guide,
  * section 'foreign key constraints': 
  * http://dev.mysql.com/doc/refman/5.0/en/innodb-foreign-key-constraints.html
  * 
@@ -37,16 +37,11 @@ public class RelationValidator {
 	 * @throws CodeGeneratorException
 	 */
 	public static void validate(Entity entity) {
-		
 		for (ForeignKeyWrapper foreignKeyWrapper : entity.getAllForeignKeys()) {
-			
 			checkForTypeEquality(foreignKeyWrapper);
-			
 			checkForReferencingPrimaryKey(foreignKeyWrapper);
-			
 			checkForFurtherPrimaryKeyConditions(foreignKeyWrapper);
 		}
-		
 		checkForAssociationTableConstraint(entity);
 	}
 	
@@ -67,19 +62,19 @@ public class RelationValidator {
 			String sqlTypeKeyField = keyField.getSqlDataType();
 			
 			Attribute referencedField = referencedFieldAttributeList.get(i);
-			String sqlTypeReferncedField = referencedField.getSqlDataType();
+			String sqlTypeReferencedField = referencedField.getSqlDataType();
 			
-			if (!sqlTypeKeyField.equals(sqlTypeReferncedField)) {
+			if (!sqlTypeKeyField.equals(sqlTypeReferencedField)) {
 				throw new ERMBuilderException("Foreign key constraint definition error: types do not match! Entity table name: "
 				+ foreignKeyWrapper.getParentEntity().getTableName() + ", field: " + keyField.getFieldName()
-				+ ", types: " + sqlTypeKeyField + " and " + sqlTypeReferncedField);
+				+ ", types: " + sqlTypeKeyField + " and " + sqlTypeReferencedField);
 			}
 			
 		}
 	}
 	
 	/**
-	 * Checks wheather referenced attribute is defined as primary key field.
+	 * Checks whether referenced attribute is defined as primary key field.
 	 * 
 	 * @param foreignKeyWrapper
 	 * @throws CodeGeneratorException
@@ -93,7 +88,7 @@ public class RelationValidator {
 			Attribute keyField = keyFieldAttributeList.get(i);
 			Attribute referencedField = referencedFieldAttributeList.get(i);
 			
-			// check wheather referenced field is primary key field
+			// check whether referenced field is primary key field
 			if (!referencedField.isPrimaryKey()) {
 				throw new ERMBuilderException("Foreign key constraint definition error: Referenced field is no primary key field! Entity with table: "
 						+ foreignKeyWrapper.getParentEntity().getTableName() + ", field: " + keyField.getFieldName()
@@ -103,7 +98,7 @@ public class RelationValidator {
 	}
 	
 	/**
-	 * Checks wheather referencing fields match first fields of referenced primary key fields.
+	 * Checks whether referencing fields match first fields of referenced primary key fields.
 	 * Adjusts order of referencing fields if necessary.
 	 * 
 	 * @param foreignKeyWrapper
@@ -122,8 +117,8 @@ public class RelationValidator {
 						+ foreignKeyWrapper.getParentEntity().getTableName() + " Some field(s) referencing  non primary key field");
 		}
 		
-		List<Attribute> newKeyFieldAttributeList = new ArrayList<Attribute>();
-		List<Attribute> newReferencedFieldAttributeList = new ArrayList<Attribute>();
+		List<Attribute> newKeyFieldAttributeList = new ArrayList<>();
+		List<Attribute> newReferencedFieldAttributeList = new ArrayList<>();
 		
 		for (int i=0; i<keyFieldAttributeList.size(); i++) {
 			Attribute keyField = keyFieldAttributeList.get(i);
@@ -151,7 +146,6 @@ public class RelationValidator {
 	}
 	
 	private static void checkForAssociationTableConstraint(Entity entity) {
-		
 		if (entity.isAssociationTable()) {
 			List<Attribute> pkAttributes = entity.getPkAttributes();
 			List<Attribute> fkAttributesA = entity.getAssociationForeignKeyA().getKeyFieldAttributes();

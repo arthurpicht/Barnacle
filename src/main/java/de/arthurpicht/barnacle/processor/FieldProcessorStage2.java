@@ -161,7 +161,7 @@ public class FieldProcessorStage2 {
 		foreignKeyWrapper.addFields(attribute, referenceAttribute);
 		
 		// 
-		// further flags: onDelteCascase, onUpdateCascade, get/set EntityMethod
+		// further flags: onDeleteCascade, onUpdateCascade, get/set EntityMethod
 		//
 		boolean onDeleteCascade = annotationWrapper.isOnDeleteCascade();
 		foreignKeyWrapper.setOnDeleteCascade(onDeleteCascade);

@@ -1,6 +1,5 @@
 package de.arthurpicht.barnacle.processor;
 
-import de.arthurpicht.barnacle.model.ERMBuilderException;
 import de.arthurpicht.barnacle.model.Entity;
 import de.arthurpicht.barnacle.model.EntityRelationshipModel;
 

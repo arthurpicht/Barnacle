@@ -3,7 +3,7 @@ package de.arthurpicht.barnacle.connectionManager;
 
 public class DBConnectionDecisionMakerSingle extends DBConnectionDecisionMaker {
 
-	private ConnectionWrapper connectionWrapper;
+	private final ConnectionWrapper connectionWrapper;
 	
 	protected DBConnectionDecisionMakerSingle(ConnectionWrapper connectionWrapper) {
 		this.connectionWrapper = connectionWrapper;

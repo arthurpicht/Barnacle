@@ -23,7 +23,6 @@ public class SqlGenerator {
     }
 
     public void generateBareEntities(List<Entity> entities, Encoding encoding) {
-
         // pre drop, e.g. turning off foreign key checks
         preDrop();
 
@@ -85,7 +84,7 @@ public class SqlGenerator {
 
         // primary keys
         attributeList = entity.getPkAttributes();
-        List<String> pkColumnNames = new ArrayList<String>();
+        List<String> pkColumnNames = new ArrayList<>();
         for (Attribute attribute : attributeList) {
             pkColumnNames.add(attribute.getColumnName());
         }
@@ -97,7 +96,7 @@ public class SqlGenerator {
         Set<String> indexNames = entity.getAllUniqueIndicesNames();
         for (String indexName : indexNames) {
             attributeList = entity.getAttributesByUniqueIndexName(indexName);
-            List<String> uniqueColumnNames = new ArrayList<String>();
+            List<String> uniqueColumnNames = new ArrayList<>();
             for (Attribute attribute : attributeList) {
                 uniqueColumnNames.add(attribute.getColumnName());
             }

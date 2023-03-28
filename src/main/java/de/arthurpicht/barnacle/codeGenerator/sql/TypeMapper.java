@@ -29,56 +29,71 @@ public abstract class TypeMapper {
 	protected abstract String getSqlType(String fieldType) throws UnknownTypeException;
 
 	public static String getPreparedStatementSetMethod(String fieldType) {
-		if (fieldType.equals("String")) {
-			return "setString";
-		} else if (fieldType.equals("byte") || (fieldType.equals("Byte"))) {
-			return "setByte";
-		} else if (fieldType.equals("short") || (fieldType.equals("Short"))) {
-			return "setShort";
-		} else if (fieldType.equals("int") || (fieldType.equals("Integer"))) {
-			return "setInt";
-		} else if (fieldType.equals("long") || (fieldType.equals("Long"))) {
-			return "setLong";
-		} else if (fieldType.equals("double") || (fieldType.equals("Double"))) {
-			return "setDouble";
-		} else if (fieldType.equals("boolean") || (fieldType.equals("Boolean"))) {
-			return "setBoolean";
-		} else if (fieldType.equals("float") || (fieldType.equals("Float"))) {
-			return "setFloat";
-		} else if (fieldType.equals("BigDecimal")) {
-			// TODO test converted to SQL NUMERIC NOT (!) DECIMAL
-			return "setBigDecimal";
-		} else if (fieldType.equals("Date")) {
-			return "setDate";
+		switch (fieldType) {
+			case "String":
+				return "setString";
+			case "byte":
+			case "Byte":
+				return "setByte";
+			case "short":
+			case "Short":
+				return "setShort";
+			case "int":
+			case "Integer":
+				return "setInt";
+			case "long":
+			case "Long":
+				return "setLong";
+			case "double":
+			case "Double":
+				return "setDouble";
+			case "boolean":
+			case "Boolean":
+				return "setBoolean";
+			case "float":
+			case "Float":
+				return "setFloat";
+			case "BigDecimal":
+				// TODO test converted to SQL NUMERIC NOT (!) DECIMAL
+				return "setBigDecimal";
+			case "Date":
+				return "setDate";
 		}
 		throw new BarnacleRuntimeException("Unknown Type: " + fieldType);
 	}
 
 	public static String getResultSetGetMethod(String fieldType) {
-		if (fieldType.equals("String")) {
-			return "getString";
-		} else if (fieldType.equals("byte") || (fieldType.equals("Byte"))) {
-			return "getByte";
-		} else if (fieldType.equals("short") || (fieldType.equals("Short"))) {
-			return "getShort";
-		} else if (fieldType.equals("int") || (fieldType.equals("Integer"))) {
-			return "getInt";
-		} else if (fieldType.equals("long") || (fieldType.equals("Long"))) {
-			return "getLong";
-		} else if (fieldType.equals("double") || (fieldType.equals("Double"))) {
-			return "getDouble";
-		} else if (fieldType.equals("boolean") || (fieldType.equals("Boolean"))) {
-			return "getBoolean";
-		} else if (fieldType.equals("float") || (fieldType.equals("Float"))) {
-			return "getFloat";
-		} else if (fieldType.equals("BigDecimal")) {
-			// TODO test converted to SQL NUMERIC NOT (!) DECIMAL
-			return "getBigDecimal";
-		} else if (fieldType.equals("Date")) {
-			return "getDate";
+		switch (fieldType) {
+			case "String":
+				return "getString";
+			case "byte":
+			case "Byte":
+				return "getByte";
+			case "short":
+			case "Short":
+				return "getShort";
+			case "int":
+			case "Integer":
+				return "getInt";
+			case "long":
+			case "Long":
+				return "getLong";
+			case "double":
+			case "Double":
+				return "getDouble";
+			case "boolean":
+			case "Boolean":
+				return "getBoolean";
+			case "float":
+			case "Float":
+				return "getFloat";
+			case "BigDecimal":
+				// TODO test converted to SQL NUMERIC NOT (!) DECIMAL
+				return "getBigDecimal";
+			case "Date":
+				return "getDate";
 		}
 		throw new BarnacleRuntimeException("Unknown Type: " + fieldType);
 	}
-
 
 }

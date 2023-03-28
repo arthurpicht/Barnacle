@@ -1,8 +1,7 @@
 package de.arthurpicht.barnacle.codeGenerator.java;
 
-import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
-import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
+import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.helper.StringHelper;
 import de.arthurpicht.barnacle.model.*;
 import org.slf4j.Logger;
@@ -11,36 +10,26 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Set;
 
-
-/**
- * Extends VoBaseGenerator class with special functionality
- * to define 'value object' (VO) classes, not primary key
- * classes.
- *
- * @author Arthur Picht, Arthur Picht GmbH, (c) 2007
- *
- */
 public class VoGenerator extends VoBaseGenerator {
 
-    private static Logger logger = LoggerFactory.getLogger("BARNACLE");
+    private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
 
-    private String connectionExceptionCanonicalClassName;
-    private String entityNotFoundExceptionCanonicalClassName;
+    private final String connectionExceptionCanonicalClassName;
+    private final String entityNotFoundExceptionCanonicalClassName;
 
-    /**
-     * Constructs generator class for value objects (VO).
-     *
-     * @param entity
-     * @throws CodeGeneratorException
-     */
-    public VoGenerator(Entity entity, EntityRelationshipModel entityRelationshipModel, GeneratorConfiguration generatorConfiguration) throws CodeGeneratorException {
+    public VoGenerator(
+            Entity entity,
+            EntityRelationshipModel entityRelationshipModel,
+            GeneratorConfiguration generatorConfiguration) throws CodeGeneratorException {
 
-        super(getVOcanonicalClassNameFromEntity(entity, generatorConfiguration), entity, generatorConfiguration);
+        super(getVOCanonicalClassNameFromEntity(entity, generatorConfiguration), entity, generatorConfiguration);
 
         logger.debug("Assembling class " + entity.getVoSimpleClassName());
 
-        this.connectionExceptionCanonicalClassName = generatorConfiguration.getConnectionExceptionCanonicalClassName();
-        this.entityNotFoundExceptionCanonicalClassName = generatorConfiguration.getEntityNotFoundExceptionCanonicalClassName();
+        this.connectionExceptionCanonicalClassName
+                = generatorConfiguration.getConnectionExceptionCanonicalClassName();
+        this.entityNotFoundExceptionCanonicalClassName
+                = generatorConfiguration.getEntityNotFoundExceptionCanonicalClassName();
 
         // imports for non-primitive Attributes
         List<Attribute> attributeList = entity.getAttributes();
@@ -96,13 +85,8 @@ public class VoGenerator extends VoBaseGenerator {
 
         // equals method
         this.addEqualsMethod();
-
     }
 
-    /**
-     * Creates and adds vo-constructor.
-     *
-     */
     private void addConstructor() throws CodeGeneratorException {
 
         List<Attribute> attributes = this.entity.getPkAttributes();
@@ -125,16 +109,8 @@ public class VoGenerator extends VoBaseGenerator {
         }
     }
 
-
-    /**
-     * Defines method to get value object for targeted entity
-     * by foreign key.
-     *
-     * @param foreignKeyWrapper
-     */
     private void addFkGetter(ForeignKeyWrapper foreignKeyWrapper) {
 
-//		ForeignKeyWrapper foreignKeyWrapper = this.entity.getForeignKeyByName(foreignKeyName);
         Entity referenceEntity = foreignKeyWrapper.getTargetEntity();
         String referenceVoSimpleClassName = referenceEntity.getVoSimpleClassName();
         String referenceVoCanonicalClassName = referenceEntity.getVoCanonicalClassName();
@@ -144,7 +120,6 @@ public class VoGenerator extends VoBaseGenerator {
 
         MethodGenerator fkGetterGenerator = this.getNewMethodGenerator();
         fkGetterGenerator.setReturnTypeBySimpleClassName(referenceVoSimpleClassName);
-//		fkGetterGenerator.setMethodName("get" + referenceVoSimpleClassName);
         fkGetterGenerator.setMethodName(foreignKeyWrapper.getEntityMethodName());
         fkGetterGenerator.addThrowsException(this.connectionExceptionCanonicalClassName);
         fkGetterGenerator.addThrowsException(this.entityNotFoundExceptionCanonicalClassName);
@@ -155,49 +130,48 @@ public class VoGenerator extends VoBaseGenerator {
             String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
             List<Attribute> referencePkAttributes = referenceEntity.getPkAttributes();
 
-            String lineOfCode = pkSimpleClassName + " "
+            StringBuilder lineOfCode = new StringBuilder(pkSimpleClassName + " "
                     + pkVarName
-                    + " = new " + pkSimpleClassName + "(";
+                    + " = new " + pkSimpleClassName + "(");
 
             boolean sequence = false;
             for (Attribute referencePkAttribute : referencePkAttributes) {
                 if (sequence) {
-                    lineOfCode += ", ";
+                    lineOfCode.append(", ");
                 }
-                Attribute localAttribute = foreignKeyWrapper.getKeyFieldAttributeByReferencedFieldAttribute(referencePkAttribute);
-                lineOfCode += "this." + localAttribute.getFieldName();
+                Attribute localAttribute
+                        = foreignKeyWrapper.getKeyFieldAttributeByReferencedFieldAttribute(referencePkAttribute);
+                lineOfCode.append("this.").append(localAttribute.getFieldName());
                 sequence = true;
             }
 
-            lineOfCode += ");";
-            fkGetterGenerator.addCodeLn(lineOfCode);
+            lineOfCode.append(");");
+            fkGetterGenerator.addCodeLn(lineOfCode.toString());
 
-            fkGetterGenerator.addCodeLn("return " + referenceEntity.getDaoSimpleClassName() + ".load(" + pkVarName + ");");
+            fkGetterGenerator.addCodeLn("return " + referenceEntity.getDaoSimpleClassName()
+                    + ".load(" + pkVarName + ");");
 
         } else {
             Attribute referencePkAttribute = referenceEntity.getSinglePkAttribute();
-            Attribute localAttribute = foreignKeyWrapper.getKeyFieldAttributeByReferencedFieldAttribute(referencePkAttribute);
-            fkGetterGenerator.addCodeLn("return " + referenceEntity.getDaoSimpleClassName() + ".load(this." + localAttribute.getFieldName() + ");");
+            Attribute localAttribute
+                    = foreignKeyWrapper.getKeyFieldAttributeByReferencedFieldAttribute(referencePkAttribute);
+            fkGetterGenerator.addCodeLn("return " + referenceEntity.getDaoSimpleClassName() + ".load(this."
+                    + localAttribute.getFieldName() + ");");
         }
 
         this.importGenerator.addImport(referenceEntity.getDaoCanonicalClassName());
     }
 
     public void addReferencingFkGetter(ForeignKeyWrapper referencingForeignKeyWrapper) {
-
-//		String voSimpleClassName = referencingForeignKeyWrapper.getParentEntity().getVoSimpleClassName();
         String voCanonicalClassName = referencingForeignKeyWrapper.getParentEntity().getVoCanonicalClassName();
         String daoSimpleClassName = referencingForeignKeyWrapper.getParentEntity().getDaoSimpleClassName();
         String daoCanonicalClassName = referencingForeignKeyWrapper.getParentEntity().getDaoCanonicalClassName();
-        String fkNameShiftedCase = StringHelper.shiftFirstLetterToUpperCase(referencingForeignKeyWrapper.getForeignKeyName());
+        String fkNameShiftedCase
+                = StringHelper.shiftFirstLetterToUpperCase(referencingForeignKeyWrapper.getForeignKeyName());
 
         this.getImportGenerator().addImport(daoCanonicalClassName);
 
         String methodName = referencingForeignKeyWrapper.getReferencedEntityMethodName();
-//		if (methodName.equals("")) {
-//			methodName = "get" + voSimpleClassName + "By" + fkNameShiftedCase;
-//		}
-
         MethodGenerator methodGenerator = this.getNewMethodGenerator();
         methodGenerator.setReturnType(List.class);
         methodGenerator.setReturnTypeParameter(voCanonicalClassName);
@@ -219,7 +193,6 @@ public class VoGenerator extends VoBaseGenerator {
     }
 
     private void addCloneMethod() {
-
         this.addImplementedInterface(Cloneable.class);
         this.importGenerator.addImport(InternalError.class);
         this.importGenerator.addImport(CloneNotSupportedException.class);
@@ -236,7 +209,6 @@ public class VoGenerator extends VoBaseGenerator {
     }
 
     private void addToStringMethod() {
-
         MethodGenerator methodGenerator = this.getNewMethodGenerator();
         methodGenerator.setMethodName("toString");
         methodGenerator.setReturnType(String.class);
@@ -257,7 +229,6 @@ public class VoGenerator extends VoBaseGenerator {
     }
 
     private void addVobFactory() {
-
         String vobCanonicalClassName = this.entity.getVobCanonicalClassName();
         String vobSimpleClassName = this.entity.getVobSimpleClassName();
         String vobVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(vobSimpleClassName);
@@ -276,13 +247,13 @@ public class VoGenerator extends VoBaseGenerator {
 
         List<Attribute> nonPkAttributeList = this.entity.getNonPkAttributes();
         for (Attribute attribute : nonPkAttributeList) {
-            methodGenerator.addCodeLn(vobVarName + "." + attribute.generateSetterMethodName() + "(this." + attribute.getFieldName() + ");");
+            methodGenerator.addCodeLn(vobVarName + "." + attribute.generateSetterMethodName()
+                    + "(this." + attribute.getFieldName() + ");");
         }
         methodGenerator.addCodeLn("return " + vobVarName + ";");
     }
 
     private void addEqualsMethod() {
-
         MethodGenerator methodGenerator = this.getNewMethodGenerator();
         methodGenerator.setMethodName("equals");
         methodGenerator.setReturnTypeBySimpleClassName("boolean");
@@ -298,29 +269,25 @@ public class VoGenerator extends VoBaseGenerator {
         List<Attribute> attributeList = this.entity.getAttributes();
         for (Attribute attribute : attributeList) {
             if (attribute.isPrimitiveType()) {
-                methodGenerator.addCodeLn("if (this." + attribute.getFieldName() + " != other." + attribute.generateGetterMethodName() + "()) return false;");
+                methodGenerator.addCodeLn("if (this." + attribute.getFieldName() + " != other."
+                        + attribute.generateGetterMethodName() + "()) return false;");
             } else {
                 methodGenerator.addCodeLn("if (this." + attribute.getFieldName() + " == null) {");
-                methodGenerator.addCodeLn("if (other." + attribute.generateGetterMethodName() + "() != null) return false;");
+                methodGenerator.addCodeLn("if (other." + attribute.generateGetterMethodName()
+                        + "() != null) return false;");
                 methodGenerator.addCodeLn("} else {");
-                methodGenerator.addCodeLn("if (!this." + attribute.getFieldName() + ".equals(other." + attribute.generateGetterMethodName() + "())) return false;");
+                methodGenerator.addCodeLn("if (!this." + attribute.getFieldName()
+                        + ".equals(other." + attribute.generateGetterMethodName() + "())) return false;");
                 methodGenerator.addCodeLn("}");
             }
         }
         methodGenerator.addCodeLn("return true;");
     }
 
-    /**
-     * Deterimines canonical class name for value object class
-     * by entity.
-     *
-     * @param entity
-     * @return
-     */
-    private static String getVOcanonicalClassNameFromEntity(Entity entity, GeneratorConfiguration generatorConfiguration) {
+    private static String getVOCanonicalClassNameFromEntity(Entity entity, GeneratorConfiguration generatorConfiguration) {
         String vofClassName = entity.getVofClass().getSimpleName();
         String voSimpleClassName = vofClassName.substring(0, vofClassName.length()-3) + "VO";
-        String voCanonicalClassName = generatorConfiguration.getVoPackageName() + "." + voSimpleClassName;
-        return voCanonicalClassName;
+        return generatorConfiguration.getVoPackageName() + "." + voSimpleClassName;
     }
+
 }

@@ -22,16 +22,16 @@ public class ClassGenerator {
 
     private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
 
-    protected GeneratorConfiguration generatorConfiguration;
-    protected String canonicalClassName;
+    protected final GeneratorConfiguration generatorConfiguration;
+    protected final String canonicalClassName;
     protected String baseClassSimpleName;
-    protected List<String> implementedInterfaces;
-    protected ImportGenerator importGenerator;
-    protected ConstantGenerator constantGenerator;
+    protected final List<String> implementedInterfaces;
+    protected final ImportGenerator importGenerator;
+    protected final ConstantGenerator constantGenerator;
     protected ConstructorGenerator constructorGenerator = null;
-    protected List<MethodGenerator> methodGeneratorList;
+    protected final List<MethodGenerator> methodGeneratorList;
     protected LoggerGenerator loggerGenerator;
-    protected LocalStringConstGenerator localStringConstGenerator;
+    protected final LocalStringConstGenerator localStringConstGenerator;
 
     public ClassGenerator(String canonicalClassName, GeneratorConfiguration generatorConfiguration) {
         this.generatorConfiguration = generatorConfiguration;

@@ -35,7 +35,7 @@ public class EntityValidator {
 	}
 	
 	/**
-	 * Checks specification constraint [PK_AI_1]: Maximum number of auto-incremnt fields is 1.
+	 * Checks specification constraint [PK_AI_1]: Maximum number of auto-increment fields is 1.
 	 * 
 	 * @param entity
 	 * @throws CodeGeneratorException

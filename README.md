@@ -16,7 +16,7 @@ Simply check  whether generated classes suit your requirements. Good luck!
 
 ## Download from Maven-Repo
 
-For gradle or maven builds, Barnacle can be obtained from [jitpack](jitpack.io).
+For gradle or maven builds, Barnacle can be obtained from [jitpack](https://jitpack.io).
 In gradle builds, add *jitpack* to the list of your repositories and add the following
 dependency declaration:
 
@@ -41,7 +41,6 @@ Don't forget to add a JDBC driver to your dependencies, like
 * Logging-Tool of your choice, compatible with slf4j, e.g. Logback: [logback-core-1.2.3.jar](http://search.maven.org/#artifactdetails%7Cch.qos.logback%7Clogback-core%7C1.2.3%7Cjar)
 , [logback-classic-1.2.3](http://search.maven.org/#artifactdetails%7Cch.qos.logback%7Clogback-classic%7C1.2.3%7Cjar)
 
-
 ## Build
 
 1. Clone repository.
@@ -51,7 +50,6 @@ Don't forget to add a JDBC driver to your dependencies, like
     or
     
         $ git clone https://github.com/arthurpicht/Barnacle.git
-
 
 2. Build Barnacle with [gradle](https://gradle.org):
 
@@ -72,9 +70,9 @@ described and proceed the following steps.
     
 2. Put `Barnacle\bin` on your *PATH*.
 
-2. Configure *barnacle.conf*, including the *\[generator\]* section.
+3. Configure *barnacle.conf*, including the *\[generator\]* section.
 
-3. Call
+4. Call
 
        $ barnacle path/to/your/barnacle.conf
 

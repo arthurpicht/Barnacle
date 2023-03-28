@@ -54,7 +54,7 @@ public class MemoryClassLoader extends ClassLoader {
      */
     public List<String> getClassNames() {
     	
-    	// Deep Clone des Keyset erstellen, um java.util.ConcurrentModificationException zu vermeiden.
+    	// Deep Clone des KeySet erstellen, um java.util.ConcurrentModificationException zu vermeiden.
         List<String> classNameList = new ArrayList<>(this.manager.map.keySet());
         Collections.sort(classNameList);
 

@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class VoBaseGenerator extends ClassGenerator {
 	
-	protected Entity entity;
+	protected final Entity entity;
 	
 	public VoBaseGenerator(String canonicalClassName, Entity entity, GeneratorConfiguration generatorConfiguration) {
 		super(canonicalClassName, generatorConfiguration);
@@ -29,8 +29,6 @@ public class VoBaseGenerator extends ClassGenerator {
 	 * Creates and adds constants by attributes as used in value 
 	 * objects: String constants with field names as constant names
 	 * and corresponding column names as constant values. 
-	 * 
-	 * @param attributeList
 	 */
 	public void addConstants(List<Attribute> attributeList) {
 		ConstantGenerator constantGenerator = this.getConstantGenerator();
@@ -47,7 +45,6 @@ public class VoBaseGenerator extends ClassGenerator {
 	 * corresponding to current value object.
 	 */
 	protected void addPkGetter() {
-		
 		String pkCanonicalClassName = this.entity.getPkCanonicalClassName();
 		String pkSimpleClassName = this.entity.getPkSimpleClassName();
 		String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
@@ -58,25 +55,24 @@ public class VoBaseGenerator extends ClassGenerator {
 		
 		List<Attribute> attributes = this.entity.getPkAttributes();
 		
-		String lineOfCode = pkSimpleClassName + " " + pkVarName + " = new " + pkSimpleClassName + "(";
+		StringBuilder lineOfCode = new StringBuilder(pkSimpleClassName + " " + pkVarName + " = new " + pkSimpleClassName + "(");
 		
 		boolean sequence = false;
 		for (Attribute attribute : attributes) {
 			if (sequence) {
-				lineOfCode += ", ";
+				lineOfCode.append(", ");
 			}
-			lineOfCode += "this." + attribute.getFieldName();
+			lineOfCode.append("this.").append(attribute.getFieldName());
 			sequence = true;
 		}
 		
-		lineOfCode += ");";
-		pkGetterGenerator.addCodeLn(lineOfCode);
+		lineOfCode.append(");");
+		pkGetterGenerator.addCodeLn(lineOfCode.toString());
 		
 		pkGetterGenerator.addCodeLn("return " + pkVarName + ";");
 	}
 
 	protected void addGetterSetter(List<Attribute> attributes) {
-		
 		for (Attribute attribute : attributes) {
 			addGetter(attribute);			
 			addSetter(attribute);			
@@ -84,22 +80,18 @@ public class VoBaseGenerator extends ClassGenerator {
 	}
 
 	protected void addGetter(Attribute attribute) {
-		
 		MethodGenerator getterGenerator = this.getNewMethodGenerator();
 		getterGenerator.setMethodName(attribute.generateGetterMethodName());
 		getterGenerator.setReturnTypeBySimpleClassName(attribute.getJavaTypeSimpleName());
-
-		getterGenerator.addCodeLn("return this." + attribute.getFieldName() + ";");		
+		getterGenerator.addCodeLn("return this." + attribute.getFieldName() + ";");
 	}
 
 	protected void addSetter(Attribute attribute) {
-		
 		MethodGenerator setterGenerator = this.getNewMethodGenerator();
 		setterGenerator.setMethodName(attribute.generateSetterMethodName());
 		String fieldName = attribute.getFieldName();
 		setterGenerator.addParameter(attribute.getType(), fieldName);
-		
-		setterGenerator.addCodeLn("this." + fieldName + "=" + fieldName + ";");		
+		setterGenerator.addCodeLn("this." + fieldName + "=" + fieldName + ";");
 	}
 
 }

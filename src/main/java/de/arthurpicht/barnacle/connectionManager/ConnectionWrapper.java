@@ -1,6 +1,5 @@
 package de.arthurpicht.barnacle.connectionManager;
 
-import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
 import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import org.slf4j.Logger;
@@ -23,9 +22,9 @@ public class ConnectionWrapper {
 	private static final int JNDI_DATASOURCE = 3;
 	private static final int CONNECTION_POOL = 4;
 
-	protected static Logger logger = LoggerFactory.getLogger(GeneratorContext.getInstance().getGeneralConfiguration().getLogger());
+	protected static final Logger logger = LoggerFactory.getLogger(GeneratorContext.getInstance().getGeneralConfiguration().getLogger());
 	
-	private DBConnectionType dbConnectionType;
+	private final DBConnectionType dbConnectionType;
 	
 	public ConnectionWrapper(DBConfiguration dbConfiguration) {
 		
@@ -62,4 +61,5 @@ public class ConnectionWrapper {
 	public void releaseConnection(Connection con) throws DBConnectionException {
 		this.dbConnectionType.releaseConnection(con);
 	}
+
 }

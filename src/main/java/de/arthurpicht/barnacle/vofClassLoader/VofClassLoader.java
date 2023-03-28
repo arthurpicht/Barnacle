@@ -6,13 +6,12 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 public class VofClassLoader {
 	
-	public static Class<?>[] getClassesFromPackage(String srcDir, String pckgname) throws VofClassLoaderException {
+	public static Class<?>[] getClassesFromPackage(String srcDir, String packageName) throws VofClassLoaderException {
 		
-		String path = pckgname.replace('.', '/');
+		String path = packageName.replace('.', '/');
 		File directory = new File(srcDir, path);
 		
 		if (!directory.exists()) throw new VofClassLoaderException(

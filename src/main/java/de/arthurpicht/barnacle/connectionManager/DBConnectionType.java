@@ -6,7 +6,7 @@ import java.sql.Connection;
 
 public abstract class DBConnectionType {
 	
-	protected DBConfiguration dbConfiguration;
+	protected final DBConfiguration dbConfiguration;
 	
 	public DBConnectionType(DBConfiguration dbConfiguration) {
 		this.dbConfiguration = dbConfiguration;

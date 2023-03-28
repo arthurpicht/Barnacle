@@ -8,45 +8,29 @@ import java.sql.SQLException;
 
 public class DirectConnections extends DBConnectionType {
 
-	private String jdbcConnectionString;
+	private final String jdbcConnectionString;
 	
 	public DirectConnections(DBConfiguration dbConfiguration) {
 		super(dbConfiguration);
 		this.jdbcConnectionString = ConnectionHelper.getJDBCConnectionString(dbConfiguration);
 	}
 	
-	/**
-	 * Öffnet eine JDBC-Verbindung zum konfigurierten DB-Server.
-	 */
 	public Connection getConnection() throws DBConnectionException {
-	
-
-		try {			
-			
+		try {
 			String driverName = this.dbConfiguration.getDriverName();
-			Class.forName(driverName).newInstance();
-
-			Connection con = DriverManager.getConnection(this.jdbcConnectionString);
-
-			return con;
-			
-		} catch (InstantiationException | IllegalAccessException | ClassNotFoundException | SQLException e) {
+			Class.forName(driverName);
+			return DriverManager.getConnection(this.jdbcConnectionString);
+		} catch (ClassNotFoundException | SQLException e) {
 			throw new DBConnectionException(e);
 		}
-
 	}
 	
-	/**
-	 * Schließt eine offene JDBC-Verbindung zum konfigurierten DB-Server.
-	 */
 	public void releaseConnection(Connection con) throws DBConnectionException {
 		try {
 			con.close();
-//			System.out.println("Connection closed");
 		} catch (SQLException e) {
 			throw new DBConnectionException(e);
 		}
 	}
-
 
 }

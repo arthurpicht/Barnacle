@@ -15,31 +15,21 @@ public class JndiDatasource extends DBConnectionType {
 	}
 	
 	public Connection getConnection() throws DBConnectionException {
-		
 		try {
 			InitialContext ctx = new InitialContext();
 			DataSource ds = (DataSource) ctx.lookup("java:comp/env/jdbc/MySQLDB");
-			Connection con = ds.getConnection();
-			
-			return con;
-			
-		} catch (NamingException e) {
-			throw new DBConnectionException(e);
-		} catch (SQLException e) {
+			return ds.getConnection();
+		} catch (NamingException | SQLException e) {
 			throw new DBConnectionException(e);
 		}
 	}
 	
 	public void releaseConnection(Connection con) throws DBConnectionException {
-		
 		try {
 			con.close();
 		} catch (SQLException e) {
 			throw new DBConnectionException(e);
 		}
-		
 	}
-	
-	
 
 }

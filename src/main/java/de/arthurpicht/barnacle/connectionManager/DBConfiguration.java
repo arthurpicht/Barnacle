@@ -4,19 +4,18 @@ import de.arthurpicht.configuration.Configuration;
 
 public class DBConfiguration {
 	
-	private Configuration configuration;
-	
-	private String daoPackageName;
-	private String driverName;
-	private String dbName;
-	private String dbHost;
-	private String dbUser;
-	private String dbPassword;
-	private String rdbms;
-	private int connectionType;
+	private final Configuration configuration;
+
+	private final String daoPackageName;
+	private final String driverName;
+	private final String dbName;
+	private final String dbHost;
+	private final String dbUser;
+	private final String dbPassword;
+	private final String rdbms;
+	private final int connectionType;
 	
 	public DBConfiguration(Configuration configuration) {
-		
 		this.configuration = configuration;
 		
 		this.daoPackageName = configuration.getString("dao_package");

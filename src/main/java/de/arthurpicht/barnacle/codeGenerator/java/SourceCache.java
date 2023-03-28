@@ -6,7 +6,7 @@ import java.util.List;
 
 /**
  * Objects of SourceCache class cache generated java source
- * code. Code is indentated automatically on flush to 
+ * code. Code is indented automatically on flush to
  * PrintWriter.
  * 
  * @author Picht
@@ -14,8 +14,8 @@ import java.util.List;
  */
 public class SourceCache {
 	
-	private List<String> linesOfCode;
-	private PrintWriter printWriter;
+	private final List<String> linesOfCode;
+	private final PrintWriter printWriter;
 	
 	private String bufferString;
 	
@@ -27,8 +27,8 @@ public class SourceCache {
 	 */
 	public SourceCache(PrintWriter printWriter) {
 		this.printWriter = printWriter;
-		this.linesOfCode = new ArrayList<String>();
-		this.bufferString = new String();
+		this.linesOfCode = new ArrayList<>();
+		this.bufferString = "";
 	}
 	
 	/**
@@ -54,7 +54,7 @@ public class SourceCache {
 	/**
 	 * Adds line of code to the buffer.
 	 * 
-	 * @param lineOfCode
+	 * @param lineOfCode adds specified string as a line to the buffer
 	 */
 	public void add(String lineOfCode) {
 		this.bufferString += lineOfCode;
@@ -62,8 +62,7 @@ public class SourceCache {
 	
 	/**
 	 * Flushes the cache to printWriter. Code is going to be
-	 * indentated automatically.
-	 *
+	 * indented automatically.
 	 */
 	public void flush() {
 		int tab=0;
@@ -85,11 +84,7 @@ public class SourceCache {
 	}
 	
 	private String getTabs(int tab) {
-		String tabs = new String();
-		for (int i=0; i<tab; i++) {
-			tabs += "\t";
-		}
-		return tabs;
+		return "\t".repeat(Math.max(0, tab));
 	}
 
 }
