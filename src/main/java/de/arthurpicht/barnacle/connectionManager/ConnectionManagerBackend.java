@@ -1,9 +1,8 @@
 package de.arthurpicht.barnacle.connectionManager;
 
-import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
-import de.arthurpicht.barnacle.configuration.general.GeneralConfiguration;
-import de.arthurpicht.barnacle.configuration.general.GeneralConfigurationFactory;
+import de.arthurpicht.barnacle.configuration.db.DBConfigurationOLD;
+import de.arthurpicht.barnacle.configuration.helper.ConfigurationHelper;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import de.arthurpicht.configuration.Configuration;
 import de.arthurpicht.configuration.ConfigurationFactory;
@@ -19,30 +18,11 @@ public class ConnectionManagerBackend {
 
     private static final DBConnectionDecisionMaker dbConnectionDecisionMaker;
 
-    protected final static Logger BARNACLE_LOGGER;
+    protected final static Logger logger = LoggerFactory.getLogger(ConnectionManagerBackend.class);
 
     static {
 
         BarnacleConfiguration barnacleConfiguration = new BarnacleConfiguration();
-        GeneralConfiguration generalConfiguration
-                = GeneralConfigurationFactory.create(barnacleConfiguration.getGeneralConfiguration());
-
-        // Logger initialisieren
-        String loggerName = generalConfiguration.getLogger();
-        BARNACLE_LOGGER = LoggerFactory.getLogger(loggerName);
-
-        // Logging der Konfiguration, wenn angefordert
-        if (generalConfiguration.isLogConfigOnInit()) {
-            BARNACLE_LOGGER.info(Const.VERSION);
-            BARNACLE_LOGGER.info("Barnacle configuration:");
-            BARNACLE_LOGGER.info("[general]");
-            logAllProperties(barnacleConfiguration.getGeneralConfiguration());
-
-            if (barnacleConfiguration.hasGeneratorConfiguration()) {
-                BARNACLE_LOGGER.info("[generator]");
-                logAllProperties(barnacleConfiguration.getGeneratorConfiguration());
-            }
-        }
 
         //
         // Map daoPackage-ConnectionWrapper aufbauen, dann abschließend DecisionMaker davon erzeugen
@@ -58,13 +38,11 @@ public class ConnectionManagerBackend {
 
             // Config loggen, wenn angefordert
             Configuration configuration = configurationFactory.getConfiguration(sectionName);
-            if (generalConfiguration.isLogConfigOnInit()) {
-                BARNACLE_LOGGER.info("[" + configuration.getSectionName() + "]");
-                logAllProperties(configuration);
-            }
+            logger.debug("[" + configuration.getSectionName() + "]");
+            ConfigurationHelper.logAllPropertiesOnDebugLevel(configuration, logger);
 
             // DBConfig ableiten
-            DBConfiguration dbConfiguration = new DBConfiguration(configuration);
+            DBConfigurationOLD dbConfiguration = new DBConfigurationOLD(configuration);
 
             // ConnectionWrapper erzeugen und hinterlegen
             ConnectionWrapper connectionWrapper = new ConnectionWrapper(dbConfiguration);
@@ -79,12 +57,12 @@ public class ConnectionManagerBackend {
         dbConnectionDecisionMaker = DBConnectionDecisionMaker.getDBConnectionDecisionMaker(dbConnections);
     }
 
-    private static void logAllProperties(Configuration configuration) {
-        Set<String> keys = configuration.getKeys();
-        for (String key : keys) {
-            BARNACLE_LOGGER.info(key + " = " + configuration.getString(key));
-        }
-    }
+//    private static void logAllProperties(Configuration configuration) {
+//        Set<String> keys = configuration.getKeys();
+//        for (String key : keys) {
+//            BARNACLE_LOGGER.info(key + " = " + configuration.getString(key));
+//        }
+//    }
 
     /**
      * Return open JDBC-Connection.

@@ -1,5 +1,6 @@
 package de.arthurpicht.barnacle.connectionManager;
 
+import de.arthurpicht.barnacle.configuration.db.DBConfigurationOLD;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 
 import javax.naming.InitialContext;
@@ -10,7 +11,7 @@ import java.sql.SQLException;
 
 public class JndiDatasource extends DBConnectionType {
 	
-	public JndiDatasource(DBConfiguration dbConfiguration) {
+	public JndiDatasource(DBConfigurationOLD dbConfiguration) {
 		super(dbConfiguration);
 	}
 	

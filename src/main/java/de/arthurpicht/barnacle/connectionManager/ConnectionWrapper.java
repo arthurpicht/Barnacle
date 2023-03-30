@@ -1,5 +1,6 @@
 package de.arthurpicht.barnacle.connectionManager;
 
+import de.arthurpicht.barnacle.configuration.db.DBConfigurationOLD;
 import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import org.slf4j.Logger;
@@ -9,8 +10,8 @@ import java.sql.Connection;
 
 /**
  * Kapselt verschiedene Typen von Connections in einem Wrapper-Objekt,
- * welches in Abhängigkeit von der zugehörigen Sektion der Konfiguration
- * initialisiert wird. 
+ * welche in Abhängigkeit von der zugehörigen Sektion der Konfiguration
+ * initialisiert werden.
  * 
  * @author Picht
  *
@@ -22,11 +23,11 @@ public class ConnectionWrapper {
 	private static final int JNDI_DATASOURCE = 3;
 	private static final int CONNECTION_POOL = 4;
 
-	protected static final Logger logger = LoggerFactory.getLogger(GeneratorContext.getInstance().getGeneralConfiguration().getLogger());
+	protected static final Logger logger = LoggerFactory.getLogger(ConnectionWrapper.class);
 	
 	private final DBConnectionType dbConnectionType;
 	
-	public ConnectionWrapper(DBConfiguration dbConfiguration) {
+	public ConnectionWrapper(DBConfigurationOLD dbConfiguration) {
 		
 		int connection_type = dbConfiguration.getConnectionType();
 		

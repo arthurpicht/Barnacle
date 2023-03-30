@@ -3,9 +3,13 @@ package de.arthurpicht.barnacle.configuration;
 import de.arthurpicht.configuration.Configuration;
 import de.arthurpicht.configuration.ConfigurationFactory;
 import de.arthurpicht.configuration.ConfigurationFileNotFoundException;
+import de.arthurpicht.utils.core.collection.Maps;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Lädt die Barnacle-Konfiguration. Hierzu wird zunächst 'barnacle-default.conf' aus
@@ -21,19 +25,19 @@ import java.io.IOException;
 public class BarnacleConfiguration {
 	
 	private final ConfigurationFactory configurationFactory;
-	private final Configuration generalConfiguration;
 	private final Configuration generatorConfiguration;
+	private final Map<String, Configuration> connectionConfigurationMap;
 	
 	public BarnacleConfiguration() {
 
 		configurationFactory = new ConfigurationFactory();
 		
 		// barnacle-default.conf laden
-		try {
-			configurationFactory.addConfigurationFileFromClasspath("barnacle-default.conf");
-		} catch (ConfigurationFileNotFoundException | IOException e) {
-			throw new RuntimeException("Barnacle default configuration 'barnacle-default.conf' not found!");
-		}
+//		try {
+//			configurationFactory.addConfigurationFileFromClasspath("barnacle-default.conf");
+//		} catch (ConfigurationFileNotFoundException | IOException e) {
+//			throw new RuntimeException("Barnacle default configuration 'barnacle-default.conf' not found!");
+//		}
 
 		// Konfigurationsdatei laden, deren Namen als SysProp barnacle.conf übergeben wurde.
 		// Wenn SysProp nicht besteht, barnacle.conf laden.
@@ -47,35 +51,37 @@ public class BarnacleConfiguration {
 			try {
 				configurationFactory.addConfigurationFileFromFilesystem(new File(barnacleConfBySystemProp));
 			} catch (ConfigurationFileNotFoundException | IOException e) {
-				throw new RuntimeException("Barnacle project specific configuration '"
-						+ barnacleConfBySystemProp + "' not found!");
+				throw new RuntimeException("Barnacle configuration file not found as specified by system property " +
+						"barnacle.conf [" + barnacleConfBySystemProp + "].");
 			}
 		} else {
 			try {
 				configurationFactory.addConfigurationFileFromClasspath("barnacle.conf");
 			} catch (ConfigurationFileNotFoundException | IOException e) {
-				throw new RuntimeException("Barnacle project specific configuration 'barnacle.conf' not found!");
+				throw new RuntimeException("Barnacle configuration file [barnacle.conf] not found on classpath.");
 			}
 		}
 
-		// Sektion [general] auswerten.
-		generalConfiguration = configurationFactory.getConfiguration("general");
-		
-		// Sektion [generator] auswerten, sonst null hinterlegen.
-		generatorConfiguration = configurationFactory.getConfiguration("generator");
+		if (configurationFactory.hasSection("generator")) {
+			generatorConfiguration = configurationFactory.getConfiguration("generator");
+		} else {
+			generatorConfiguration = null;
+		}
+
+		connectionConfigurationMap = new LinkedHashMap<>();
+		Set<String> sectionNames = configurationFactory.getSectionNames();
+		for (String sectionName : sectionNames) {
+			if (sectionName.startsWith("db:")) {
+				Configuration configuration = configurationFactory.getConfiguration(sectionName);
+				connectionConfigurationMap.put(sectionName, configuration);
+			} else if (!sectionName.equals("generator")) {
+				throw new RuntimeException("Unknown section [" + sectionName + "] found in barnacle configuration.");
+			}
+		}
 	}
-	
 
 	public ConfigurationFactory getConfigurationFactory() {
 		return configurationFactory;
-	}
-	
-	public boolean hasGeneralConfiguration() {
-		return generalConfiguration != null;
-	}
-
-	public Configuration getGeneralConfiguration() {
-		return generalConfiguration;
 	}
 
 	public boolean hasGeneratorConfiguration() {
@@ -84,6 +90,14 @@ public class BarnacleConfiguration {
 	
 	public Configuration getGeneratorConfiguration() {
 		return generatorConfiguration;
+	}
+
+	public boolean hasConnectionConfigurations() {
+		return !connectionConfigurationMap.isEmpty();
+	}
+
+	public Map<String, Configuration> getConnectionConfigurationMap() {
+		return Maps.immutableMap(connectionConfigurationMap);
 	}
 
 }

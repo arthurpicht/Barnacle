@@ -1,8 +1,8 @@
-package de.arthurpicht.barnacle.connectionManager;
+package de.arthurpicht.barnacle.configuration.db;
 
 import de.arthurpicht.configuration.Configuration;
 
-public class DBConfiguration {
+public class DBConfigurationOLD {
 	
 	private final Configuration configuration;
 
@@ -15,7 +15,7 @@ public class DBConfiguration {
 	private final String rdbms;
 	private final int connectionType;
 	
-	public DBConfiguration(Configuration configuration) {
+	public DBConfigurationOLD(Configuration configuration) {
 		this.configuration = configuration;
 		
 		this.daoPackageName = configuration.getString("dao_package");

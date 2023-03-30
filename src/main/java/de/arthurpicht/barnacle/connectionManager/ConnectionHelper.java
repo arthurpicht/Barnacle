@@ -1,8 +1,10 @@
 package de.arthurpicht.barnacle.connectionManager;
 
+import de.arthurpicht.barnacle.configuration.db.DBConfigurationOLD;
+
 public class ConnectionHelper {
 	
-	protected static String getJDBCConnectionString(DBConfiguration dbConfiguration) {
+	protected static String getJDBCConnectionString(DBConfigurationOLD dbConfiguration) {
 		String rdbms = dbConfiguration.getRdbms();
 		if (rdbms.equals("mysql")) {
 			return "jdbc:mysql://" + dbConfiguration.getDbHost()

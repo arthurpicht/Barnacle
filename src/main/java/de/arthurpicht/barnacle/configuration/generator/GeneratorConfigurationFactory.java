@@ -1,8 +1,8 @@
 package de.arthurpicht.barnacle.configuration.generator;
 
 import de.arthurpicht.barnacle.Const;
-import de.arthurpicht.barnacle.configuration.MandatoryConfigParameterMissing;
 import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
+import de.arthurpicht.barnacle.configuration.helper.ConfigurationHelper;
 import de.arthurpicht.configuration.Configuration;
 
 import static de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration.*;
@@ -11,10 +11,10 @@ public class GeneratorConfigurationFactory {
 
     public static GeneratorConfiguration create(Configuration configuration) {
 
-        String vofPackageName = getMandatoryStringParameter(configuration, VOF_PACKAGE_NAME);
-        String voPackageName = getMandatoryStringParameter(configuration, VO_PACKAGE_NAME);
-        String vobPackageName = getMandatoryStringParameter(configuration, VOB_PACKAGE_NAME);
-        String daoPackageName = getMandatoryStringParameter(configuration, DAO_PACKAGE_NAME);
+        String vofPackageName = ConfigurationHelper.getMandatoryStringParameter(configuration, VOF_PACKAGE_NAME);
+        String voPackageName = ConfigurationHelper.getMandatoryStringParameter(configuration, VO_PACKAGE_NAME);
+        String vobPackageName = ConfigurationHelper.getMandatoryStringParameter(configuration, VOB_PACKAGE_NAME);
+        String daoPackageName = ConfigurationHelper.getMandatoryStringParameter(configuration, DAO_PACKAGE_NAME);
 
         GeneratorConfigurationBuilder generatorConfigurationBuilder = new GeneratorConfigurationBuilder(
                 vofPackageName,
@@ -85,12 +85,6 @@ public class GeneratorConfigurationFactory {
                     configuration.getString(DAO_LOGGER_NAME));
 
         return generatorConfigurationBuilder.build();
-    }
-
-    private static String getMandatoryStringParameter(Configuration configuration, String parameterName) {
-        if (!configuration.containsKey(parameterName))
-            throw new MandatoryConfigParameterMissing(parameterName);
-        return configuration.getString(parameterName);
     }
 
 }

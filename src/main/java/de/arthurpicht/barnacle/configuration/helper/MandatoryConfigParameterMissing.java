@@ -1,4 +1,4 @@
-package de.arthurpicht.barnacle.configuration;
+package de.arthurpicht.barnacle.configuration.helper;
 
 import de.arthurpicht.barnacle.exceptions.BarnacleRuntimeException;
 

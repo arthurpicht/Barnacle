@@ -1,5 +1,6 @@
 package de.arthurpicht.barnacle.connectionManager;
 
+import de.arthurpicht.barnacle.configuration.db.DBConfigurationOLD;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 
 import java.sql.Connection;
@@ -10,7 +11,7 @@ public class DirectConnections extends DBConnectionType {
 
 	private final String jdbcConnectionString;
 	
-	public DirectConnections(DBConfiguration dbConfiguration) {
+	public DirectConnections(DBConfigurationOLD dbConfiguration) {
 		super(dbConfiguration);
 		this.jdbcConnectionString = ConnectionHelper.getJDBCConnectionString(dbConfiguration);
 	}

@@ -1,20 +1,21 @@
 package de.arthurpicht.barnacle.context;
 
 import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
-import de.arthurpicht.barnacle.configuration.general.GeneralConfiguration;
-import de.arthurpicht.barnacle.configuration.general.GeneralConfigurationBuilder;
-import de.arthurpicht.barnacle.configuration.general.GeneralConfigurationFactory;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfigurationFactory;
+import de.arthurpicht.barnacle.configuration.helper.ConfigurationHelper;
 import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
 import de.arthurpicht.configuration.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class GeneratorContext {
+
+    protected final static Logger logger = LoggerFactory.getLogger(GeneratorContext.class);
 
     private static GeneratorContext generatorContext;
 
     private final GeneratorConfiguration generatorConfiguration;
-    private final GeneralConfiguration generalConfiguration;
 
     public static GeneratorContext getInstance() {
         if (generatorContext == null) {
@@ -35,22 +36,17 @@ public class GeneratorContext {
         } else {
             Configuration configuration = barnacleConfiguration.getGeneratorConfiguration();
             this.generatorConfiguration = GeneratorConfigurationFactory.create(configuration);
+            logConfig(configuration);
         }
+    }
 
-        if (!barnacleConfiguration.hasGeneralConfiguration()) {
-            this.generalConfiguration = new GeneralConfigurationBuilder().build();
-        } else {
-            Configuration configuration = barnacleConfiguration.getGeneralConfiguration();
-            this.generalConfiguration = GeneralConfigurationFactory.create(configuration);
-        }
+    private void logConfig(Configuration configuration) {
+        logger.debug("Barnacle [generator] configuration:");
+        ConfigurationHelper.logAllPropertiesOnDebugLevel(configuration, logger);
     }
 
     public GeneratorConfiguration getGeneratorConfiguration() {
         return this.generatorConfiguration;
-    }
-
-    public GeneralConfiguration getGeneralConfiguration() {
-        return this.generalConfiguration;
     }
 
 }

@@ -6,6 +6,7 @@ import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import de.arthurpicht.barnacle.exceptions.EntityNotFoundException;
 import de.arthurpicht.utils.core.assertion.MethodPreconditions;
 
+@SuppressWarnings({"UnusedReturnValue", "unused"})
 public class GeneratorConfigurationBuilder {
 
     private Const.Dialect dialect;
