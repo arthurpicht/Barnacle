@@ -1,4 +1,4 @@
-package de.arthurpicht.barnacle.configuration.db.single;
+package de.arthurpicht.barnacle.configuration.db.jdbc;
 
 import de.arthurpicht.utils.core.collection.Maps;
 

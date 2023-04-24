@@ -9,7 +9,7 @@ public class ConfigurationHelper {
 
     public static String getMandatoryStringParameter(Configuration configuration, String parameterName) {
         if (!configuration.containsKey(parameterName))
-            throw new MandatoryConfigParameterMissing(parameterName);
+            throw new MandatoryConfigParameterMissing(configuration.getSectionName(), parameterName);
         return configuration.getString(parameterName);
     }
 

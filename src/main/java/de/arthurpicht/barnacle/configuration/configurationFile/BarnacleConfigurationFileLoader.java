@@ -1,0 +1,104 @@
+package de.arthurpicht.barnacle.configuration.configurationFile;
+
+import de.arthurpicht.configuration.Configuration;
+import de.arthurpicht.configuration.ConfigurationFactory;
+import de.arthurpicht.configuration.ConfigurationFileNotFoundException;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.Optional;
+import java.util.Set;
+
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+public class BarnacleConfigurationFileLoader {
+
+    private static final String BARNACLE_SYSTEM_PROPERTY = "barnacle.conf";
+    private static final String BARNACLE_CONF_FILE_NAME = "barnacle.conf";
+
+    private final ConfigurationFactory configurationFactory;
+    private final Optional<Configuration> generatorConfigurationOpt;
+    private final DbConnectionConfigurationMap dbConnectionConfigurationMap;
+
+    public BarnacleConfigurationFileLoader() {
+        this.configurationFactory = bindConfigurationFile();
+        this.generatorConfigurationOpt = obtainGeneratorConfiguration();
+        this.dbConnectionConfigurationMap = obtainDbConnectionConfigurationMap();
+    }
+
+    public BarnacleConfigurationFileLoader(Path configurationFile) {
+        this.configurationFactory = bindConfigurationFile(configurationFile);
+        this.generatorConfigurationOpt = obtainGeneratorConfiguration();
+        this.dbConnectionConfigurationMap = obtainDbConnectionConfigurationMap();
+    }
+
+    private ConfigurationFactory bindConfigurationFile() {
+        ConfigurationFactory configurationFactory = new ConfigurationFactory();
+        String barnacleConfBySystemProp = null;
+        try {
+            barnacleConfBySystemProp = System.getProperty(BARNACLE_SYSTEM_PROPERTY);
+        } catch (SecurityException ignore) {}
+        if (barnacleConfBySystemProp != null) {
+            try {
+                configurationFactory.addConfigurationFileFromFilesystem(new File(barnacleConfBySystemProp));
+            } catch (ConfigurationFileNotFoundException | IOException e) {
+                throw new RuntimeException("Barnacle configuration file not found as specified by system property " +
+                        "barnacle.conf [" + barnacleConfBySystemProp + "].");
+            }
+        } else {
+            try {
+                configurationFactory.addConfigurationFileFromClasspath(BARNACLE_CONF_FILE_NAME);
+            } catch (ConfigurationFileNotFoundException | IOException e) {
+                throw new RuntimeException("Barnacle configuration file [barnacle.conf] not found on classpath.");
+            }
+        }
+        return configurationFactory;
+    }
+
+    private ConfigurationFactory bindConfigurationFile(Path configurationFile) {
+        ConfigurationFactory configurationFactory = new ConfigurationFactory();
+        try {
+            configurationFactory.addConfigurationFileFromFilesystem(configurationFile.toFile());
+        } catch (ConfigurationFileNotFoundException | IOException e) {
+            throw new RuntimeException("Barnacle configuration file not found: " +
+                    "[" + configurationFile.toAbsolutePath() + "].");
+        }
+        return configurationFactory;
+    }
+
+    private Optional<Configuration> obtainGeneratorConfiguration() {
+        if (configurationFactory.hasSection(SectionNames.GENERATOR)) {
+            Configuration generatorConfiguration = configurationFactory.getConfiguration(SectionNames.GENERATOR);
+            return Optional.of(generatorConfiguration);
+        } else {
+            return Optional.empty();
+        }
+    }
+
+    private DbConnectionConfigurationMap obtainDbConnectionConfigurationMap() {
+        DbConnectionConfigurationMap dbConnectionConfigurationMap = new DbConnectionConfigurationMap();
+        Set<String> sectionNames = configurationFactory.getSectionNames();
+        for (String sectionName : sectionNames) {
+            if (SectionNames.isDbConnectionConfig(sectionName)) {
+                Configuration configuration = configurationFactory.getConfiguration(sectionName);
+                dbConnectionConfigurationMap.put(sectionName, configuration);
+            } else if (!SectionNames.isGeneratorConfig(sectionName)) {
+                throw new RuntimeException("Unrecognized section [" + sectionName + "] found in barnacle configuration.");
+            }
+        }
+        return dbConnectionConfigurationMap;
+    }
+
+    public ConfigurationFactory getConfigurationFactory() {
+        return this.configurationFactory;
+    }
+
+    public Optional<Configuration> getGeneratorConfiguration() {
+        return this.generatorConfigurationOpt;
+    }
+
+    public DbConnectionConfigurationMap getDbConnectionConfigurationMap() {
+        return dbConnectionConfigurationMap;
+    }
+
+}

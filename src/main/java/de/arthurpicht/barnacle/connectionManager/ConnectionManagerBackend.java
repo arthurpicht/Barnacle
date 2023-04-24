@@ -1,6 +1,6 @@
 package de.arthurpicht.barnacle.connectionManager;
 
-import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
+import de.arthurpicht.barnacle.configuration.configurationFile.BarnacleConfigurationFileLoader;
 import de.arthurpicht.barnacle.configuration.db.DBConfigurationOLD;
 import de.arthurpicht.barnacle.configuration.helper.ConfigurationHelper;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
@@ -22,7 +22,7 @@ public class ConnectionManagerBackend {
 
     static {
 
-        BarnacleConfiguration barnacleConfiguration = new BarnacleConfiguration();
+        BarnacleConfigurationFileLoader barnacleConfigurationFileLoader = new BarnacleConfigurationFileLoader();
 
         //
         // Map daoPackage-ConnectionWrapper aufbauen, dann abschließend DecisionMaker davon erzeugen
@@ -31,7 +31,7 @@ public class ConnectionManagerBackend {
 
         // Über alle Sektionen der Konfiguration mit Ausnahme
         // von [general] und [generator] iterieren
-        ConfigurationFactory configurationFactory = barnacleConfiguration.getConfigurationFactory();
+        ConfigurationFactory configurationFactory = barnacleConfigurationFileLoader.getConfigurationFactory();
         Set<String> sectionNames = configurationFactory.getSectionNames();
         for (String sectionName : sectionNames) {
             if (sectionName.equals("general") || sectionName.equals("generator")) continue;

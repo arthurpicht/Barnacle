@@ -1,4 +1,4 @@
-package de.arthurpicht.barnacle.configuration.db.single;
+package de.arthurpicht.barnacle.configuration.db.jdbc;
 
 import de.arthurpicht.barnacle.configuration.helper.ConfigurationHelper;
 import de.arthurpicht.configuration.Configuration;
@@ -8,7 +8,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import static de.arthurpicht.barnacle.configuration.db.single.JDBCConfigurationBF.*;
+import static de.arthurpicht.barnacle.configuration.db.jdbc.JDBCConfigurationBF.*;
 
 public class JDBCConfigurationFactory {
 

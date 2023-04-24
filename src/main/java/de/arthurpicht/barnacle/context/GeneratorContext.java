@@ -1,6 +1,6 @@
 package de.arthurpicht.barnacle.context;
 
-import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
+import de.arthurpicht.barnacle.configuration.configurationFile.BarnacleConfigurationFileLoader;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfigurationFactory;
 import de.arthurpicht.barnacle.configuration.helper.ConfigurationHelper;
@@ -29,15 +29,17 @@ public class GeneratorContext {
     }
 
     private GeneratorContext() {
-        BarnacleConfiguration barnacleConfiguration = new BarnacleConfiguration();
+        BarnacleConfigurationFileLoader barnacleConfigurationFileLoader = new BarnacleConfigurationFileLoader();
 
-        if (!barnacleConfiguration.hasGeneratorConfiguration()) {
-            throw new BarnacleInitializerException("No [generator]-Configuration found in barnacle.conf!");
-        } else {
-            Configuration configuration = barnacleConfiguration.getGeneratorConfiguration();
-            this.generatorConfiguration = GeneratorConfigurationFactory.create(configuration);
-            logConfig(configuration);
-        }
+        //TODO
+        generatorConfiguration = null;
+//        if (!barnacleConfigurationFileLoader.hasGeneratorConfiguration()) {
+//            throw new BarnacleInitializerException("No [generator]-Configuration found in barnacle.conf!");
+//        } else {
+//            Configuration configuration = barnacleConfigurationFileLoader.getGeneratorConfiguration();
+//            this.generatorConfiguration = GeneratorConfigurationFactory.create(configuration);
+//            logConfig(configuration);
+//        }
     }
 
     private void logConfig(Configuration configuration) {

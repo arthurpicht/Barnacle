@@ -1,6 +1,8 @@
 package de.arthurpicht.barnacle.configuration.db.jndi;
 
-public class JNDIConfiguration {
+import de.arthurpicht.barnacle.configuration.db.DbConnectionConfiguration;
+
+public class JNDIConfiguration implements DbConnectionConfiguration {
 
     public static final String DAO_PACKAGE = "dao_package";
     public static final String LOOKUP_NAME = "lookup_name";
