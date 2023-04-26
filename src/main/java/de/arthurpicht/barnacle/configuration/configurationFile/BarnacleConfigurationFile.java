@@ -9,7 +9,6 @@ import de.arthurpicht.configuration.Configuration;
 
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 public class BarnacleConfigurationFile {
@@ -28,20 +27,28 @@ public class BarnacleConfigurationFile {
     }
 
     private BarnacleConfiguration init(BarnacleConfigurationFileLoader barnacleConfigurationFileLoader) {
-        Optional<Configuration> generatorConfigurationOpt = barnacleConfigurationFileLoader.getGeneratorConfiguration();
-        GeneratorConfiguration generatorConfiguration = null;
-        if (generatorConfigurationOpt.isPresent()) {
-            generatorConfiguration = GeneratorConfigurationFactory.create(generatorConfigurationOpt.get());
-        }
+        GeneratorConfiguration generatorConfiguration
+                = obtainGeneratorConfiguration(barnacleConfigurationFileLoader);
+        List<DbConnectionConfiguration> dbConnectionConfigurations
+                = obtainDbConnectionConfigurations(barnacleConfigurationFileLoader);
+        return new BarnacleConfiguration(generatorConfiguration, dbConnectionConfigurations);
+    }
 
+    private GeneratorConfiguration obtainGeneratorConfiguration(BarnacleConfigurationFileLoader barnacleConfigurationFileLoader) {
+        if (barnacleConfigurationFileLoader.hasGeneratorConfiguration()) {
+            Configuration configuration = barnacleConfigurationFileLoader.getGeneratorConfiguration();
+            return GeneratorConfigurationFactory.create(configuration);
+        } else {
+            return null;
+        }
+    }
+
+    private List<DbConnectionConfiguration> obtainDbConnectionConfigurations(BarnacleConfigurationFileLoader barnacleConfigurationFileLoader) {
         DbConnectionConfigurationMap dbConnectionConfigurationMap
                 = barnacleConfigurationFileLoader.getDbConnectionConfigurationMap();
-
-        List<DbConnectionConfiguration> dbConnectionConfigurations = dbConnectionConfigurationMap.getConfigurations().stream()
+        return dbConnectionConfigurationMap.getConfigurations().stream()
                 .map(DbConnectionConfigurationFactory::create)
                 .collect(Collectors.toList());
-
-        return new BarnacleConfiguration(generatorConfiguration, dbConnectionConfigurations);
     }
 
     public BarnacleConfiguration getBarnacleConfiguration() {

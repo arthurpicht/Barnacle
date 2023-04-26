@@ -1,7 +1,6 @@
 package de.arthurpicht.barnacle.connectionManager;
 
 import de.arthurpicht.barnacle.configuration.db.DBConfigurationOLD;
-import de.arthurpicht.barnacle.context.GeneratorContext;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -2,8 +2,10 @@ package de.arthurpicht.barnacle.generator;
 
 import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.codeGenerator.CodeGenerator;
+import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
+import de.arthurpicht.barnacle.configuration.configurationFile.BarnacleConfigurationFile;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
-import de.arthurpicht.barnacle.context.GeneratorContext;
+import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
 import de.arthurpicht.barnacle.exceptions.VofClassLoaderException;
 import de.arthurpicht.barnacle.model.ERMBuilderException;
 import de.arthurpicht.barnacle.model.EntityRelationshipModel;
@@ -12,18 +14,34 @@ import de.arthurpicht.barnacle.vofClassLoader.VofClassLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class BarnacleGenerator {
 
-    private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
+    private static final Logger logger = LoggerFactory.getLogger(BarnacleGenerator.class);
 
     public static void process() {
-        GeneratorContext generatorContext = GeneratorContext.getInstance();
-        GeneratorConfiguration generatorConfiguration = generatorContext.getGeneratorConfiguration();
-        process(generatorConfiguration);
+        BarnacleConfigurationFile barnacleConfigurationFile = new BarnacleConfigurationFile();
+        BarnacleConfiguration barnacleConfiguration = barnacleConfigurationFile.getBarnacleConfiguration();
+        if (barnacleConfiguration.hasGeneratorConfiguration()) {
+            process(barnacleConfiguration.getGeneratorConfiguration());
+        } else {
+            throw new BarnacleInitializerException("No generator configuration found in barnacle configuration file.");
+        }
+    }
+
+    public static void process(Path configurationFile) {
+        BarnacleConfigurationFile barnacleConfigurationFile = new BarnacleConfigurationFile(configurationFile);
+        BarnacleConfiguration barnacleConfiguration = barnacleConfigurationFile.getBarnacleConfiguration();
+        if (barnacleConfiguration.hasGeneratorConfiguration()) {
+            process(barnacleConfiguration.getGeneratorConfiguration());
+        } else {
+            throw new BarnacleInitializerException("No generator configuration found in configuration file " +
+                    "[" + configurationFile.toAbsolutePath() + "].");
+        }
     }
 
     public static void process(GeneratorConfiguration generatorConfiguration) {

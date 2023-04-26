@@ -1,12 +1,17 @@
 package de.arthurpicht.barnacle.configuration.configurationFile;
 
+import de.arthurpicht.barnacle.exceptions.BarnacleIllegalStateException;
+import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
+import de.arthurpicht.barnacle.exceptions.BarnacleRuntimeException;
 import de.arthurpicht.configuration.Configuration;
 import de.arthurpicht.configuration.ConfigurationFactory;
 import de.arthurpicht.configuration.ConfigurationFileNotFoundException;
+import de.arthurpicht.utils.io.nio2.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Set;
 
@@ -27,6 +32,9 @@ public class BarnacleConfigurationFileLoader {
     }
 
     public BarnacleConfigurationFileLoader(Path configurationFile) {
+        if (!FileUtils.isExistingRegularFile(configurationFile))
+            throw new BarnacleInitializerException("Specified barnacle configuration file no found: " +
+                    "[" + configurationFile.toAbsolutePath() + "].");
         this.configurationFactory = bindConfigurationFile(configurationFile);
         this.generatorConfigurationOpt = obtainGeneratorConfiguration();
         this.dbConnectionConfigurationMap = obtainDbConnectionConfigurationMap();
@@ -40,16 +48,18 @@ public class BarnacleConfigurationFileLoader {
         } catch (SecurityException ignore) {}
         if (barnacleConfBySystemProp != null) {
             try {
-                configurationFactory.addConfigurationFileFromFilesystem(new File(barnacleConfBySystemProp));
+                File configurationFile = new File(barnacleConfBySystemProp);
+                configurationFactory.addConfigurationFileFromFilesystem(configurationFile);
             } catch (ConfigurationFileNotFoundException | IOException e) {
                 throw new RuntimeException("Barnacle configuration file not found as specified by system property " +
-                        "barnacle.conf [" + barnacleConfBySystemProp + "].");
+                        BARNACLE_SYSTEM_PROPERTY + "=[" + barnacleConfBySystemProp + "].");
             }
         } else {
             try {
                 configurationFactory.addConfigurationFileFromClasspath(BARNACLE_CONF_FILE_NAME);
             } catch (ConfigurationFileNotFoundException | IOException e) {
-                throw new RuntimeException("Barnacle configuration file [barnacle.conf] not found on classpath.");
+                throw new RuntimeException("Barnacle configuration file [" + BARNACLE_CONF_FILE_NAME + "] " +
+                        "not found on classpath.");
             }
         }
         return configurationFactory;
@@ -93,8 +103,14 @@ public class BarnacleConfigurationFileLoader {
         return this.configurationFactory;
     }
 
-    public Optional<Configuration> getGeneratorConfiguration() {
-        return this.generatorConfigurationOpt;
+    public boolean hasGeneratorConfiguration() {
+        return this.generatorConfigurationOpt.isPresent();
+    }
+
+    public Configuration getGeneratorConfiguration() {
+        if (this.generatorConfigurationOpt.isEmpty())
+            throw new BarnacleIllegalStateException("No generator configuration specified. Check before requesting.");
+        return this.generatorConfigurationOpt.get();
     }
 
     public DbConnectionConfigurationMap getDbConnectionConfigurationMap() {
