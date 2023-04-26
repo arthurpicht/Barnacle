@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static de.arthurpicht.barnacle.configuration.db.jdbc.JDBCConfigurationBF.PROPERTIES;
-
 public class ConfigurationHelper {
 
     public static String getMandatoryStringParameter(Configuration configuration, String parameterName) {
@@ -42,7 +40,7 @@ public class ConfigurationHelper {
             String value = propertySplit[1];
             if (Strings.isNullOrEmpty(value))
                 throw new RuntimeException("No value found in configured property: [" + property + "].");
-            properties.put(key, value);
+            properties.put(key.trim(), value.trim());
         }
         return properties;
     }

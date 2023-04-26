@@ -8,9 +8,13 @@ import java.util.regex.Pattern;
 public class DbConfigurationSectionName {
 
     private static final Pattern DB_CONFIG_PATTERN
-            = Pattern.compile("db:(" + DbConfigurationType.SINGLE.name().toLowerCase()
+            = Pattern.compile("db:("
+            + DbConfigurationType.SINGLE.name().toLowerCase()
             + "|"
-            + DbConfigurationType.JNDI.name().toLowerCase() + ")"
+            + DbConfigurationType.DIRECT.name().toLowerCase()
+            + "|"
+            + DbConfigurationType.JNDI.name().toLowerCase()
+            + ")"
             + ":[a-zA-Z0-9_-]+");
 
     private final DbConfigurationType dbConfigurationType;

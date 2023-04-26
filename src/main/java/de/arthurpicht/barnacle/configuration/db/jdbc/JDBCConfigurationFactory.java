@@ -2,9 +2,7 @@ package de.arthurpicht.barnacle.configuration.db.jdbc;
 
 import de.arthurpicht.barnacle.configuration.helper.ConfigurationHelper;
 import de.arthurpicht.configuration.Configuration;
-import de.arthurpicht.utils.core.strings.Strings;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -31,28 +29,11 @@ public class JDBCConfigurationFactory {
 
         if (configuration.containsKey(PROPERTIES)) {
             List<String> propertiesList = configuration.getStringList(PROPERTIES);
-            Map<String, String> properties = getProperties(propertiesList);
+            Map<String, String> properties = ConfigurationHelper.asProperties(propertiesList);
             jdbcConfigurationBuilder.withProperties(properties);
         }
 
         return jdbcConfigurationBuilder.build();
-    }
-
-    private static Map<String, String> getProperties(List<String> propertiesList) {
-        Map<String, String> properties = new LinkedHashMap<>();
-        for (String property : propertiesList) {
-            if (!property.contains("="))
-                throw new RuntimeException("No equal sign found in configured property: [" + property + "].");
-            String[] propertySplit = Strings.splitAtDelimiter(property, "=");
-            String key = propertySplit[0];
-            if (Strings.isNullOrEmpty(key))
-                throw new RuntimeException("No key found in configured property: [" + property + "].");
-            String value = propertySplit[1];
-            if (Strings.isNullOrEmpty(value))
-                throw new RuntimeException("No value found in configured property: [" + property + "].");
-            properties.put(key, value);
-        }
-        return properties;
     }
 
 }
