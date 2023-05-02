@@ -7,7 +7,7 @@ import java.io.File;
 public class GeneratorPreconditions {
 	
 	public static void assure(GeneratorConfiguration generatorConfiguration) {
-		File srcFolder = assureSrcDir(generatorConfiguration);
+		File srcFolder = assertSrcDir(generatorConfiguration);
 		assertVofFolder(srcFolder, generatorConfiguration);
 		assertVobFolder(srcFolder, generatorConfiguration);
 		File srcGenFolder = assertSrcGenFolder(generatorConfiguration);
@@ -16,7 +16,7 @@ public class GeneratorPreconditions {
 		assertScriptParentFolder(generatorConfiguration);
 	}
 
-	private static File assureSrcDir(GeneratorConfiguration generatorConfiguration) {
+	private static File assertSrcDir(GeneratorConfiguration generatorConfiguration) {
 		File sourceFolder = new File(generatorConfiguration.getSrcDir());
 		if (!sourceFolder.exists()) {
 			throw new GeneratorPreconditionException(

@@ -1,6 +1,6 @@
 package de.arthurpicht.barnacle.connectionManager;
 
-
+@Deprecated
 public class DBConnectionDecisionMakerSingle extends DBConnectionDecisionMaker {
 
 	private final ConnectionWrapper connectionWrapper;

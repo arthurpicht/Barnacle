@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+@Deprecated
 public class DBConnectionDecisionMakerMultiple extends DBConnectionDecisionMaker{
 
 	// Map: String = daoPackageName

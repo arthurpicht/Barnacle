@@ -10,15 +10,11 @@ import java.sql.Connection;
 public class ConnectionManager {
 
     public static Connection openConnection(Class<?> callingDaoClass) throws DBConnectionException {
-
-        String canonicalClassName = callingDaoClass.getCanonicalName();
-        return ConnectionManagerBackend.openConnection(canonicalClassName);
+        return ConnectionManagerBackend.openConnection(callingDaoClass);
     }
 
     public static void releaseConnection(Connection con, Class<?> callingDaoClass) throws DBConnectionException {
-
-        String canonicalClassName = callingDaoClass.getCanonicalName();
-        ConnectionManagerBackend.releaseConnection(con, canonicalClassName);
+        ConnectionManagerBackend.releaseConnection(con, callingDaoClass);
     }
 
 }

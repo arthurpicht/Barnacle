@@ -20,7 +20,7 @@ import java.util.List;
 
 public class ClassGenerator {
 
-    private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
+    private static final Logger logger = LoggerFactory.getLogger(ClassGenerator.class);
 
     protected final GeneratorConfiguration generatorConfiguration;
     protected final String canonicalClassName;

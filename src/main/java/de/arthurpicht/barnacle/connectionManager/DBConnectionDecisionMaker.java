@@ -14,6 +14,7 @@ import java.util.Set;
  * @author Arthur Picht, (c) 2013 Arthur Picht GmbH, Düsseldorf
  *
  */
+@Deprecated
 public abstract class DBConnectionDecisionMaker {
 	
 	/**
@@ -23,6 +24,7 @@ public abstract class DBConnectionDecisionMaker {
 	 * @param dbConnections
 	 * @return Objekt vom Typ DBConnectionDecisionMaker
 	 */
+	@Deprecated
 	public static DBConnectionDecisionMaker getDBConnectionDecisionMaker(Map<String, ConnectionWrapper> dbConnections) {
 
 		// Voraussetzung prüfen

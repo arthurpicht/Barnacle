@@ -1,8 +1,15 @@
 package de.arthurpicht.barnacle.connectionManager;
 
+import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
+import de.arthurpicht.barnacle.configuration.configurationFile.BarnacleConfigurationFile;
 import de.arthurpicht.barnacle.configuration.configurationFile.BarnacleConfigurationFileLoader;
 import de.arthurpicht.barnacle.configuration.db.DBConfigurationOLD;
+import de.arthurpicht.barnacle.configuration.db.DbConnectionConfiguration;
+import de.arthurpicht.barnacle.configuration.db.DbConnectionConfigurationFactory;
 import de.arthurpicht.barnacle.configuration.helper.ConfigurationHelper;
+import de.arthurpicht.barnacle.connectionManager.connection.DbConnection;
+import de.arthurpicht.barnacle.connectionManager.connection.DbConnectionFactory;
+import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 import de.arthurpicht.configuration.Configuration;
 import de.arthurpicht.configuration.ConfigurationFactory;
@@ -11,76 +18,59 @@ import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class ConnectionManagerBackend {
 
-    private static final DBConnectionDecisionMaker dbConnectionDecisionMaker;
-
-    protected final static Logger logger = LoggerFactory.getLogger(ConnectionManagerBackend.class);
+    private final static Logger logger = LoggerFactory.getLogger(ConnectionManagerBackend.class);
+    private static final ConnectionResolver connectionResolver;
+    private static final ConnectionCash connectionCash;
 
     static {
+        Map<String, DbConnection> dbConnections = new HashMap<>();
 
-        BarnacleConfigurationFileLoader barnacleConfigurationFileLoader = new BarnacleConfigurationFileLoader();
+        BarnacleConfigurationFile barnacleConfigurationFile = new BarnacleConfigurationFile();
+        BarnacleConfiguration barnacleConfiguration = barnacleConfigurationFile.getBarnacleConfiguration();
+        if (!barnacleConfiguration.hasDbConnectionConfigurations())
+            throw new BarnacleInitializerException("No database configurations found in barnacle configuration file.");
 
-        //
-        // Map daoPackage-ConnectionWrapper aufbauen, dann abschließend DecisionMaker davon erzeugen
-        //
-        Map<String, ConnectionWrapper> dbConnections = new HashMap<>();
-
-        // Über alle Sektionen der Konfiguration mit Ausnahme
-        // von [general] und [generator] iterieren
-        ConfigurationFactory configurationFactory = barnacleConfigurationFileLoader.getConfigurationFactory();
-        Set<String> sectionNames = configurationFactory.getSectionNames();
-        for (String sectionName : sectionNames) {
-            if (sectionName.equals("general") || sectionName.equals("generator")) continue;
-
-            // Config loggen, wenn angefordert
-            Configuration configuration = configurationFactory.getConfiguration(sectionName);
-            logger.debug("[" + configuration.getSectionName() + "]");
-            ConfigurationHelper.logAllPropertiesOnDebugLevel(configuration, logger);
-
-            // DBConfig ableiten
-            DBConfigurationOLD dbConfiguration = new DBConfigurationOLD(configuration);
-
-            // ConnectionWrapper erzeugen und hinterlegen
-            ConnectionWrapper connectionWrapper = new ConnectionWrapper(dbConfiguration);
-            String daoPackageName = dbConfiguration.getDaoPackageName();
-            if (daoPackageName.endsWith("*")) {
-                daoPackageName = daoPackageName.substring(0, daoPackageName.length() - 1);
-            }
-            dbConnections.put(daoPackageName, connectionWrapper);
+        List<DbConnectionConfiguration> dbConnectionConfigurations = barnacleConfiguration.getDbConnectionConfigurations();
+        for (DbConnectionConfiguration dbConnectionConfiguration : dbConnectionConfigurations) {
+            DbConnection dbConnection = DbConnectionFactory.getConnection(dbConnectionConfiguration);
+            dbConnections.put(dbConnectionConfiguration.getDaoPackage(), dbConnection);
         }
 
-        // DecisionMaker erzeugen und als statische Property hinterlegen.
-        dbConnectionDecisionMaker = DBConnectionDecisionMaker.getDBConnectionDecisionMaker(dbConnections);
+        connectionResolver = new ConnectionResolver(dbConnections);
+        connectionCash = new ConnectionCash();
     }
-
-//    private static void logAllProperties(Configuration configuration) {
-//        Set<String> keys = configuration.getKeys();
-//        for (String key : keys) {
-//            BARNACLE_LOGGER.info(key + " = " + configuration.getString(key));
-//        }
-//    }
 
     /**
      * Return open JDBC-Connection.
      */
-    public static Connection openConnection(String daoCanonicalClassName) throws DBConnectionException {
-
-        ConnectionWrapper connectionWrapper = dbConnectionDecisionMaker.getDBConnectionByDaoClass(daoCanonicalClassName);
-        return connectionWrapper.openConnection();
+    public static Connection openConnection(Class<?> daoClass) throws DBConnectionException {
+        DbConnection dbConnection = obtainConnection(daoClass);
+        return dbConnection.getConnection();
     }
 
     /**
      * Defines a JDBC-Connection as closed, that was obtained before by invoking method
      * openConnection.
      */
-    public static void releaseConnection(Connection con, String daoCanonicalClassName) throws DBConnectionException {
+    public static void releaseConnection(Connection con, Class<?> daoClass) throws DBConnectionException {
+        DbConnection dbConnection = obtainConnection(daoClass);
+        dbConnection.releaseConnection(con);
+    }
 
-        ConnectionWrapper connectionWrapper = dbConnectionDecisionMaker.getDBConnectionByDaoClass(daoCanonicalClassName);
-        connectionWrapper.releaseConnection(con);
+    private static DbConnection obtainConnection(Class<?> daoClass) throws DBConnectionException {
+        if (connectionCash.hasDaoClass(daoClass)) {
+            return connectionCash.getDbConnection(daoClass);
+        } else {
+            DbConnection dbConnection = connectionResolver.getDbConnection(daoClass);
+            connectionCash.putDbConnection(daoClass, dbConnection);
+            return dbConnection;
+        }
     }
 
 }

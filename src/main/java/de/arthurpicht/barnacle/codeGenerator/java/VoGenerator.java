@@ -12,7 +12,7 @@ import java.util.Set;
 
 public class VoGenerator extends VoBaseGenerator {
 
-    private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
+    private static final Logger logger = LoggerFactory.getLogger(VoGenerator.class);
 
     private final String connectionExceptionCanonicalClassName;
     private final String entityNotFoundExceptionCanonicalClassName;

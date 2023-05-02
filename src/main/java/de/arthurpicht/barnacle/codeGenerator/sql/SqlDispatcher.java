@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 
 public class SqlDispatcher {
 
-	private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
+	private static final Logger logger = LoggerFactory.getLogger(SqlDispatcher.class);
 
 	private final boolean createSqlScript;
 	private final boolean executeOnDb;

@@ -1,10 +1,11 @@
 package de.arthurpicht.barnacle.configuration.db.jdbc;
 
+import de.arthurpicht.barnacle.configuration.db.DbConnectionConfiguration;
 import de.arthurpicht.utils.core.collection.Maps;
 
 import java.util.Map;
 
-public class JDBCConfiguration {
+public class JDBCConfiguration implements DbConnectionConfiguration {
 
     private final String daoPackage;
     private final String driverName;
@@ -28,6 +29,7 @@ public class JDBCConfiguration {
         this.properties = Maps.immutableMap(properties);
     }
 
+    @Override
     public String getDaoPackage() {
         return daoPackage;
     }

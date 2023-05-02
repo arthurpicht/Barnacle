@@ -17,7 +17,7 @@ import java.util.Set;
 
 public class DaoGenerator extends ClassGenerator {
 
-    private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
+    private static final Logger logger = LoggerFactory.getLogger(DaoGenerator.class);
 
     private final Entity entity;
     private final String connectionManagerSimpleClassName;

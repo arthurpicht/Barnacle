@@ -15,6 +15,7 @@ public class JNDIConfiguration implements DbConnectionConfiguration {
         this.lookupName = lookupName;
     }
 
+    @Override
     public String getDaoPackage() {
         return daoPackage;
     }

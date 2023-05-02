@@ -4,6 +4,7 @@ import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 
 import java.sql.Connection;
 
+@Deprecated
 public interface ConnectionManagerInterface {
 
     Connection openConnection(Class<?> callingDaoClass) throws DBConnectionException;
