@@ -15,4 +15,8 @@ public class DirectJDBCConnectionConfiguration implements DbConnectionConfigurat
         return this.jdbcConfiguration;
     }
 
+    @Override
+    public String getDaoPackage() {
+        return this.jdbcConfiguration.getDaoPackage();
+    }
 }

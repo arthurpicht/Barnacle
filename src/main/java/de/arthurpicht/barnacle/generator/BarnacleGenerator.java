@@ -2,6 +2,10 @@ package de.arthurpicht.barnacle.generator;
 
 import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.codeGenerator.CodeGenerator;
+import de.arthurpicht.barnacle.codeGenerator.sql.SchemaGenerator;
+import de.arthurpicht.barnacle.codeGenerator.sql.SqlDbExecutor;
+import de.arthurpicht.barnacle.codeGenerator.sql.SqlScriptWriter;
+import de.arthurpicht.barnacle.codeGenerator.sql.SqlStatements;
 import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
 import de.arthurpicht.barnacle.configuration.configurationFile.BarnacleConfigurationFile;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
@@ -15,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +32,7 @@ public class BarnacleGenerator {
         BarnacleConfigurationFile barnacleConfigurationFile = new BarnacleConfigurationFile();
         BarnacleConfiguration barnacleConfiguration = barnacleConfigurationFile.getBarnacleConfiguration();
         if (barnacleConfiguration.hasGeneratorConfiguration()) {
-            process(barnacleConfiguration.getGeneratorConfiguration());
+            process(barnacleConfiguration);
         } else {
             throw new BarnacleInitializerException("No generator configuration found in barnacle configuration file.");
         }
@@ -37,15 +42,16 @@ public class BarnacleGenerator {
         BarnacleConfigurationFile barnacleConfigurationFile = new BarnacleConfigurationFile(configurationFile);
         BarnacleConfiguration barnacleConfiguration = barnacleConfigurationFile.getBarnacleConfiguration();
         if (barnacleConfiguration.hasGeneratorConfiguration()) {
-            process(barnacleConfiguration.getGeneratorConfiguration());
+            process(barnacleConfiguration);
         } else {
             throw new BarnacleInitializerException("No generator configuration found in configuration file " +
                     "[" + configurationFile.toAbsolutePath() + "].");
         }
     }
 
-    public static void process(GeneratorConfiguration generatorConfiguration) {
+    public static void process(BarnacleConfiguration barnacleConfiguration) {
         logger.info(Const.VERSION);
+        GeneratorConfiguration generatorConfiguration = barnacleConfiguration.getGeneratorConfiguration();
         try {
             GeneratorPreconditions.assure(generatorConfiguration);
             List<Class<?>> classList = loadVofClasses(generatorConfiguration);
@@ -53,7 +59,18 @@ public class BarnacleGenerator {
                     = EntityRelationshipModelBuilder.execute(generatorConfiguration, classList);
             logger.trace(entityRelationshipModel.debugOut());
 
-            CodeGenerator.execute(entityRelationshipModel, generatorConfiguration);
+            CodeGenerator.execute(generatorConfiguration, entityRelationshipModel);
+            SqlStatements sqlStatements = SchemaGenerator.execute(generatorConfiguration, entityRelationshipModel);
+
+            if (generatorConfiguration.isCreateScript()) {
+                Path scriptFile = Paths.get(generatorConfiguration.getScriptFile());
+                SqlScriptWriter.write(scriptFile, sqlStatements);
+            }
+
+            if (generatorConfiguration.isExecuteOnDb()) {
+                SqlDbExecutor.execute(barnacleConfiguration, sqlStatements);
+            }
+
             logger.info("Barnacle generation successfully completed!");
 
         } catch (GeneratorException e) {

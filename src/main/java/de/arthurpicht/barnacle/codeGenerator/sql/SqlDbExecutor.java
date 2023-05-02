@@ -1,40 +1,39 @@
 package de.arthurpicht.barnacle.codeGenerator.sql;
 
-import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
-import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
-import de.arthurpicht.barnacle.connectionManager.ConnectionManagerBackend;
+import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
+import de.arthurpicht.barnacle.configuration.db.DbConnectionConfiguration;
+import de.arthurpicht.barnacle.connectionManager.connection.DbConnection;
+import de.arthurpicht.barnacle.connectionManager.connection.DbConnectionFactory;
+import de.arthurpicht.barnacle.exceptions.BarnacleRuntimeException;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-public class SqlDbExecutor extends ConnectionManagerBackend {
-	
-	private final Connection connection;
-	private final String daoDummyClassname;
-	
-	public SqlDbExecutor(GeneratorConfiguration generatorConfiguration) {
-		this.daoDummyClassname = generatorConfiguration.getDaoPackageName() + ".Dummy";
-		try {
-			this.connection = openConnection(daoDummyClassname);
-		} catch (DBConnectionException e) {
-			throw new CodeGeneratorException(e.getMessage(), e);
-		}
-	}
+public class SqlDbExecutor {
 
-	public void executeSql(String sqlString) {
-		Statement statement;
-		try {
-			statement = this.connection.createStatement();
-			statement.execute(sqlString);
-		} catch (SQLException e) {
-			throw new CodeGeneratorException(e.getMessage(), e);
-		}
-	}
-	
-	public void close() throws DBConnectionException {
-		releaseConnection(this.connection, daoDummyClassname);
-	}
+    public static void execute(BarnacleConfiguration barnacleConfiguration, SqlStatements sqlStatements) {
+        if (!barnacleConfiguration.hasDbConnectionConfigurations())
+            throw new BarnacleRuntimeException("Could not execute schema creation on DB. No db connection " +
+                    "configuration found in barnacle configuration.");
+
+        DbConnectionConfiguration dbConnectionConfiguration = barnacleConfiguration.getDbConnectionConfigurations().get(0);
+        DbConnection dbConnection = DbConnectionFactory.getConnection(dbConnectionConfiguration);
+        executeOnDb(sqlStatements, dbConnection);
+    }
+
+    private static void executeOnDb(SqlStatements sqlStatements, DbConnection dbConnection) {
+        try {
+            Connection connection = dbConnection.getConnection();
+            for (String sqlString : sqlStatements.getSqlStatementList()) {
+                Statement statement = connection.createStatement();
+                statement.execute(sqlString);
+            }
+            connection.close();
+        } catch (DBConnectionException | SQLException e) {
+            throw new BarnacleRuntimeException("Error on executing schema sql on db.", e);
+        }
+    }
 
 }

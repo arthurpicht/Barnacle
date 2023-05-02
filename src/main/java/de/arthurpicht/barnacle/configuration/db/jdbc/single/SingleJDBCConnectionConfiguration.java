@@ -15,4 +15,8 @@ public class SingleJDBCConnectionConfiguration implements DbConnectionConfigurat
         return this.jdbcConfiguration;
     }
 
+    @Override
+    public String getDaoPackage() {
+        return this.jdbcConfiguration.getDaoPackage();
+    }
 }
