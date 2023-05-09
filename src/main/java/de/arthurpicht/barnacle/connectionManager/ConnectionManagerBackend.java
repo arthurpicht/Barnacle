@@ -2,40 +2,37 @@ package de.arthurpicht.barnacle.connectionManager;
 
 import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
 import de.arthurpicht.barnacle.configuration.configurationFile.BarnacleConfigurationFile;
-import de.arthurpicht.barnacle.configuration.configurationFile.BarnacleConfigurationFileLoader;
-import de.arthurpicht.barnacle.configuration.db.DBConfigurationOLD;
 import de.arthurpicht.barnacle.configuration.db.DbConnectionConfiguration;
-import de.arthurpicht.barnacle.configuration.db.DbConnectionConfigurationFactory;
-import de.arthurpicht.barnacle.configuration.helper.ConfigurationHelper;
 import de.arthurpicht.barnacle.connectionManager.connection.DbConnection;
 import de.arthurpicht.barnacle.connectionManager.connection.DbConnectionFactory;
 import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
-import de.arthurpicht.configuration.Configuration;
-import de.arthurpicht.configuration.ConfigurationFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class ConnectionManagerBackend {
 
-    private final static Logger logger = LoggerFactory.getLogger(ConnectionManagerBackend.class);
-    private static final ConnectionResolver connectionResolver;
-    private static final ConnectionCash connectionCash;
+    private static boolean initialized = false;
+    private static ConnectionResolver connectionResolver;
+    private static ConnectionCash connectionCash;
 
-    static {
-        Map<String, DbConnection> dbConnections = new HashMap<>();
-
+    private static void init() {
         BarnacleConfigurationFile barnacleConfigurationFile = new BarnacleConfigurationFile();
         BarnacleConfiguration barnacleConfiguration = barnacleConfigurationFile.getBarnacleConfiguration();
         if (!barnacleConfiguration.hasDbConnectionConfigurations())
             throw new BarnacleInitializerException("No database configurations found in barnacle configuration file.");
+        init(barnacleConfiguration);
+    }
 
+    public synchronized static void init(BarnacleConfiguration barnacleConfiguration) {
+        if (initialized)
+            throw new BarnacleInitializerException("Barnacle " + ConnectionManagerBackend.class.getSimpleName()
+                    + " is already initialized.");
+
+        Map<String, DbConnection> dbConnections = new HashMap<>();
         List<DbConnectionConfiguration> dbConnectionConfigurations = barnacleConfiguration.getDbConnectionConfigurations();
         for (DbConnectionConfiguration dbConnectionConfiguration : dbConnectionConfigurations) {
             DbConnection dbConnection = DbConnectionFactory.getConnection(dbConnectionConfiguration);
@@ -44,12 +41,14 @@ public class ConnectionManagerBackend {
 
         connectionResolver = new ConnectionResolver(dbConnections);
         connectionCash = new ConnectionCash();
+        initialized = true;
     }
 
     /**
      * Return open JDBC-Connection.
      */
     public static Connection openConnection(Class<?> daoClass) throws DBConnectionException {
+        if (!initialized) init();
         DbConnection dbConnection = obtainConnection(daoClass);
         return dbConnection.getConnection();
     }
@@ -59,6 +58,7 @@ public class ConnectionManagerBackend {
      * openConnection.
      */
     public static void releaseConnection(Connection con, Class<?> daoClass) throws DBConnectionException {
+        if (!initialized) init();
         DbConnection dbConnection = obtainConnection(daoClass);
         dbConnection.releaseConnection(con);
     }

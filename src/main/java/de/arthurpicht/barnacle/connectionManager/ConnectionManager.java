@@ -1,5 +1,6 @@
 package de.arthurpicht.barnacle.connectionManager;
 
+import de.arthurpicht.barnacle.configuration.BarnacleConfiguration;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
 
 import java.sql.Connection;
@@ -9,6 +10,9 @@ import java.sql.Connection;
  */
 public class ConnectionManager {
 
+    public static void initialize(BarnacleConfiguration barnacleConfiguration) {
+        ConnectionManagerBackend.init(barnacleConfiguration);
+    }
     public static Connection openConnection(Class<?> callingDaoClass) throws DBConnectionException {
         return ConnectionManagerBackend.openConnection(callingDaoClass);
     }
