@@ -12,6 +12,9 @@ public class GlobalOptionsDef {
     public static final String DEBUG = "debug";
     public static final String NO_COLOR = "no-color";
 
+    public static final String CONFIGURATION_FILE = "configuration-file";
+
+
     public static Options get() {
 
         return new Options()
@@ -34,7 +37,13 @@ public class GlobalOptionsDef {
                         .withShortName('c')
                         .withLongName("no-color")
                         .withDescription("omit colors on console output")
-                        .build(NO_COLOR));
+                        .build(NO_COLOR))
+                .add(new OptionBuilder()
+                        .withShortName('f')
+                        .withLongName("configfile")
+                        .withDescription("path to barnacle configuration file")
+                        .withArgumentName(CONFIGURATION_FILE)
+                        .build(CONFIGURATION_FILE));
     }
 
 }

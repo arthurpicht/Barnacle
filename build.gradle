@@ -24,7 +24,7 @@ dependencies {
     implementation 'com.github.arthurpicht:console:0.1.2'
 
     // TODO: remove logback-classic declaration, add slf4j and leave declaration of logging framework to the user.
-    implementation 'ch.qos.logback:logback-classic:1.2.9'
+    implementation 'ch.qos.logback:logback-classic:1.4.7'
 
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.4.3'
 

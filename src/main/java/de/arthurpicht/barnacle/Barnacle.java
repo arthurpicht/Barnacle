@@ -21,7 +21,7 @@ public class Barnacle {
         commands.add(GenerateDef.get());
 
         CliDescription cliDescription = new CliDescriptionBuilder()
-                .withDescription("meta\nhttps://github.com/arthurpicht/meta")
+                .withDescription("barnacle\nhttps://github.com/arthurpicht/Barnacle")
                 .withVersionByTag(Const.VERSION_TAG, Const.VERSION_DATE)
                 .build("barnacle");
 
@@ -84,6 +84,5 @@ public class Barnacle {
         }
         return false;
     }
-
 
 }
