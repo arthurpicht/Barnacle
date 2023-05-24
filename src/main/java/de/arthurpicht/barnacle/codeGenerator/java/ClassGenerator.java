@@ -4,8 +4,8 @@ import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.Const.Encoding;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.arthurpicht.barnacle.helper.ConsoleHelper;
+import de.arthurpicht.console.Console;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -19,8 +19,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ClassGenerator {
-
-    private static final Logger logger = LoggerFactory.getLogger(ClassGenerator.class);
 
     protected final GeneratorConfiguration generatorConfiguration;
     protected final String canonicalClassName;
@@ -110,7 +108,7 @@ public class ClassGenerator {
     }
 
     public void generate(Path destination) throws CodeGeneratorException {
-        logger.debug("Generating " + destination.toString());
+        Console.out(ConsoleHelper.verbose("Generating " + destination.toString()));
 
         try {
             PrintWriter printWriter;

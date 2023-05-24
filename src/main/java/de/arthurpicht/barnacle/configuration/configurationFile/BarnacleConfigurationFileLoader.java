@@ -2,7 +2,6 @@ package de.arthurpicht.barnacle.configuration.configurationFile;
 
 import de.arthurpicht.barnacle.exceptions.BarnacleIllegalStateException;
 import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
-import de.arthurpicht.barnacle.exceptions.BarnacleRuntimeException;
 import de.arthurpicht.configuration.Configuration;
 import de.arthurpicht.configuration.ConfigurationFactory;
 import de.arthurpicht.configuration.ConfigurationFileNotFoundException;
@@ -11,7 +10,6 @@ import de.arthurpicht.utils.io.nio2.FileUtils;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.Set;
 

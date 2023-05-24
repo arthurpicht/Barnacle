@@ -15,8 +15,7 @@ import de.arthurpicht.barnacle.model.ERMBuilderException;
 import de.arthurpicht.barnacle.model.EntityRelationshipModel;
 import de.arthurpicht.barnacle.model.EntityRelationshipModelBuilder;
 import de.arthurpicht.barnacle.vofClassLoader.VofClassLoader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.arthurpicht.console.Console;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,9 +23,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class BarnacleGenerator {
+import static de.arthurpicht.barnacle.helper.ConsoleHelper.veryVerbose;
 
-    private static final Logger logger = LoggerFactory.getLogger(BarnacleGenerator.class);
+public class BarnacleGenerator {
 
     public static void process() {
         BarnacleConfigurationFile barnacleConfigurationFile = new BarnacleConfigurationFile();
@@ -50,33 +49,28 @@ public class BarnacleGenerator {
     }
 
     public static void process(BarnacleConfiguration barnacleConfiguration) {
-        logger.info(Const.VERSION);
+        Console.println(Const.VERSION);
         GeneratorConfiguration generatorConfiguration = barnacleConfiguration.getGeneratorConfiguration();
-        try {
-            GeneratorPreconditions.assure(generatorConfiguration);
-            List<Class<?>> classList = loadVofClasses(generatorConfiguration);
-            EntityRelationshipModel entityRelationshipModel
-                    = EntityRelationshipModelBuilder.execute(generatorConfiguration, classList);
-            logger.trace(entityRelationshipModel.debugOut());
 
-            CodeGenerator.execute(generatorConfiguration, entityRelationshipModel);
-            SqlStatements sqlStatements = SchemaGenerator.execute(generatorConfiguration, entityRelationshipModel);
+        GeneratorPreconditions.assure(generatorConfiguration);
+        List<Class<?>> classList = loadVofClasses(generatorConfiguration);
+        EntityRelationshipModel entityRelationshipModel
+                = EntityRelationshipModelBuilder.execute(generatorConfiguration, classList);
+        Console.out(veryVerbose(entityRelationshipModel.debugOut()));
 
-            if (generatorConfiguration.isCreateScript()) {
-                Path scriptFile = Paths.get(generatorConfiguration.getScriptFile());
-                SqlScriptWriter.write(scriptFile, sqlStatements);
-            }
+        CodeGenerator.execute(generatorConfiguration, entityRelationshipModel);
+        SqlStatements sqlStatements = SchemaGenerator.execute(generatorConfiguration, entityRelationshipModel);
 
-            if (generatorConfiguration.isExecuteOnDb()) {
-                SqlDbExecutor.execute(barnacleConfiguration, sqlStatements);
-            }
-
-            logger.info("Barnacle generation successfully completed!");
-
-        } catch (GeneratorException e) {
-            logger.error("Error on barnacle generation: " + e.getMessage(), e.fillInStackTrace());
-            throw e;
+        if (generatorConfiguration.isCreateScript()) {
+            Path scriptFile = Paths.get(generatorConfiguration.getScriptFile());
+            SqlScriptWriter.write(scriptFile, sqlStatements);
         }
+
+        if (generatorConfiguration.isExecuteOnDb()) {
+            SqlDbExecutor.execute(barnacleConfiguration, sqlStatements);
+        }
+
+        Console.println("Barnacle generation successfully completed!");
     }
 
     private static List<Class<?>> loadVofClasses(GeneratorConfiguration generatorConfiguration) {

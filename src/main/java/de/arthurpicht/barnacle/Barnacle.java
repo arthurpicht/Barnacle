@@ -10,6 +10,7 @@ import de.arthurpicht.cli.command.InfoDefaultCommand;
 import de.arthurpicht.cli.common.UnrecognizedArgumentException;
 import de.arthurpicht.console.Console;
 import de.arthurpicht.console.config.ConsoleConfigurationBuilder;
+import de.arthurpicht.console.message.Level;
 import de.arthurpicht.console.message.format.Format;
 import de.arthurpicht.utils.core.strings.Strings;
 
@@ -46,9 +47,13 @@ public class Barnacle {
         }
 
         boolean showStacktrace = cliCall.getOptionParserResultGlobal().hasOption(GlobalOptionsDef.STACKTRACE);
+        boolean verbose = cliCall.getOptionParserResultGlobal().hasOption(GlobalOptionsDef.VERBOSE);
+        boolean debug = cliCall.getOptionParserResultGlobal().hasOption(GlobalOptionsDef.DEBUG);
 
         ConsoleConfigurationBuilder consoleConfigurationBuilder = new ConsoleConfigurationBuilder();
         if (isNoColor(cliCall)) consoleConfigurationBuilder.withSuppressedColors();
+        if (verbose) consoleConfigurationBuilder.asLevel(Level.VERBOSE);
+        if (debug) consoleConfigurationBuilder.asLevel(Level.VERY_VERBOSE);
         Console.init(consoleConfigurationBuilder.build());
 
         try {
