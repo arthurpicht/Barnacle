@@ -28,7 +28,7 @@ public class DaoGenerator extends ClassGenerator {
     public DaoGenerator(Entity entity, GeneratorConfiguration generatorConfiguration) {
         super(entity.getDaoCanonicalClassName(), generatorConfiguration);
 
-        Console.out(verbose("Generating class [" + entity.getDaoSimpleClassName() + "]"));
+        Console.out(verbose("Generating DAO class [" + entity.getDaoCanonicalClassName() + "]."));
 
         this.entity = entity;
 

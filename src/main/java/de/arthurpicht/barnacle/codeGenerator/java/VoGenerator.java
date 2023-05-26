@@ -23,7 +23,7 @@ public class VoGenerator extends VoBaseGenerator {
 
         super(getVOCanonicalClassNameFromEntity(entity, generatorConfiguration), entity, generatorConfiguration);
 
-        Console.out(verbose("Assembling class " + entity.getVoSimpleClassName()));
+        Console.out(verbose("Generating VO class [" + entity.getVoCanonicalClassName() + "]."));
 
         this.connectionExceptionCanonicalClassName
                 = generatorConfiguration.getConnectionExceptionCanonicalClassName();

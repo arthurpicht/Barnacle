@@ -108,8 +108,6 @@ public class ClassGenerator {
     }
 
     public void generate(Path destination) throws CodeGeneratorException {
-        Console.out(ConsoleHelper.verbose("Generating " + destination.toString()));
-
         try {
             PrintWriter printWriter;
             Encoding encoding = this.generatorConfiguration.getEncodingSource();
