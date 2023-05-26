@@ -28,9 +28,9 @@ public class ConnectionManagerBackend {
     }
 
     public synchronized static void init(BarnacleConfiguration barnacleConfiguration) {
-        if (initialized)
-            throw new BarnacleInitializerException("Barnacle " + ConnectionManagerBackend.class.getSimpleName()
-                    + " is already initialized.");
+//        if (initialized)
+//            throw new BarnacleInitializerException("Barnacle " + ConnectionManagerBackend.class.getSimpleName()
+//                    + " is already initialized.");
 
         Map<String, DbConnection> dbConnections = new HashMap<>();
         List<DbConnectionConfiguration> dbConnectionConfigurations = barnacleConfiguration.getDbConnectionConfigurations();
