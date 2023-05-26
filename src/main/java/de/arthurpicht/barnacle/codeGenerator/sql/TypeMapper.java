@@ -17,16 +17,17 @@ public abstract class TypeMapper {
 	}
 	
 	public String getSQLType(Attribute attribute) throws UnknownTypeException {
-		String sqlType;
+		String sqlTypeString;
 		if (attribute.hasCustomType()) {
-			sqlType = attribute.getCustomType();
+			sqlTypeString = attribute.getCustomType();
 		} else {
-			sqlType = this.getSqlType(attribute.getJavaTypeSimpleName());
+			SqlType sqlType = this.getSqlType(attribute.getJavaTypeSimpleName());
+			sqlTypeString = sqlType.getSqlTypeString();
 		}
-		return sqlType;
+		return sqlTypeString;
 	}
 	
-	protected abstract String getSqlType(String fieldType) throws UnknownTypeException;
+	protected abstract SqlType getSqlType(String fieldType) throws UnknownTypeException;
 
 	public static String getPreparedStatementSetMethod(String fieldType) {
 		switch (fieldType) {
