@@ -7,17 +7,16 @@ import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;
 import de.arthurpicht.barnacle.model.ForeignKeyWrapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.arthurpicht.console.Console;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-public class DaoGenerator extends ClassGenerator {
+import static de.arthurpicht.barnacle.helper.ConsoleHelper.verbose;
 
-    private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
+public class DaoGenerator extends ClassGenerator {
 
     private final Entity entity;
     private final String connectionManagerSimpleClassName;
@@ -29,7 +28,7 @@ public class DaoGenerator extends ClassGenerator {
     public DaoGenerator(Entity entity, GeneratorConfiguration generatorConfiguration) {
         super(entity.getDaoCanonicalClassName(), generatorConfiguration);
 
-        logger.debug("Generating class [" + entity.getDaoSimpleClassName() + "]");
+        Console.out(verbose("Generating DAO class [" + entity.getDaoCanonicalClassName() + "]."));
 
         this.entity = entity;
 

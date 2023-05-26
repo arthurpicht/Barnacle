@@ -15,11 +15,11 @@ import java.util.Set;
 public class SqlGenerator {
 
     private final StatementGenerator statementGenerator;
-    private final SqlDispatcher sqlDispatcher;
+    private final SqlStatementCache sqlStatementCache;
 
     public SqlGenerator(StatementGenerator statementGenerator, GeneratorConfiguration generatorConfiguration) {
         this.statementGenerator = statementGenerator;
-        this.sqlDispatcher = new SqlDispatcher(generatorConfiguration);
+        this.sqlStatementCache = new SqlStatementCache();
     }
 
     public void generateBareEntities(List<Entity> entities, Encoding encoding) {
@@ -46,23 +46,23 @@ public class SqlGenerator {
 
     private void preDrop() {
         String[] sqlStatements = this.statementGenerator.deactivateForeignKeyChecks();
-        this.sqlDispatcher.dispatch(sqlStatements);
+        this.sqlStatementCache.add(sqlStatements);
     }
 
     private void postDrop() {
         String[] sqlStatements = this.statementGenerator.activateForeignKeyChecks();
-        this.sqlDispatcher.dispatch(sqlStatements);
+        this.sqlStatementCache.add(sqlStatements);
     }
 
     private void dropEntity(Entity entity) {
         String sqlStatement = this.statementGenerator.dropTableIfExists(entity.getTableName());
-        this.sqlDispatcher.dispatch(sqlStatement);
+        this.sqlStatementCache.add(sqlStatement);
     }
 
     private void generateBareEntities(Entity entity, Encoding encoding) {
         // create table
         String sqlStatement = this.statementGenerator.createTable(entity.getTableName());
-        this.sqlDispatcher.dispatch(sqlStatement);
+        this.sqlStatementCache.add(sqlStatement);
 
         // create columns
         List<Attribute> attributeList = entity.getAttributes();
@@ -75,12 +75,12 @@ public class SqlGenerator {
                     attribute.getSqlDataType(),
                     attribute.getDefaultValue(),
                     isNotNull);
-            this.sqlDispatcher.dispatch(sqlStatement);
+            this.sqlStatementCache.add(sqlStatement);
         }
 
         // remove temporary column
         sqlStatement = this.statementGenerator.dropTempColumn(entity.getTableName());
-        this.sqlDispatcher.dispatch(sqlStatement);
+        this.sqlStatementCache.add(sqlStatement);
 
         // primary keys
         attributeList = entity.getPkAttributes();
@@ -90,7 +90,7 @@ public class SqlGenerator {
         }
 
         sqlStatement = this.statementGenerator.addPrimaryKey(entity.getTableName(), pkColumnNames);
-        this.sqlDispatcher.dispatch(sqlStatement);
+        this.sqlStatementCache.add(sqlStatement);
 
         // unique keys
         Set<String> indexNames = entity.getAllUniqueIndicesNames();
@@ -102,20 +102,20 @@ public class SqlGenerator {
             }
 
             sqlStatement = this.statementGenerator.addUniqueKey(entity.getTableName(), indexName, uniqueColumnNames);
-            this.sqlDispatcher.dispatch(sqlStatement);
+            this.sqlStatementCache.add(sqlStatement);
         }
 
         // auto increment
         if (entity.hasAutoIncrementAttribute()) {
             Attribute attribute = entity.getAutoIncrementAttribute();
             sqlStatement = this.statementGenerator.addAutoIncrement(entity.getTableName(), attribute.getColumnName());
-            this.sqlDispatcher.dispatch(sqlStatement);
+            this.sqlStatementCache.add(sqlStatement);
         }
 
         // configure encoding
         sqlStatement = this.statementGenerator.configureEncoding(entity.getTableName(), encoding);
         if (sqlStatement != null && !sqlStatement.equals("")) {
-            this.sqlDispatcher.dispatch(sqlStatement);
+            this.sqlStatementCache.add(sqlStatement);
         }
     }
 
@@ -125,16 +125,12 @@ public class SqlGenerator {
             ForeignKeyWrapper foreignKeyWrapper = entity.getOrCreateForeignKeyByName(foreignKeyName);
 
             String sqlStatement = this.statementGenerator.addForeignKey(entity.getTableName(), foreignKeyName, foreignKeyWrapper);
-            this.sqlDispatcher.dispatch(sqlStatement);
+            this.sqlStatementCache.add(sqlStatement);
         }
     }
 
-    public void close() {
-        try {
-            this.sqlDispatcher.close();
-        } catch (DBConnectionException e) {
-            throw new CodeGeneratorException(e.getMessage(), e);
-        }
+    public SqlStatements getSqlStatements() {
+        return this.sqlStatementCache.getSqlStatements();
     }
 
 }

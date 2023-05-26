@@ -1,31 +1,20 @@
 package de.arthurpicht.barnacle.codeGenerator.sql;
 
-import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
-import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
+import de.arthurpicht.barnacle.exceptions.BarnacleRuntimeException;
 
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 
 public class SqlScriptWriter {
-	
-	private final PrintWriter printWriter;
-	
-	public SqlScriptWriter(GeneratorConfiguration generatorConfiguration) throws CodeGeneratorException {
-		String sqlScriptFile = generatorConfiguration.getScriptFile();
+
+	public static void write(Path scriptFile, SqlStatements sqlStatements) {
 		try {
-			this.printWriter = new PrintWriter(new FileWriter(sqlScriptFile));
+			Files.write(scriptFile, sqlStatements.getSqlStatementList());
 		} catch (IOException e) {
-			throw new CodeGeneratorException("Error when creating SQL script file [" + sqlScriptFile + "]." , e);
-		} 
-	}
-	
-	public void println(String sqlString) {
-		this.printWriter.println(sqlString);
-	}
-	
-	public void close() {
-		this.printWriter.close();
+			throw new BarnacleRuntimeException("Could not write script file [" + scriptFile.toAbsolutePath() + "]. " +
+					"Cause: " + e.getMessage(), e);
+		}
 	}
 
 }

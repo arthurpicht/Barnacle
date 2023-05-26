@@ -4,15 +4,14 @@ import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.helper.StringHelper;
 import de.arthurpicht.barnacle.model.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import de.arthurpicht.console.Console;
 
 import java.util.List;
 import java.util.Set;
 
-public class VoGenerator extends VoBaseGenerator {
+import static de.arthurpicht.barnacle.helper.ConsoleHelper.verbose;
 
-    private static final Logger logger = LoggerFactory.getLogger("BARNACLE");
+public class VoGenerator extends VoBaseGenerator {
 
     private final String connectionExceptionCanonicalClassName;
     private final String entityNotFoundExceptionCanonicalClassName;
@@ -24,7 +23,7 @@ public class VoGenerator extends VoBaseGenerator {
 
         super(getVOCanonicalClassNameFromEntity(entity, generatorConfiguration), entity, generatorConfiguration);
 
-        logger.debug("Assembling class " + entity.getVoSimpleClassName());
+        Console.out(verbose("Generating VO class [" + entity.getVoCanonicalClassName() + "]."));
 
         this.connectionExceptionCanonicalClassName
                 = generatorConfiguration.getConnectionExceptionCanonicalClassName();

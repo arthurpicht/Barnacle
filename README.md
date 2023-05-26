@@ -86,3 +86,34 @@ of your own project as simple as that:
         commandLine "barnacle", "path/to/your/custom/barnacle.conf"
     }
  
+## Generator configuration
+
+| parameter                        | description                                                                                                                                            | default      |
+|----------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|--------------|
+| dialect                          | SQL dialect. One of `MYSQL` or `H2`                                                                                                                    | MYSQL        |
+| src_dir                          | source dirctory for VOF files                                                                                                                          | src/         |
+| src_gen_dir                      | source direcory for generated files                                                                                                                    | src-gen/     |
+| vof_package_name                 | package name for VOF files                                                                                                                             | `mandatory`  |
+| vo_package_name                  | package name for VO files                                                                                                                              | `mandatory`  |
+| vob_package_name                 | package name for VOB files                                                                                                                             | `mandatory`  |
+| dao_package_name                 | package name for DAO files                                                                                                                             | `mandatory`  |
+| execute_on_db                    | create resulting schema on DB                                                                                                                          | false        |
+| create_script                    | create SQL script                                                                                                                                      | false        |
+| create_script                    | create SQL script                                                                                                                                      | false        |
+| script_file                      | name of SQL script file                                                                                                                                | barnacle.sql |
+| encoding_db                      | encoding for database contents. One of `ISO`, `UTF` or `DEFAULT`.                                                                                      | DEFAULT      |
+| encoding_source                  | encoding for generated java sources. One of `ISO`, `UTF` or `DEFAULT`.                                                                                 | ISO          |
+| encoding_source                  | encoding for generated java sources. One of `ISO`, `UTF` or `DEFAULT`.                                                                                 | ISO          |
+| connection_manager_class         | canonical class name of custom connection manager class. If not set internal class is used.                                                            | `internal`   |
+| connection_exception_class       | canonical class name of custom connection exception class. If not set internal class is used.                                                          | `internal`   |
+| entity_not_found_exception_class | canonical class name of custom entity not found exception class. If not set internal class is used.                                                    | `internal`   |
+| doa_logger_name                  | name of logger used in generated DAO classes.                                                                                                          |              |
+| omit_javadoc                    | Omit generation of any javadoc comment in generated classes. This can be useful if generated code is subject to tests as javadoc contains a timestamp. | false        |
+
+
+
+### Programmatic configuration
+
+
+
+
