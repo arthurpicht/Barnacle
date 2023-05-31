@@ -90,13 +90,10 @@ public class DaoGeneratorCreate {
         int index = 1;
         List<String> getterList = new ArrayList<>();
         for (Attribute attribute : entity.getNonAutoIncrementAttributes()) {
-            String setMethod = TypeMapper.getPreparedStatementSetMethod(attribute.getJavaTypeSimpleName());
             String getter = voVarName + "." + attribute.generateGetterMethodName() + "()";
-            getterList.add(getter);
-            String line = "preparedStatement." + setMethod
-                    + "(" + index + ", "
-                    + getter + ");";
+            String line = PreparedStatementGenerator.generateSetStatement(attribute, getter, index);
             methodGenerator.addCodeLn(line);
+            getterList.add(getter);
             index++;
         }
 

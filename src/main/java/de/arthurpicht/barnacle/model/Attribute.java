@@ -24,6 +24,7 @@ public class Attribute {
     private final boolean notNull;
 
     private final String sqlDataType;
+    private final String sqlDataTypeLiteral;
 
     public Attribute(Field field, Entity entity, TypeMapper typeMapper) {
 
@@ -99,13 +100,12 @@ public class Attribute {
 
         // Determine SQL datatype by requesting database specific TypeMapper
 //        TypeMapper typeMapper = TypeMapper.getInstance(dialect);
-        String sqlDataType;
         try {
-            sqlDataType = typeMapper.getSQLType(this);
+            this.sqlDataType = typeMapper.getSQLType(this);
+            this.sqlDataTypeLiteral = typeMapper.getSQLTypeLiteral(this);
         } catch (UnknownTypeException e) {
             throw new ERMBuilderException(e);
         }
-        this.sqlDataType = sqlDataType;
     }
 
     public Class<?> getType() {
@@ -118,6 +118,10 @@ public class Attribute {
 
     public String getJavaTypeCanonicalName() {
         return this.field.getType().getCanonicalName();
+    }
+
+    public boolean isJavaTypeSimple() {
+        return !getJavaTypeCanonicalName().startsWith("java.lang.");
     }
 
     public String getFieldName() {
@@ -205,6 +209,10 @@ public class Attribute {
      */
     public String getSqlDataType() {
         return this.sqlDataType;
+    }
+
+    public String getSqlDataTypeLiteral() {
+        return this.sqlDataTypeLiteral;
     }
 
     /**

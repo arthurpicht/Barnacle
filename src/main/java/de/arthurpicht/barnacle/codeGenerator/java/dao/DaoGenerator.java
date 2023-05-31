@@ -132,6 +132,7 @@ public class DaoGenerator extends ClassGenerator {
         this.importGenerator.addImport(ResultSet.class);
         this.importGenerator.addImport(SQLException.class);
         this.importGenerator.addImport(PreparedStatement.class);
+        if (this.entity.hasNonAutoIncAttributesAsObjectTypes()) this.importGenerator.addImport(Types.class);
     }
 
     private void addImportsForNonPrimitiveAttributes() {

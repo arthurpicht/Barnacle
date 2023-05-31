@@ -55,6 +55,11 @@ public class Entity {
 		return nonAutoIncrementAttributes;
 	}
 
+	public boolean hasNonAutoIncAttributesAsObjectTypes() {
+		return getNonAutoIncrementAttributes().stream()
+				.anyMatch(a -> !a.isJavaTypeSimple());
+	}
+
 	public boolean hasAutoIncrementAttribute() {
 		return this.attributes.stream().anyMatch(Attribute::isAutoIncrement);
 	}

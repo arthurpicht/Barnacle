@@ -26,6 +26,18 @@ public abstract class TypeMapper {
 		}
 		return sqlTypeString;
 	}
+
+	public String getSQLTypeLiteral(Attribute attribute) throws UnknownTypeException {
+		String sqlTypeString;
+		if (attribute.hasCustomType()) {
+			// TODO derive type literal from custom type annotation
+			sqlTypeString = attribute.getCustomType();
+		} else {
+			SqlType sqlType = this.getSqlType(attribute.getJavaTypeSimpleName());
+			sqlTypeString = sqlType.getTypesLiteral();
+		}
+		return sqlTypeString;
+	}
 	
 	protected abstract SqlType getSqlType(String fieldType) throws UnknownTypeException;
 

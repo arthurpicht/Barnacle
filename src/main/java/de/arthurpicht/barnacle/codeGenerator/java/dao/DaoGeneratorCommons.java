@@ -44,12 +44,19 @@ public class DaoGeneratorCommons {
     }
 
     public static String generatePreparedStatementSetterFromVO(int index, Entity entity, Attribute attribute, List<String> valueList) {
-        String preparedStatementSetMethod = TypeMapper.getPreparedStatementSetMethod(attribute.getJavaTypeSimpleName());
         String voVarName = JavaGeneratorHelper.getVoVarName(entity);
         String getterMethodName = attribute.generateGetterMethodName();
-        String value = voVarName + "." + getterMethodName + "()";
-        valueList.add(value);
-        return "preparedStatement." + preparedStatementSetMethod + "(" + index + ", " + value + ");";
+        String getter = voVarName + "." + getterMethodName + "()";
+        String line = PreparedStatementGenerator.generateSetStatement(attribute, getter, index);
+        valueList.add(getter);
+        return line;
+
+//        String preparedStatementSetMethod = TypeMapper.getPreparedStatementSetMethod(attribute.getJavaTypeSimpleName());
+//        String voVarName = JavaGeneratorHelper.getVoVarName(entity);
+//        String getterMethodName = attribute.generateGetterMethodName();
+//        String value = voVarName + "." + getterMethodName + "()";
+//        valueList.add(value);
+//        return "preparedStatement." + preparedStatementSetMethod + "(" + index + ", " + value + ");";
     }
 
     public static String generateLogStringForPreparedStatement(String preparedStatementConstName, List<String> values) {
