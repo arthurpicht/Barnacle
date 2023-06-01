@@ -13,7 +13,7 @@ public class DaoGeneratorDelete {
     public static void addPreparedStatementDeleteAsLocalConst(DaoGenerator daoGenerator) {
         Entity entity = daoGenerator.getEntity();
         String statement = "DELETE FROM " + entity.getTableName() + " WHERE ";
-        statement += DaoGeneratorCommons.getPreparedStatementSearchConditionForPk(entity);
+        statement += PreparedStatementGenerator.getSearchConditionForPk(entity);
         daoGenerator.getLocalStringConstGenerator().add("DELETE_STATEMENT", statement);
     }
 
@@ -57,7 +57,7 @@ public class DaoGeneratorDelete {
 
         MethodGenerator methodGenerator = daoGenerator.getNewMethodGenerator();
         createSignature(methodGenerator, entity);
-        DaoGeneratorCommons.buildPreparedStatementByPkAttributes(
+        PreparedStatementGenerator.getByPkAttributes(
                 "DELETE_STATEMENT", daoGenerator, methodGenerator, entity);
 
         methodGenerator.addCodeLn("preparedStatement.execute();");

@@ -124,12 +124,12 @@ public class DaoGeneratorAssociation {
         for (int i=0; i<sourceFkKeyAttributes.size(); i++) {
             Attribute targetAttribute = sourceFkTargetAttributes.get(i);
             methodGenerator.addCodeLn(
-                    DaoGeneratorCommons.generatePreparedStatementSetterFromVO(i+1, sourceEntity, targetAttribute, valueList)
+                    PreparedStatementGenerator.generateFromVO(i+1, sourceEntity, targetAttribute, valueList)
             );
         }
 
         String loggingString
-                = DaoGeneratorCommons.generateLogStringForPreparedStatement(
+                = PreparedStatementGenerator.generateLogString(
                 getPreparedStatementName(targetEntity), valueList
         );
         LoggerGenerator loggerGenerator = daoGenerator.getLoggerGenerator();
@@ -143,23 +143,12 @@ public class DaoGeneratorAssociation {
         methodGenerator.addCodeLn("while (resultSet.next()) {");
 
         for (Attribute attribute : targetEntity.getAttributes()) {
-            methodGenerator.addCodeLn(DaoGeneratorCommons.generateLocalVarFromResultSet(targetEntity, attribute));
+            methodGenerator.addCodeLn(ResultSetStatementGenerator.generateLocalVarFromResultSet(attribute));
         }
 
         if (targetEntity.isComposedPk()) {
             daoGenerator.getImportGenerator().addImport(targetEntity.getPkCanonicalClassName());
-            String pkSimpleClassName = targetEntity.getPkSimpleClassName();
-            String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
-            methodGenerator.addCode(pkSimpleClassName + " " + pkVarName + " = new " + pkSimpleClassName + "(");
-            List<Attribute> pkAttributes = targetEntity.getPkAttributes();
-            List<String> attributeFieldNames = pkAttributes.stream()
-                    .map(Attribute::getFieldName)
-                    .collect(Collectors.toList());
-            String fieldNameListing = Strings.listing(attributeFieldNames, ", ");
-            methodGenerator.addCode(fieldNameListing);
-            methodGenerator.addCodeLn(");");
-            methodGenerator.addCodeLn(targetEntityVoSimpleClassName + " " + voVarName + " = new " + targetEntityVoSimpleClassName
-                    + "(" + pkVarName + ");");
+            DaoGeneratorFindAll.initializeVoForComposedPk(targetEntity, targetEntityVoSimpleClassName, voVarName, methodGenerator);
 
         } else {
             Attribute pkAttribute = targetEntity.getSinglePkAttribute();

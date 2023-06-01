@@ -3,7 +3,6 @@ package de.arthurpicht.barnacle.codeGenerator.java.dao;
 import de.arthurpicht.barnacle.codeGenerator.java.LoggerGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
-import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Attributes;
 import de.arthurpicht.barnacle.model.Entity;
@@ -91,7 +90,7 @@ public class DaoGeneratorCreate {
         List<String> getterList = new ArrayList<>();
         for (Attribute attribute : entity.getNonAutoIncrementAttributes()) {
             String getter = voVarName + "." + attribute.generateGetterMethodName() + "()";
-            String line = PreparedStatementGenerator.generateSetStatement(attribute, getter, index);
+            String line = PreparedStatementGenerator.getSetStatement(attribute, getter, index);
             methodGenerator.addCodeLn(line);
             getterList.add(getter);
             index++;

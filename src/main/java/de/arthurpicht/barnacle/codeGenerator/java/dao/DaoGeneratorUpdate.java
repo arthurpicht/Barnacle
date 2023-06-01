@@ -24,7 +24,7 @@ public class DaoGeneratorUpdate {
         String columnNameListing = Strings.listing(columnNames, ", ", "", "", "", " = ?");
         statement += columnNameListing;
         statement += " WHERE ";
-        statement += DaoGeneratorCommons.getPreparedStatementSearchConditionForPk(entity);
+        statement += PreparedStatementGenerator.getSearchConditionForPk(entity);
 
         daoGenerator.getLocalStringConstGenerator().add("UPDATE_STATEMENT", statement);
     }
@@ -69,7 +69,7 @@ public class DaoGeneratorUpdate {
         methodGenerator.addThrowsException(SQLException.class);
 
         methodGenerator.addCodeLn(
-                DaoGeneratorCommons.initializePreparedStatement("UPDATE_STATEMENT")
+                PreparedStatementGenerator.getInitializationStatement("UPDATE_STATEMENT")
         );
 
         List<String> valueList = new ArrayList<>();
@@ -77,20 +77,20 @@ public class DaoGeneratorUpdate {
         List<Attribute> nonPkAttributes = entity.getNonPkAttributes();
         for (Attribute attribute : nonPkAttributes) {
             methodGenerator.addCodeLn(
-                    DaoGeneratorCommons.generatePreparedStatementSetterFromVO(index, entity, attribute, valueList)
+                    PreparedStatementGenerator.generateFromVO(index, entity, attribute, valueList)
             );
             index++;
         }
         List<Attribute> pkAttributes = entity.getPkAttributes();
         for (Attribute attribute : pkAttributes) {
             methodGenerator.addCodeLn(
-                    DaoGeneratorCommons.generatePreparedStatementSetterFromVO(index, entity, attribute, valueList)
+                    PreparedStatementGenerator.generateFromVO(index, entity, attribute, valueList)
             );
             index++;
         }
 
         String loggingString
-                = DaoGeneratorCommons.generateLogStringForPreparedStatement(
+                = PreparedStatementGenerator.generateLogString(
                 "UPDATE_STATEMENT", valueList
         );
         LoggerGenerator loggerGenerator = daoGenerator.getLoggerGenerator();

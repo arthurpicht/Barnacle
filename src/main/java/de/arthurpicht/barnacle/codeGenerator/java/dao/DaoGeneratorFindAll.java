@@ -22,10 +22,6 @@ public class DaoGeneratorFindAll {
     public static void addFindAllMethod(DaoGenerator daoGenerator) {
         Entity entity = daoGenerator.getEntity();
 
-        String voSimpleClassName = entity.getVoSimpleClassName();
-        String voCanonicalClassName = entity.getVoCanonicalClassName();
-        String voVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(voSimpleClassName);
-
         MethodGenerator methodGenerator = daoGenerator.getNewMethodGenerator();
         methodGenerator.setIsStatic(true);
         methodGenerator.setReturnType(List.class);
@@ -46,7 +42,6 @@ public class DaoGeneratorFindAll {
     public static void addFindAllMethodByConnection(DaoGenerator daoGenerator) {
         Entity entity = daoGenerator.getEntity();
         String voSimpleClassName = entity.getVoSimpleClassName();
-        String voCanonicalClassName = entity.getVoCanonicalClassName();
         String voVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(voSimpleClassName);
         String voListVarName = voVarName + "s";
 
@@ -71,22 +66,11 @@ public class DaoGeneratorFindAll {
         methodGenerator.addCodeLn("while (resultSet.next()) {");
 
         for (Attribute attribute : entity.getAttributes()) {
-            methodGenerator.addCodeLn(DaoGeneratorCommons.generateLocalVarFromResultSet(entity, attribute));
+            methodGenerator.addCodeLn(ResultSetStatementGenerator.generateLocalVarFromResultSet(attribute));
         }
 
         if (entity.isComposedPk()) {
-            String pkSimpleClassName = entity.getPkSimpleClassName();
-            String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
-            methodGenerator.addCode(pkSimpleClassName + " " + pkVarName + " = new " + pkSimpleClassName + "(");
-            List<Attribute> pkAttributes = entity.getPkAttributes();
-            List<String> attributeFieldNames = pkAttributes.stream()
-                    .map(Attribute::getFieldName)
-                    .collect(Collectors.toList());
-            String fieldNameListing = Strings.listing(attributeFieldNames, ", ");
-            methodGenerator.addCode(fieldNameListing);
-            methodGenerator.addCodeLn(");");
-            methodGenerator.addCodeLn(voSimpleClassName + " " + voVarName + " = new " + voSimpleClassName
-                    + "(" + pkVarName + ");");
+            initializeVoForComposedPk(entity, voSimpleClassName, voVarName, methodGenerator);
 
         } else {
             Attribute pkAttribute = entity.getSinglePkAttribute();
@@ -107,6 +91,21 @@ public class DaoGeneratorFindAll {
         methodGenerator.addCodeLn("if (resultSet != null) { try { resultSet.close(); } catch (SQLException ignored) {}}");
         methodGenerator.addCodeLn("try { statement.close(); } catch (SQLException ignored) {}");
         methodGenerator.addCodeLn("}");
+    }
+
+    static void initializeVoForComposedPk(Entity entity, String voSimpleClassName, String voVarName, MethodGenerator methodGenerator) {
+        String pkSimpleClassName = entity.getPkSimpleClassName();
+        String pkVarName = JavaGeneratorHelper.getVarNameFromSimpleClassName(pkSimpleClassName);
+        methodGenerator.addCode(pkSimpleClassName + " " + pkVarName + " = new " + pkSimpleClassName + "(");
+        List<Attribute> pkAttributes = entity.getPkAttributes();
+        List<String> attributeFieldNames = pkAttributes.stream()
+                .map(Attribute::getFieldName)
+                .collect(Collectors.toList());
+        String fieldNameListing = Strings.listing(attributeFieldNames, ", ");
+        methodGenerator.addCode(fieldNameListing);
+        methodGenerator.addCodeLn(");");
+        methodGenerator.addCodeLn(voSimpleClassName + " " + voVarName + " = new " + voSimpleClassName
+                + "(" + pkVarName + ");");
     }
 
 }

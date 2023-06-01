@@ -2,7 +2,6 @@ package de.arthurpicht.barnacle.codeGenerator.java.dao;
 
 import de.arthurpicht.barnacle.codeGenerator.java.ClassGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
-import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;
@@ -142,14 +141,6 @@ public class DaoGenerator extends ClassGenerator {
                 this.getImportGenerator().addImport(attribute.getJavaTypeCanonicalName());
             }
         }
-    }
-
-    public String generateVoAssignmentFromResultSet(Entity entity, Attribute attribute) {
-        // example: personCompositeVO.setAge(resultSet.getInt("age"));
-        return JavaGeneratorHelper.getVoVarName(entity) + "."
-                + attribute.generateSetterMethodName() + "(resultSet."
-                + TypeMapper.getResultSetGetMethod(attribute.getJavaTypeSimpleName()) + "(\""
-                + attribute.getColumnName() + "\"));";
     }
 
     public String createGetConnectionStatement() {

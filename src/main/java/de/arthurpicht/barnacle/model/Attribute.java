@@ -112,6 +112,11 @@ public class Attribute {
         return this.field.getType();
     }
 
+    public String getTypeLiteral() {
+        if (isJavaTypeSimple()) throw new IllegalStateException("No type literal available for simple type.");
+        return getJavaTypeSimpleName() + ".class";
+    }
+
     public String getJavaTypeSimpleName() {
         return this.field.getType().getSimpleName();
     }
@@ -193,15 +198,6 @@ public class Attribute {
         String methodName = this.getFieldName().substring(0, 1).toUpperCase();
         methodName += this.getFieldName().substring(1);
         return methodName;
-    }
-
-    /**
-     * Returns the name of the public constant as part of the value objects.
-     * Constant name is defined as attribute`s field name in uppercase letters.
-     * The values given in the VOs represent the corresponding column names.
-     */
-    public String getConstName() {
-        return this.getFieldName().toUpperCase();
     }
 
     /**
