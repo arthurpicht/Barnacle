@@ -8,8 +8,8 @@ public class TypeMapperMySQL extends TypeMapper {
 	}
 
 	@Override
-	public SqlType getSqlType(String fieldType) throws UnknownTypeException {
-		switch (fieldType) {
+	public SqlType getMapping(String javaFieldTypeSimpleName) throws UnknownTypeException {
+		switch (javaFieldTypeSimpleName) {
 			case "String":
 				return SqlType.VARCHAR;
 			case "byte":
@@ -38,7 +38,7 @@ public class TypeMapperMySQL extends TypeMapper {
 			case "Date":
 				return SqlType.DATE;
 		}
-		throw new UnknownTypeException("Unknown Type: " + fieldType);
+		throw new UnknownTypeException("Unknown Type: " + javaFieldTypeSimpleName);
 	}
 
 //

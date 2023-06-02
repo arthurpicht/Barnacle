@@ -24,7 +24,8 @@ dependencies {
     implementation 'com.github.arthurpicht:console:0.1.2'
 
     // TODO: remove logback-classic declaration, add slf4j and leave declaration of logging framework to the user.
-    implementation 'ch.qos.logback:logback-classic:1.4.7'
+//    implementation 'ch.qos.logback:logback-classic:1.4.7'
+//    implementation 'org.slf4j:slf4j-api:2.0.7'
 
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.4.3'
 
@@ -36,13 +37,13 @@ test {
     useJUnitPlatform()
 }
 
-task extractDependencies(type: Copy) {
+tasks.register('extractDependencies', Copy) {
     into "bin/libs"
     from configurations.runtimeClasspath
 }
 
-task prepareTooling() {
-    
+tasks.register('prepareTooling') {
+
 }
 
 extractDependencies.dependsOn jar

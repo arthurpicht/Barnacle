@@ -9,20 +9,11 @@ import java.lang.reflect.Field;
 public class Attribute {
 
     private final Field field;
-
     private final String columnName;
-
     private final boolean isPrimaryKey;
     private final boolean isAutoIncrement;
-
     private final String defaultValue;
-
-    private final String type;
-    private final Integer para1;
-    private final Integer para2;
-
     private final boolean notNull;
-
     private final String sqlDataType;
     private final String sqlDataTypeLiteral;
 
@@ -82,9 +73,6 @@ public class Attribute {
                 }
             }
         }
-        this.type = type;
-        this.para1 = para1;
-        this.para2 = para2;
 
         // unique
         // TODO move this to class Entity
@@ -98,11 +86,14 @@ public class Attribute {
             }
         }
 
-        // Determine SQL datatype by requesting database specific TypeMapper
-//        TypeMapper typeMapper = TypeMapper.getInstance(dialect);
         try {
-            this.sqlDataType = typeMapper.getSQLType(this);
-            this.sqlDataTypeLiteral = typeMapper.getSQLTypeLiteral(this);
+            if (type == null) {
+                this.sqlDataType = typeMapper.getSqlTypeByAutoMapping(field.getType());
+                this.sqlDataTypeLiteral = typeMapper.getSqlTypeLiteralByAutoMapping(field.getType());
+            } else {
+                this.sqlDataType = typeMapper.getSqlTypeByCustomType(type, para1, para2);
+                this.sqlDataTypeLiteral = typeMapper.getSqlTypeLiteralByCustomType(type);
+            }
         } catch (UnknownTypeException e) {
             throw new ERMBuilderException(e);
         }
@@ -156,30 +147,6 @@ public class Attribute {
      */
     public String getDefaultValue() {
         return defaultValue;
-    }
-
-    /**
-     * Determines if a custom type is defined for this
-     * attribute.
-     */
-    public boolean hasCustomType() {
-        return this.type != null;
-    }
-
-    /**
-     * Returns the custom type string, defined using the TYPE-
-     * annotation.
-     */
-    public String getCustomType() {
-        String typeString = this.type;
-        if (this.para1 != null) {
-            typeString += "(" + this.para1;
-            if (this.para2 != null) {
-                typeString += ", " + this.para2;
-            }
-            typeString += ")";
-        }
-        return typeString;
     }
 
     public String generateGetterMethodName() {

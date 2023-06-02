@@ -1,8 +1,10 @@
 package de.arthurpicht.barnacle.configuration.helper;
 
 import de.arthurpicht.configuration.Configuration;
+import de.arthurpicht.console.Console;
+import de.arthurpicht.console.message.Level;
+import de.arthurpicht.console.message.MessageBuilder;
 import de.arthurpicht.utils.core.strings.Strings;
-import org.slf4j.Logger;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -17,13 +19,21 @@ public class ConfigurationHelper {
         return configuration.getString(parameterName);
     }
 
-    public static void logAllPropertiesOnDebugLevel(Configuration configuration, Logger logger) {
+    public static void outputAllPropertiesOnDebugLevel(Configuration configuration) {
         Set<String> keys = configuration.getKeys();
         for (String key : keys) {
             if (key.equals("password")) {
-                logger.debug(key + " = <*****>");
+                Console.out(
+                        new MessageBuilder()
+                                .asLevel(Level.VERY_VERBOSE)
+                                .addText(key + " = <*****>")
+                                .build());
             } else {
-                logger.debug(key + " = " + configuration.getString(key));
+                Console.out(
+                        new MessageBuilder()
+                                .asLevel(Level.VERY_VERBOSE)
+                                .addText(key + " = " + configuration.getString(key))
+                                .build());
             }
         }
     }

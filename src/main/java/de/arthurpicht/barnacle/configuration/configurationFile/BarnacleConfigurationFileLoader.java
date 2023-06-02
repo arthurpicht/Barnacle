@@ -1,7 +1,9 @@
 package de.arthurpicht.barnacle.configuration.configurationFile;
 
+import de.arthurpicht.barnacle.configuration.helper.ConfigurationHelper;
 import de.arthurpicht.barnacle.exceptions.BarnacleIllegalStateException;
 import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
+import de.arthurpicht.barnacle.helper.ConsoleHelper;
 import de.arthurpicht.configuration.Configuration;
 import de.arthurpicht.configuration.ConfigurationFactory;
 import de.arthurpicht.configuration.ConfigurationFileNotFoundException;
@@ -27,6 +29,7 @@ public class BarnacleConfigurationFileLoader {
         this.configurationFactory = bindConfigurationFile();
         this.generatorConfigurationOpt = obtainGeneratorConfiguration();
         this.dbConnectionConfigurationMap = obtainDbConnectionConfigurationMap();
+        outputConfiguration();
     }
 
     public BarnacleConfigurationFileLoader(Path configurationFile) {
@@ -36,6 +39,7 @@ public class BarnacleConfigurationFileLoader {
         this.configurationFactory = bindConfigurationFile(configurationFile);
         this.generatorConfigurationOpt = obtainGeneratorConfiguration();
         this.dbConnectionConfigurationMap = obtainDbConnectionConfigurationMap();
+        outputConfiguration();
     }
 
     private ConfigurationFactory bindConfigurationFile() {
@@ -97,10 +101,20 @@ public class BarnacleConfigurationFileLoader {
         return dbConnectionConfigurationMap;
     }
 
-    public ConfigurationFactory getConfigurationFactory() {
-        return this.configurationFactory;
+    private void outputConfiguration() {
+        ConsoleHelper.veryVerbose(BARNACLE_CONF_FILE_NAME + ":");
+        if (this.generatorConfigurationOpt.isEmpty()) {
+            ConsoleHelper.veryVerbose("No [generator] section.");
+        } else {
+            ConfigurationHelper.outputAllPropertiesOnDebugLevel(this.generatorConfigurationOpt.get());
+        }
+        for (String sectionName : this.dbConnectionConfigurationMap.getSectionNames()) {
+            Configuration configuration = this.dbConnectionConfigurationMap.getConfiguration(sectionName);
+            ConsoleHelper.veryVerbose("[" + sectionName + "]");
+            ConfigurationHelper.outputAllPropertiesOnDebugLevel(configuration);
+        }
     }
-
+    
     public boolean hasGeneratorConfiguration() {
         return this.generatorConfigurationOpt.isPresent();
     }

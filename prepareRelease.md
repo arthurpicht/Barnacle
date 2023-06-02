@@ -1,8 +1,6 @@
 # Prepare Release
 
-* Edit *BarnacleInitializer* set Version-String: remove *-SNAPSHOT*
-
-* Edit *bin/barnacle* set Version-String
+* Edit *Const* set Version-String: remove *-SNAPSHOT*
 
 * Edit *build.gradle* set Version
 

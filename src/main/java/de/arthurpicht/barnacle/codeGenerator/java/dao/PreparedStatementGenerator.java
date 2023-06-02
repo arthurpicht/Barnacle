@@ -3,7 +3,7 @@ package de.arthurpicht.barnacle.codeGenerator.java.dao;
 import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
 import de.arthurpicht.barnacle.codeGenerator.java.LoggerGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
-import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
+import de.arthurpicht.barnacle.helper.StringHelper;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Attributes;
 import de.arthurpicht.barnacle.model.Entity;
@@ -88,7 +88,7 @@ public class PreparedStatementGenerator {
 
     public static String getSetStatement(Attribute attribute, String getter, int index) {
         if (attribute.isJavaTypeSimple()) {
-            String setMethod = TypeMapper.getPreparedStatementSetMethod(attribute.getJavaTypeSimpleName());
+            String setMethod = getPreparedStatementSetMethod(attribute.getJavaTypeSimpleName());
             return "preparedStatement." + setMethod + "(" + index + ", " + getter + ");";
         } else {
             String sqlTypeLiteral = attribute.getSqlDataTypeLiteral();
@@ -96,4 +96,12 @@ public class PreparedStatementGenerator {
         }
     }
 
+    public static String getPreparedStatementSetMethod(String simpleFieldType) {
+        if (SimpleTypeHelper.isNoSimpleType(simpleFieldType))
+            throw new IllegalArgumentException("PreparedStatement set-method is only available for basic types" +
+                    " (except char).");
+
+        return "set" + StringHelper.shiftFirstLetterToUpperCase(simpleFieldType);
+    }
+    
 }

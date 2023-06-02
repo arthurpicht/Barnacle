@@ -1,7 +1,7 @@
 package de.arthurpicht.barnacle.codeGenerator.java.dao;
 
 import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
-import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
+import de.arthurpicht.barnacle.helper.StringHelper;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;
 
@@ -9,7 +9,7 @@ public class ResultSetStatementGenerator {
 
     public static String generateGetStatement(Attribute attribute) {
         if (attribute.isJavaTypeSimple()) {
-            String getMethod = TypeMapper.getResultSetGetMethod(attribute.getJavaTypeSimpleName());
+            String getMethod = getResultSetGetMethod(attribute.getJavaTypeSimpleName());
             return "resultSet." + getMethod + "(\"" + attribute.getColumnName() + "\")";
         } else {
             String javaClassTypeLiteral = attribute.getTypeLiteral();
@@ -41,4 +41,12 @@ public class ResultSetStatementGenerator {
         return out;
     }
 
+    public static String getResultSetGetMethod(String simpleFieldType) {
+        if (SimpleTypeHelper.isNoSimpleType(simpleFieldType))
+            throw new IllegalArgumentException("PreparedStatement set-method is only available for basic types" +
+                    " (except char).");
+
+        return "get" + StringHelper.shiftFirstLetterToUpperCase(simpleFieldType);
+    }
+    
 }
