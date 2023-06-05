@@ -11,13 +11,11 @@ import de.arthurpicht.console.Console;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-import static de.arthurpicht.barnacle.helper.ConsoleHelper.verbose;
-
 public class GenerateExecutor implements CommandExecutor {
 
     @Override
     public void execute(CliCall cliCall) throws CommandExecutorException {
-        Console.out(verbose("barnacle generation started."));
+        Console.verbose("barnacle generation started.");
         try {
             if (cliCall.getOptionParserResultGlobal().hasOption(GlobalOptionsDef.CONFIGURATION_FILE)) {
                 String configFileString = cliCall.getOptionParserResultGlobal().getValue(GlobalOptionsDef.CONFIGURATION_FILE);

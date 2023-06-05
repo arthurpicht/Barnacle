@@ -13,8 +13,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-import static de.arthurpicht.barnacle.helper.ConsoleHelper.verbose;
-
 public class DaoGenerator extends ClassGenerator {
 
     private final Entity entity;
@@ -27,7 +25,7 @@ public class DaoGenerator extends ClassGenerator {
     public DaoGenerator(Entity entity, GeneratorConfiguration generatorConfiguration) {
         super(entity.getDaoCanonicalClassName(), generatorConfiguration);
 
-        Console.out(verbose("Generating DAO class [" + entity.getDaoCanonicalClassName() + "]."));
+        Console.verbose("Generating DAO class [" + entity.getDaoCanonicalClassName() + "].");
 
         this.entity = entity;
 

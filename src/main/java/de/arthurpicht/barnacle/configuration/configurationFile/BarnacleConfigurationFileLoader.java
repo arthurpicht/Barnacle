@@ -3,10 +3,10 @@ package de.arthurpicht.barnacle.configuration.configurationFile;
 import de.arthurpicht.barnacle.configuration.helper.ConfigurationHelper;
 import de.arthurpicht.barnacle.exceptions.BarnacleIllegalStateException;
 import de.arthurpicht.barnacle.exceptions.BarnacleInitializerException;
-import de.arthurpicht.barnacle.helper.ConsoleHelper;
 import de.arthurpicht.configuration.Configuration;
 import de.arthurpicht.configuration.ConfigurationFactory;
 import de.arthurpicht.configuration.ConfigurationFileNotFoundException;
+import de.arthurpicht.console.Console;
 import de.arthurpicht.utils.io.nio2.FileUtils;
 
 import java.io.File;
@@ -102,15 +102,15 @@ public class BarnacleConfigurationFileLoader {
     }
 
     private void outputConfiguration() {
-        ConsoleHelper.veryVerbose(BARNACLE_CONF_FILE_NAME + ":");
+        Console.veryVerbose(BARNACLE_CONF_FILE_NAME + ":");
         if (this.generatorConfigurationOpt.isEmpty()) {
-            ConsoleHelper.veryVerbose("No [generator] section.");
+            Console.veryVerbose("No [generator] section.");
         } else {
             ConfigurationHelper.outputAllPropertiesOnDebugLevel(this.generatorConfigurationOpt.get());
         }
         for (String sectionName : this.dbConnectionConfigurationMap.getSectionNames()) {
             Configuration configuration = this.dbConnectionConfigurationMap.getConfiguration(sectionName);
-            ConsoleHelper.veryVerbose("[" + sectionName + "]");
+            Console.veryVerbose("[" + sectionName + "]");
             ConfigurationHelper.outputAllPropertiesOnDebugLevel(configuration);
         }
     }
