@@ -7,5 +7,7 @@
     * new configuration property `dialect`in `general` section
     * schema generation: H2 support
     * schema generation: all primary key fields are specified as NOT NULL explicitly
+    * consistent handling of null values for fields of object types.
+    * CLI
 
 

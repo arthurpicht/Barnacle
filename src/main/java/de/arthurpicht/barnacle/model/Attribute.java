@@ -9,21 +9,13 @@ import java.lang.reflect.Field;
 public class Attribute {
 
     private final Field field;
-
     private final String columnName;
-
     private final boolean isPrimaryKey;
     private final boolean isAutoIncrement;
-
     private final String defaultValue;
-
-    private final String type;
-    private final Integer para1;
-    private final Integer para2;
-
     private final boolean notNull;
-
     private final String sqlDataType;
+    private final String sqlDataTypeLiteral;
 
     public Attribute(Field field, Entity entity, TypeMapper typeMapper) {
 
@@ -81,9 +73,6 @@ public class Attribute {
                 }
             }
         }
-        this.type = type;
-        this.para1 = para1;
-        this.para2 = para2;
 
         // unique
         // TODO move this to class Entity
@@ -97,19 +86,26 @@ public class Attribute {
             }
         }
 
-        // Determine SQL datatype by requesting database specific TypeMapper
-//        TypeMapper typeMapper = TypeMapper.getInstance(dialect);
-        String sqlDataType;
         try {
-            sqlDataType = typeMapper.getSQLType(this);
+            if (type == null) {
+                this.sqlDataType = typeMapper.getSqlTypeByAutoMapping(field.getType());
+                this.sqlDataTypeLiteral = typeMapper.getSqlTypeLiteralByAutoMapping(field.getType());
+            } else {
+                this.sqlDataType = typeMapper.getSqlTypeByCustomType(type, para1, para2);
+                this.sqlDataTypeLiteral = typeMapper.getSqlTypeLiteralByCustomType(type);
+            }
         } catch (UnknownTypeException e) {
             throw new ERMBuilderException(e);
         }
-        this.sqlDataType = sqlDataType;
     }
 
     public Class<?> getType() {
         return this.field.getType();
+    }
+
+    public String getTypeLiteral() {
+        if (isJavaTypeSimple()) throw new IllegalStateException("No type literal available for simple type.");
+        return getJavaTypeSimpleName() + ".class";
     }
 
     public String getJavaTypeSimpleName() {
@@ -118,6 +114,10 @@ public class Attribute {
 
     public String getJavaTypeCanonicalName() {
         return this.field.getType().getCanonicalName();
+    }
+
+    public boolean isJavaTypeSimple() {
+        return !getJavaTypeCanonicalName().startsWith("java.lang.");
     }
 
     public String getFieldName() {
@@ -149,30 +149,6 @@ public class Attribute {
         return defaultValue;
     }
 
-    /**
-     * Determines if a custom type is defined for this
-     * attribute.
-     */
-    public boolean hasCustomType() {
-        return this.type != null;
-    }
-
-    /**
-     * Returns the custom type string, defined using the TYPE-
-     * annotation.
-     */
-    public String getCustomType() {
-        String typeString = this.type;
-        if (this.para1 != null) {
-            typeString += "(" + this.para1;
-            if (this.para2 != null) {
-                typeString += ", " + this.para2;
-            }
-            typeString += ")";
-        }
-        return typeString;
-    }
-
     public String generateGetterMethodName() {
         String methodName = "get";
         methodName += this.getFieldNameWithFirstLetterUpperCase();
@@ -192,19 +168,14 @@ public class Attribute {
     }
 
     /**
-     * Returns the name of the public constant as part of the value objects.
-     * Constant name is defined as attribute`s field name in uppercase letters.
-     * The values given in the VOs represent the corresponding column names.
-     */
-    public String getConstName() {
-        return this.getFieldName().toUpperCase();
-    }
-
-    /**
      * Gets SQL-Datatype.
      */
     public String getSqlDataType() {
         return this.sqlDataType;
+    }
+
+    public String getSqlDataTypeLiteral() {
+        return this.sqlDataTypeLiteral;
     }
 
     /**

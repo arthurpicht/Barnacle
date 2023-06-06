@@ -18,34 +18,31 @@ repositories {
 
 dependencies {
     implementation 'com.github.arthurpicht:AP-Configuration:0.1.6'
-    implementation 'com.github.arthurpicht:utils-core:1.11.0'
+    implementation 'com.github.arthurpicht:utils-core:1.13.0'
     implementation 'com.github.arthurpicht:utils-io:0.0.17'
-    implementation 'com.github.arthurpicht:cli:0.1.1'
-    implementation 'com.github.arthurpicht:console:0.1.2'
-
-    // TODO: remove logback-classic declaration, add slf4j and leave declaration of logging framework to the user.
-    implementation 'ch.qos.logback:logback-classic:1.4.7'
+    implementation 'com.github.arthurpicht:cli:0.1.2'
+    implementation 'com.github.arthurpicht:console:0.1.5'
 
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.4.3'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
 }
 
 test {
     useJUnitPlatform()
 }
 
-task extractDependencies(type: Copy) {
+tasks.register('extractDependencies', Copy) {
     into "bin/libs"
     from configurations.runtimeClasspath
 }
 
-task prepareTooling() {
-    
+tasks.register('tool') {
+
 }
 
 extractDependencies.dependsOn jar
-prepareTooling.dependsOn extractDependencies
+tool.dependsOn extractDependencies
 
 

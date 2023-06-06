@@ -14,7 +14,7 @@ public class DaoGeneratorLoad {
     public static void addPreparedStatementLoadAsLocalConst(DaoGenerator daoGenerator) {
         Entity entity = daoGenerator.getEntity();
         String statement = "SELECT * FROM " + entity.getTableName() + " WHERE ";
-        statement += DaoGeneratorCommons.getPreparedStatementSearchConditionForPk(entity);
+        statement += PreparedStatementGenerator.getSearchConditionForPk(entity);
         daoGenerator.getLocalStringConstGenerator().add("LOAD_STATEMENT", statement);
     }
 
@@ -60,7 +60,7 @@ public class DaoGeneratorLoad {
         Entity entity = daoGenerator.getEntity();
         MethodGenerator methodGenerator = daoGenerator.getNewMethodGenerator();
         createSignature(daoGenerator, methodGenerator, entity);
-        DaoGeneratorCommons.buildPreparedStatementByPkAttributes(
+        PreparedStatementGenerator.getByPkAttributes(
                 "LOAD_STATEMENT", daoGenerator, methodGenerator, entity);
         processResultSet(daoGenerator, methodGenerator, entity);
     }
@@ -102,7 +102,8 @@ public class DaoGeneratorLoad {
 
         List<Attribute> nonPkAttributes = entity.getNonPkAttributes();
         for (Attribute attribute : nonPkAttributes) {
-            methodGenerator.addCodeLn(daoGenerator.generateVoAssignmentFromResultSet(entity, attribute));
+            String line = ResultSetStatementGenerator.generateGetStatement(attribute);
+            methodGenerator.addCodeLn(ResultSetStatementGenerator.generateVoAssignmentFromResultSet(entity, attribute));
         }
 
         methodGenerator.addCodeLn("return " + voVarName + ";");

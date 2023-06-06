@@ -3,7 +3,7 @@ package de.arthurpicht.barnacle.codeGenerator.java.dao;
 import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
 import de.arthurpicht.barnacle.codeGenerator.java.LoggerGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
-import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
+import de.arthurpicht.barnacle.helper.StringHelper;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Attributes;
 import de.arthurpicht.barnacle.model.Entity;
@@ -13,52 +13,48 @@ import de.arthurpicht.utils.core.strings.Strings;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DaoGeneratorCommons {
+public class PreparedStatementGenerator {
 
-    public static String initializePreparedStatement(String statementConstName) {
+    public static String getInitializationStatement(String statementConstName) {
         return "PreparedStatement preparedStatement = connection.prepareStatement(" + statementConstName + ");";
     }
 
-    public static String getPreparedStatementSearchConditionForPk(Entity entity) {
+    public static String getSearchConditionForPk(Entity entity) {
         if (entity.isComposedPk()) {
             List<Attribute> pkAttributes = entity.getPkAttributes();
-            return getPreparedStatementSearchCondition(pkAttributes);
+            return getSearchCondition(pkAttributes);
         } else {
             Attribute pkAttribute = entity.getSinglePkAttribute();
             return pkAttribute.getColumnName() + " = ?";
         }
     }
 
-    public static String getPreparedStatementSearchConditionForFk(ForeignKeyWrapper foreignKeyWrapper) {
+    public static String getSearchConditionForFk(ForeignKeyWrapper foreignKeyWrapper) {
         List<Attribute> fkAttributes = foreignKeyWrapper.getKeyFieldAttributes();
-        return getPreparedStatementSearchCondition(fkAttributes);
+        return getSearchCondition(fkAttributes);
     }
 
-    public static String getPreparedStatementSearchCondition(List<Attribute> attributeList) {
+    public static String getSearchCondition(List<Attribute> attributeList) {
         List<String> columnNames = Attributes.getColumnNames(attributeList);
-        return getSearchCondition(columnNames);
-    }
-
-    private static String getSearchCondition(List<String> columnNames) {
         return Strings.listing(columnNames, " AND ", "", "", "", " = ?");
     }
 
-    public static String generatePreparedStatementSetterFromVO(int index, Entity entity, Attribute attribute, List<String> valueList) {
-        String preparedStatementSetMethod = TypeMapper.getPreparedStatementSetMethod(attribute.getJavaTypeSimpleName());
+    public static String generateFromVO(int index, Entity entity, Attribute attribute, List<String> valueList) {
         String voVarName = JavaGeneratorHelper.getVoVarName(entity);
         String getterMethodName = attribute.generateGetterMethodName();
-        String value = voVarName + "." + getterMethodName + "()";
-        valueList.add(value);
-        return "preparedStatement." + preparedStatementSetMethod + "(" + index + ", " + value + ");";
+        String getter = voVarName + "." + getterMethodName + "()";
+        String line = getSetStatement(attribute, getter, index);
+        valueList.add(getter);
+        return line;
     }
 
-    public static String generateLogStringForPreparedStatement(String preparedStatementConstName, List<String> values) {
+    public static String generateLogString(String preparedStatementConstName, List<String> values) {
         return Strings.listing(
                 values, " + \"][\" + ",preparedStatementConstName + " + \" [\" + ", " + \"]\""
         );
     }
 
-    public static void buildPreparedStatementByPkAttributes(
+    public static void getByPkAttributes(
             String preparedStatementVarName,
             DaoGenerator daoGenerator, MethodGenerator methodGenerator, Entity entity) {
 
@@ -71,18 +67,17 @@ public class DaoGeneratorCommons {
             String pkVarName = JavaGeneratorHelper.getPkVarName(entity);
             int i=1;
             for (Attribute pkAttribute : pkAttributes) {
-                String setMethod = TypeMapper.getPreparedStatementSetMethod(pkAttribute.getJavaTypeSimpleName());
                 String getter = pkVarName + "." + pkAttribute.generateGetterMethodName() + "()";
+                methodGenerator.addCodeLn(PreparedStatementGenerator.getSetStatement(pkAttribute, getter, i));
                 getterList.add(getter);
-                methodGenerator.addCodeLn("preparedStatement." + setMethod + "(" + i + ", " + getter + ");");
                 i++;
             }
         } else {
             Attribute pkAttribute = entity.getSinglePkAttribute();
-            String setMethod = TypeMapper.getPreparedStatementSetMethod(pkAttribute.getJavaTypeSimpleName());
             String field = pkAttribute.getFieldName();
+            String statement = PreparedStatementGenerator.getSetStatement(pkAttribute, field, 1);
+            methodGenerator.addCodeLn(statement);
             getterList.add(field);
-            methodGenerator.addCodeLn("preparedStatement." + setMethod + "(1, " + field + ");");
         }
 
         String logStatement = Strings.listing(getterList, " + \"][\" + ",
@@ -91,22 +86,22 @@ public class DaoGeneratorCommons {
         methodGenerator.addCodeLn(loggerGenerator.generateDebugLogStatementByExpression(logStatement));
     }
 
-    /**
-     * Generates assignment of a result set column to a local variable, named as
-     * the original field name. If the field type is not a basic type, the value
-     * is determined by using the getObject-method in conjunction with appropriate
-     * casting.
-     *
-     * @param entity
-     * @param attribute
-     * @return
-     */
-    public static String generateLocalVarFromResultSet(Entity entity, Attribute attribute) {
-        String fieldType = attribute.getJavaTypeSimpleName();
-        String out = fieldType + " " + attribute.getFieldName() + " = ";
-        String resultSetGetter = TypeMapper.getResultSetGetMethod(fieldType);
-            out += "resultSet." + resultSetGetter;
-        out += "(\"" + attribute.getColumnName() + "\");";
-        return out;
+    public static String getSetStatement(Attribute attribute, String getter, int index) {
+        if (attribute.isJavaTypeSimple()) {
+            String setMethod = getPreparedStatementSetMethod(attribute.getJavaTypeSimpleName());
+            return "preparedStatement." + setMethod + "(" + index + ", " + getter + ");";
+        } else {
+            String sqlTypeLiteral = attribute.getSqlDataTypeLiteral();
+            return "preparedStatement.setObject(" + index + ", " + getter + ", " + sqlTypeLiteral + ");";
+        }
     }
+
+    public static String getPreparedStatementSetMethod(String simpleFieldType) {
+        if (SimpleTypeHelper.isNoSimpleType(simpleFieldType))
+            throw new IllegalArgumentException("PreparedStatement set-method is only available for basic types" +
+                    " (except char).");
+
+        return "set" + StringHelper.shiftFirstLetterToUpperCase(simpleFieldType);
+    }
+    
 }

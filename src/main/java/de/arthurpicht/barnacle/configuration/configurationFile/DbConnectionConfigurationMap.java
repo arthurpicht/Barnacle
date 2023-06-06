@@ -34,6 +34,7 @@ public class DbConnectionConfigurationMap {
         return configuration;
     }
 
+    @SuppressWarnings("unused")
     public boolean hasConfigurations() {
         return !this.dbConnectionConfigurationMap.isEmpty();
     }

@@ -9,8 +9,6 @@ import de.arthurpicht.console.Console;
 import java.util.List;
 import java.util.Set;
 
-import static de.arthurpicht.barnacle.helper.ConsoleHelper.verbose;
-
 public class VoGenerator extends VoBaseGenerator {
 
     private final String connectionExceptionCanonicalClassName;
@@ -23,7 +21,7 @@ public class VoGenerator extends VoBaseGenerator {
 
         super(getVOCanonicalClassNameFromEntity(entity, generatorConfiguration), entity, generatorConfiguration);
 
-        Console.out(verbose("Generating VO class [" + entity.getVoCanonicalClassName() + "]."));
+        Console.verbose("Generating VO class [" + entity.getVoCanonicalClassName() + "].");
 
         this.connectionExceptionCanonicalClassName
                 = generatorConfiguration.getConnectionExceptionCanonicalClassName();

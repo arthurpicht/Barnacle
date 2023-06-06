@@ -7,38 +7,38 @@ public class TypeMapperH2 extends TypeMapper {
 	protected TypeMapperH2() {
 	}
 
-	public String getSqlType(String fieldType) throws UnknownTypeException {
-	    // TODO Parameter ändern: canonicalName
-		switch (fieldType) {
+	@Override
+	public SqlType getMapping(String javaFieldTypeSimpleName) throws UnknownTypeException {
+		switch (javaFieldTypeSimpleName) {
 			case "String":
-				return "VARCHAR(255)";
+				return SqlType.VARCHAR;
 			case "byte":
 			case "Byte":
-				return "TINYINT";
+				return SqlType.TINYINT;
 			case "short":
 			case "Short":
-				return "SMALLINT";
+				return SqlType.SMALLINT;
 			case "int":
 			case "Integer":
-				return "INTEGER";
+				return SqlType.INTEGER;
 			case "long":
 			case "Long":
-				return "BIGINT";
+				return SqlType.BIGINT;
 			case "double":
 			case "Double":
-				return "DOUBLE";
+				return SqlType.DOUBLE;
 			case "boolean":
 			case "Boolean":
-				return "TINYINT";
+				return SqlType.TINYINT;
 			case "float":
 			case "Float":
-				return "DOUBLE";
+				return SqlType.DOUBLE;
 			case "BigDecimal":
-				return "DECIMAL(10,2)";
+				return SqlType.DECIMAL;
 			case "Date":
-				return "DATE";
+				return SqlType.DATE;
 		}
-		throw new UnknownTypeException("Unknown Type: " + fieldType);
+		throw new UnknownTypeException("Unknown Type: " + javaFieldTypeSimpleName);
 	}
 
 }

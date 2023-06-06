@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static de.arthurpicht.barnacle.helper.ConsoleHelper.veryVerbose;
-
 public class BarnacleGenerator {
 
     public static void process() {
@@ -56,7 +54,7 @@ public class BarnacleGenerator {
         List<Class<?>> classList = loadVofClasses(generatorConfiguration);
         EntityRelationshipModel entityRelationshipModel
                 = EntityRelationshipModelBuilder.execute(generatorConfiguration, classList);
-        Console.out(veryVerbose(entityRelationshipModel.debugOut()));
+        Console.veryVerbose(entityRelationshipModel.debugOut());
 
         CodeGenerator.execute(generatorConfiguration, entityRelationshipModel);
         SqlStatements sqlStatements = SchemaGenerator.execute(generatorConfiguration, entityRelationshipModel);

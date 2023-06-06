@@ -2,7 +2,6 @@ package de.arthurpicht.barnacle.codeGenerator.java.dao;
 
 import de.arthurpicht.barnacle.codeGenerator.java.ClassGenerator;
 import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
-import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;
@@ -13,8 +12,6 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import static de.arthurpicht.barnacle.helper.ConsoleHelper.verbose;
 
 public class DaoGenerator extends ClassGenerator {
 
@@ -28,7 +25,7 @@ public class DaoGenerator extends ClassGenerator {
     public DaoGenerator(Entity entity, GeneratorConfiguration generatorConfiguration) {
         super(entity.getDaoCanonicalClassName(), generatorConfiguration);
 
-        Console.out(verbose("Generating DAO class [" + entity.getDaoCanonicalClassName() + "]."));
+        Console.verbose("Generating DAO class [" + entity.getDaoCanonicalClassName() + "].");
 
         this.entity = entity;
 
@@ -132,6 +129,7 @@ public class DaoGenerator extends ClassGenerator {
         this.importGenerator.addImport(ResultSet.class);
         this.importGenerator.addImport(SQLException.class);
         this.importGenerator.addImport(PreparedStatement.class);
+        if (this.entity.hasNonAutoIncAttributesAsObjectTypes()) this.importGenerator.addImport(Types.class);
     }
 
     private void addImportsForNonPrimitiveAttributes() {
@@ -141,14 +139,6 @@ public class DaoGenerator extends ClassGenerator {
                 this.getImportGenerator().addImport(attribute.getJavaTypeCanonicalName());
             }
         }
-    }
-
-    public String generateVoAssignmentFromResultSet(Entity entity, Attribute attribute) {
-        // example: personCompositeVO.setAge(resultSet.getInt("age"));
-        return JavaGeneratorHelper.getVoVarName(entity) + "."
-                + attribute.generateSetterMethodName() + "(resultSet."
-                + TypeMapper.getResultSetGetMethod(attribute.getJavaTypeSimpleName()) + "(\""
-                + attribute.getColumnName() + "\"));";
     }
 
     public String createGetConnectionStatement() {

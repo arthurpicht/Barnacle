@@ -21,7 +21,7 @@ public class DaoGeneratorFindByUniqueKey {
         Entity entity = daoGenerator.getEntity();
 
         String statement = "SELECT * FROM " + entity.getTableName() + " WHERE ";
-        statement += DaoGeneratorCommons.getPreparedStatementSearchCondition(uniqueKeyAttributeList);
+        statement += PreparedStatementGenerator.getSearchCondition(uniqueKeyAttributeList);
 
         String constName = uniqueKeyName.toUpperCase() + "_STATEMENT";
         daoGenerator.getLocalStringConstGenerator().add(constName, statement);
@@ -72,8 +72,11 @@ public class DaoGeneratorFindByUniqueKey {
                 "= connection.prepareStatement(" + preparedStatementConstName + ");");
         int i = 1;
         for (Attribute ukAttribute : uKAttributeList) {
-            String setMethod = TypeMapper.getPreparedStatementSetMethod(ukAttribute.getJavaTypeSimpleName());
-            methodGenerator.addCodeLn("preparedStatement." + setMethod + "(" + i + ", " + ukAttribute.getFieldName() + ");");
+            String statement = PreparedStatementGenerator.getSetStatement(ukAttribute, ukAttribute.getFieldName(), i);
+            methodGenerator.addCodeLn(statement);
+            
+//            String setMethod = TypeMapper.getPreparedStatementSetMethod(ukAttribute.getJavaTypeSimpleName());
+//            methodGenerator.addCodeLn("preparedStatement." + setMethod + "(" + i + ", " + ukAttribute.getFieldName() + ");");
             i++;
         }
 
@@ -89,7 +92,7 @@ public class DaoGeneratorFindByUniqueKey {
         List<Attribute> attributes = entity.getAttributes();
         for (Attribute attribute : attributes) {
             if (!uKAttributeList.contains(attribute)) {
-                methodGenerator.addCodeLn(DaoGeneratorCommons.generateLocalVarFromResultSet(entity, attribute));
+                methodGenerator.addCodeLn(ResultSetStatementGenerator.generateLocalVarFromResultSet(attribute));
             }
         }
 

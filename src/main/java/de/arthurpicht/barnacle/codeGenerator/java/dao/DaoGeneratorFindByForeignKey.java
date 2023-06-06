@@ -21,7 +21,7 @@ public class DaoGeneratorFindByForeignKey {
         Entity entity = daoGenerator.getEntity();
 
         String statement = "SELECT * FROM " + entity.getTableName() + " WHERE ";
-        statement += DaoGeneratorCommons.getPreparedStatementSearchConditionForFk(foreignKeyWrapper);
+        statement += PreparedStatementGenerator.getSearchConditionForFk(foreignKeyWrapper);
 
         String foreignKeyName = foreignKeyWrapper.getForeignKeyName();
         String constName = foreignKeyName.toUpperCase() + "_STATEMENT";
@@ -82,8 +82,10 @@ public class DaoGeneratorFindByForeignKey {
                 "= connection.prepareStatement(" + preparedStatementConstName + ");");
         int i = 1;
         for (Attribute fkAttribute : fkAttributes) {
-            String setMethod = TypeMapper.getPreparedStatementSetMethod(fkAttribute.getJavaTypeSimpleName());
-            methodGenerator.addCodeLn("preparedStatement." + setMethod + "(" + i + ", " + fkAttribute.getFieldName() + ");");
+            methodGenerator.addCodeLn(PreparedStatementGenerator.getSetStatement(fkAttribute, fkAttribute.getFieldName(), i));
+            
+//            String setMethod = TypeMapper.getPreparedStatementSetMethod(fkAttribute.getJavaTypeSimpleName());
+//            methodGenerator.addCodeLn("preparedStatement." + setMethod + "(" + i + ", " + fkAttribute.getFieldName() + ");");
             i++;
         }
 
@@ -111,7 +113,7 @@ public class DaoGeneratorFindByForeignKey {
                 }
             }
             if (!exceptAttribute) {
-                methodGenerator.addCodeLn(DaoGeneratorCommons.generateLocalVarFromResultSet(entity, attribute));
+                methodGenerator.addCodeLn(ResultSetStatementGenerator.generateLocalVarFromResultSet(attribute));
             }
         }
 

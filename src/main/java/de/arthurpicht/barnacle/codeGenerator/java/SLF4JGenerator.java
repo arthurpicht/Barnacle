@@ -1,8 +1,6 @@
 package de.arthurpicht.barnacle.codeGenerator.java;
 
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class SLF4JGenerator extends LoggerGenerator {
 
@@ -15,16 +13,16 @@ public class SLF4JGenerator extends LoggerGenerator {
 
     public void addToImport() {
         ImportGenerator importGenerator = this.classGenerator.importGenerator;
-        importGenerator.addImport(Logger.class);
-        importGenerator.addImport(LoggerFactory.class);
+        importGenerator.addImport("org.slf4j.Logger");
+        importGenerator.addImport("org.slf4j.LoggerFactory");
     }
 
     public void generateInitialization(SourceCache sourceCache) {
         String loggerName = this.generatorConfiguration.hasDaoLoggerName() ?
                 "\"" + this.generatorConfiguration.getDaoLoggerName() + "\"" :
                 this.classGenerator.getSimpleClassName() + ".class";
-        sourceCache.addLine("private static final " + Logger.class.getSimpleName() + " logger = "
-                + LoggerFactory.class.getSimpleName() + ".getLogger(" + loggerName + ");");
+        sourceCache.addLine("private static final Logger logger = "
+                + "LoggerFactory.getLogger(" + loggerName + ");");
         sourceCache.addLine();
     }
 
