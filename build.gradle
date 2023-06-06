@@ -20,8 +20,8 @@ dependencies {
     implementation 'com.github.arthurpicht:AP-Configuration:0.1.6'
     implementation 'com.github.arthurpicht:utils-core:1.13.0'
     implementation 'com.github.arthurpicht:utils-io:0.0.17'
-    implementation 'com.github.arthurpicht:cli:0.1.1'
-    implementation 'com.github.arthurpicht:console:0.1.5-no_log'
+    implementation 'com.github.arthurpicht:cli:0.1.2'
+    implementation 'com.github.arthurpicht:console:0.1.5'
 
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.4.3'
 

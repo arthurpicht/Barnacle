@@ -54,7 +54,7 @@ described and proceed the following steps.
 
 1. By calling
 
-        $ gradle prepareTooling
+        $ gradle tool
         
     all dependent JARs will be copied to *Barnacle/bin/libs*
     
@@ -86,7 +86,6 @@ Or a little more elaborate example:
         mkdir "$buildDir/sql"
         commandLine "barnacle", "--verbose", "--configfile", "$projectDir/path/to/barnacle.conf", "generate"
     }
-
 
 ## Generator configuration
 
