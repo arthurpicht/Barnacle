@@ -2,7 +2,7 @@
 
 ## https://github.com/arthurpicht/installGradleWrapperWithoutGradle
 
-gradle_version="6.7.4"
+gradle_version="6.9.4"
 
 __dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 

@@ -9,5 +9,6 @@
     * schema generation: all primary key fields are specified as NOT NULL explicitly
     * consistent handling of null values for fields of object types.
     * CLI
+* v0.3.1 07.06.2023 minor fix
 
 
