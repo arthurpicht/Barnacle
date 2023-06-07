@@ -6,6 +6,7 @@ import de.arthurpicht.barnacle.connectionManager.connection.DbConnection;
 import de.arthurpicht.barnacle.connectionManager.connection.DbConnectionFactory;
 import de.arthurpicht.barnacle.exceptions.BarnacleRuntimeException;
 import de.arthurpicht.barnacle.exceptions.DBConnectionException;
+import de.arthurpicht.console.Console;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -14,6 +15,7 @@ import java.sql.Statement;
 public class SqlDbExecutor {
 
     public static void execute(BarnacleConfiguration barnacleConfiguration, SqlStatements sqlStatements) {
+        Console.verbose("Executing SQL schema creation on DB.");
         if (!barnacleConfiguration.hasDbConnectionConfigurations())
             throw new BarnacleRuntimeException("Could not execute schema creation on DB. No db connection " +
                     "configuration found in barnacle configuration.");

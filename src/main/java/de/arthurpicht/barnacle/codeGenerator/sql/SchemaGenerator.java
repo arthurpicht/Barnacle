@@ -9,7 +9,7 @@ import de.arthurpicht.console.Console;
 public class SchemaGenerator {
 
     public static SqlStatements execute(GeneratorConfiguration generatorConfiguration, EntityRelationshipModel entityRelationshipModel) {
-        Console.verbose("Generate SQL schema.");
+        Console.verbose("Generating SQL schema.");
 
         Const.Dialect dialect = generatorConfiguration.getDialect();
         StatementGenerator statementGenerator = StatementGenerator.getInstance(dialect);

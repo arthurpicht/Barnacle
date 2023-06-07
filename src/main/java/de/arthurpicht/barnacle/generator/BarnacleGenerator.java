@@ -47,7 +47,7 @@ public class BarnacleGenerator {
     }
 
     public static void process(BarnacleConfiguration barnacleConfiguration) {
-        Console.println(Const.VERSION);
+        Console.verbose(Const.VERSION_STRING);
         GeneratorConfiguration generatorConfiguration = barnacleConfiguration.getGeneratorConfiguration();
 
         GeneratorPreconditions.assure(generatorConfiguration);
@@ -57,18 +57,21 @@ public class BarnacleGenerator {
         Console.veryVerbose(entityRelationshipModel.debugOut());
 
         CodeGenerator.execute(generatorConfiguration, entityRelationshipModel);
-        SqlStatements sqlStatements = SchemaGenerator.execute(generatorConfiguration, entityRelationshipModel);
 
-        if (generatorConfiguration.isCreateScript()) {
-            Path scriptFile = Paths.get(generatorConfiguration.getScriptFile());
-            SqlScriptWriter.write(scriptFile, sqlStatements);
+        if (generatorConfiguration.isCreateScript() || generatorConfiguration.isExecuteOnDb()) {
+            SqlStatements sqlStatements = SchemaGenerator.execute(generatorConfiguration, entityRelationshipModel);
+
+            if (generatorConfiguration.isCreateScript()) {
+                Path scriptFile = Paths.get(generatorConfiguration.getScriptFile());
+                SqlScriptWriter.write(scriptFile, sqlStatements);
+            }
+
+            if (generatorConfiguration.isExecuteOnDb()) {
+                SqlDbExecutor.execute(barnacleConfiguration, sqlStatements);
+            }
         }
 
-        if (generatorConfiguration.isExecuteOnDb()) {
-            SqlDbExecutor.execute(barnacleConfiguration, sqlStatements);
-        }
-
-        Console.println("Barnacle generation successfully completed!");
+        Console.println("Barnacle code generation successfully completed!");
     }
 
     private static List<Class<?>> loadVofClasses(GeneratorConfiguration generatorConfiguration) {
