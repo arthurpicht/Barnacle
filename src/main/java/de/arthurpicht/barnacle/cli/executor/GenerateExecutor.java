@@ -15,7 +15,7 @@ public class GenerateExecutor implements CommandExecutor {
 
     @Override
     public void execute(CliCall cliCall) throws CommandExecutorException {
-        Console.verbose("barnacle generation started.");
+        Console.verbose("Barnacle code generation started.");
         try {
             if (cliCall.getOptionParserResultGlobal().hasOption(GlobalOptionsDef.CONFIGURATION_FILE)) {
                 String configFileString = cliCall.getOptionParserResultGlobal().getValue(GlobalOptionsDef.CONFIGURATION_FILE);

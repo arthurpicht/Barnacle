@@ -4,6 +4,7 @@ import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;
+import de.arthurpicht.console.Console;
 
 import java.util.List;
 
@@ -21,6 +22,9 @@ public class PkGenerator extends VoBaseGenerator {
 	public PkGenerator(Entity entity, GeneratorConfiguration generatorConfiguration) throws CodeGeneratorException {
 		
 		super(getPkCanonicalClassName(entity, generatorConfiguration), entity, generatorConfiguration);
+
+		Console.verbose("Generating PK class [" + getPkCanonicalClassName(entity, generatorConfiguration)
+				+ "].");
 
 		this.addImportsForNonPrimitiveAttributes();
 
