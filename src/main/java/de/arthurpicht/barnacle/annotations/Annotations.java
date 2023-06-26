@@ -20,6 +20,10 @@ public class Annotations {
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)	
 	public @interface VobFactory {}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.TYPE)
+	public @interface Cloneable{}
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)

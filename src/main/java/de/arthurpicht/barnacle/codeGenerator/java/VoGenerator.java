@@ -58,7 +58,7 @@ public class VoGenerator extends VoBaseGenerator {
         this.addToStringMethod();
 
         // clone method
-        this.addCloneMethod();
+        if (entity.isCloneable()) this.addCloneMethod();
 
         // foreign key getter methods
         Set<ForeignKeyWrapper> foreignKeyWrapperSet = entity.getAllForeignKeys();

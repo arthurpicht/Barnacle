@@ -13,6 +13,7 @@ public class Entity {
 	private final Map<String, ForeignKeyWrapper> foreignKeyConstraints;
 	private String tableName;
 	private boolean vobFactoryMethod = false;
+	private boolean cloneable = false;
 	private boolean isAssociationTable = false;
 	private ForeignKeyWrapper associationForeignKeyA = null;
 	private ForeignKeyWrapper associationForeignKeyB = null;
@@ -199,7 +200,15 @@ public class Entity {
 	public void setVobFactoryMethod(boolean vobFactoryMethod) {
 		this.vobFactoryMethod = vobFactoryMethod;
 	}
-	
+
+	public boolean isCloneable() {
+		return this.cloneable;
+	}
+
+	public void setAsCloneable() {
+		this.cloneable = true;
+	}
+
 	public String getVoSimpleClassName() {
 		String vofSimpleClassName = this.vofClass.getSimpleName();
 		return vofSimpleClassName.substring(0, vofSimpleClassName.length() - 3) + "VO";

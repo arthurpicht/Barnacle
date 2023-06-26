@@ -32,6 +32,10 @@ public class VOFProcessorEntityStage {
 			entity.setVobFactoryMethod(true);
 		}
 
+		if (vofClass.isAnnotationPresent(Annotations.Cloneable.class)) {
+			entity.setAsCloneable();
+		}
+
 		TypeMapper typeMapper = TypeMapper.getInstance(generatorConfiguration.getDialect());
 		analyzeFields(vofClass, entity, typeMapper);
 
