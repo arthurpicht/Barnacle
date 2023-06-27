@@ -23,7 +23,13 @@ public class Annotations {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.TYPE)
-	public @interface Cloneable{}
+	public @interface CloneableVo {}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	@Target(ElementType.TYPE)
+	public @interface SerializableVo {
+		long serialVersionUID();
+	}
 	
 	@Retention(RetentionPolicy.RUNTIME)
 	@Target(ElementType.FIELD)

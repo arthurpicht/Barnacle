@@ -1,6 +1,7 @@
 package de.arthurpicht.barnacle.processor;
 
-import de.arthurpicht.barnacle.annotations.Annotations;
+import de.arthurpicht.barnacle.annotations.Annotations.CloneableVo;
+import de.arthurpicht.barnacle.annotations.Annotations.SerializableVo;
 import de.arthurpicht.barnacle.annotations.Annotations.TableName;
 import de.arthurpicht.barnacle.annotations.Annotations.VobFactory;
 import de.arthurpicht.barnacle.codeGenerator.sql.TypeMapper;
@@ -10,6 +11,8 @@ import de.arthurpicht.barnacle.model.ERMBuilderException;
 import de.arthurpicht.barnacle.model.Entity;
 
 import java.lang.reflect.Field;
+
+import static de.arthurpicht.barnacle.annotations.Annotations.Barnacle;
 
 /**
  * Erzeugt aus übergebener VO-Klasse eine Entity/Tabellen-
@@ -32,8 +35,13 @@ public class VOFProcessorEntityStage {
 			entity.setVobFactoryMethod(true);
 		}
 
-		if (vofClass.isAnnotationPresent(Annotations.Cloneable.class)) {
+		if (vofClass.isAnnotationPresent(CloneableVo.class)) {
 			entity.setAsCloneable();
+		}
+
+		if (vofClass.isAnnotationPresent(SerializableVo.class)) {
+			Long serialVersionUID = obtainSerialVersionUID(vofClass);
+			entity.setSerialVersionUID(serialVersionUID);
 		}
 
 		TypeMapper typeMapper = TypeMapper.getInstance(generatorConfiguration.getDialect());
@@ -61,10 +69,15 @@ public class VOFProcessorEntityStage {
 		return tableNameString.toLowerCase();
 	}
 
+	private static Long obtainSerialVersionUID(Class<?> vofClass) {
+		SerializableVo serializable = vofClass.getAnnotation(SerializableVo.class);
+		return serializable.serialVersionUID();
+	}
+
 	private static void analyzeFields(Class<?> vofClass, Entity entity, TypeMapper typeMapper) {
 		Field[] fields = vofClass.getDeclaredFields();
 		for (Field field : fields) {
-			if (field.isAnnotationPresent(Annotations.Barnacle.class)) {
+			if (field.isAnnotationPresent(Barnacle.class)) {
 				processField(field, entity, typeMapper);
 			}
 		}

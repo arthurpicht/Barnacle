@@ -2,8 +2,8 @@ package de.arthurpicht.barnacle.codeGenerator;
 
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.codeGenerator.java.dao.DaoGenerator;
-import de.arthurpicht.barnacle.codeGenerator.java.PkGenerator;
-import de.arthurpicht.barnacle.codeGenerator.java.VoGenerator;
+import de.arthurpicht.barnacle.codeGenerator.java.vo.PkGenerator;
+import de.arthurpicht.barnacle.codeGenerator.java.vo.VoGenerator;
 import de.arthurpicht.barnacle.model.Entity;
 import de.arthurpicht.barnacle.model.EntityRelationshipModel;
 

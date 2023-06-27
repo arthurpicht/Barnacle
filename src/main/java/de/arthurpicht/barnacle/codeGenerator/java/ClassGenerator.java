@@ -3,6 +3,7 @@ package de.arthurpicht.barnacle.codeGenerator.java;
 import de.arthurpicht.barnacle.Const;
 import de.arthurpicht.barnacle.Const.Encoding;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
+import de.arthurpicht.barnacle.codeGenerator.java.vo.VoConstructorGenerator;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 
 import java.io.FileNotFoundException;
@@ -35,7 +36,7 @@ public class ClassGenerator {
         this.baseClassSimpleName = "";
         this.implementedInterfaces = new ArrayList<>();
         this.importGenerator = new ImportGenerator(this);
-        this.constantGenerator = new ConstantGenerator(this);
+        this.constantGenerator = new ConstantGenerator();
         this.methodGeneratorList = new ArrayList<>();
         this.loggerGenerator = null;
         this.localStringConstGenerator = new LocalStringConstGenerator();

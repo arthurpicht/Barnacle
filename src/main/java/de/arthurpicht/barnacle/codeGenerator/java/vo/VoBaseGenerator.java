@@ -1,5 +1,9 @@
-package de.arthurpicht.barnacle.codeGenerator.java;
+package de.arthurpicht.barnacle.codeGenerator.java.vo;
 
+import de.arthurpicht.barnacle.codeGenerator.java.ClassGenerator;
+import de.arthurpicht.barnacle.codeGenerator.java.ConstantGenerator;
+import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
+import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.model.Attribute;
 import de.arthurpicht.barnacle.model.Entity;

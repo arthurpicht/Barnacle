@@ -1,5 +1,6 @@
-package de.arthurpicht.barnacle.codeGenerator.java;
+package de.arthurpicht.barnacle.codeGenerator.java.vo;
 
+import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
 import de.arthurpicht.barnacle.model.Attribute;
@@ -133,6 +134,5 @@ public class PkGenerator extends VoBaseGenerator {
 		}
 		methodGenerator.addCodeLn("return true;");
 	}
-
 
 }

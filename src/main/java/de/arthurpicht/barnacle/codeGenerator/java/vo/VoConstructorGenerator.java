@@ -1,5 +1,7 @@
-package de.arthurpicht.barnacle.codeGenerator.java;
+package de.arthurpicht.barnacle.codeGenerator.java.vo;
 
+import de.arthurpicht.barnacle.codeGenerator.java.ConstructorGenerator;
+import de.arthurpicht.barnacle.codeGenerator.java.SourceCache;
 import de.arthurpicht.barnacle.model.Attribute;
 
 import java.util.ArrayList;

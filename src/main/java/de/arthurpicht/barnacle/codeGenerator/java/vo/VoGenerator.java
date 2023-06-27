@@ -1,11 +1,14 @@
-package de.arthurpicht.barnacle.codeGenerator.java;
+package de.arthurpicht.barnacle.codeGenerator.java.vo;
 
 import de.arthurpicht.barnacle.codeGenerator.CodeGeneratorException;
+import de.arthurpicht.barnacle.codeGenerator.java.JavaGeneratorHelper;
+import de.arthurpicht.barnacle.codeGenerator.java.MethodGenerator;
 import de.arthurpicht.barnacle.configuration.generator.GeneratorConfiguration;
 import de.arthurpicht.barnacle.helper.StringHelper;
 import de.arthurpicht.barnacle.model.*;
 import de.arthurpicht.console.Console;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
@@ -37,6 +40,11 @@ public class VoGenerator extends VoBaseGenerator {
         }
 
         // constants
+        if (entity.isSerializable()) {
+            this.addImplementedInterface(Serializable.class);
+            this.constantGenerator.addPrivateLongConstant("serialVersionUID", entity.getSerialVersionUID());
+        }
+
         this.constantGenerator.addStringConstant("TABLENAME", entity.getTableName());
 
         List<Attribute> constantAttributes = entity.getAttributes();

@@ -14,6 +14,7 @@ public class Entity {
 	private String tableName;
 	private boolean vobFactoryMethod = false;
 	private boolean cloneable = false;
+	private Long serialVersionUID = null;
 	private boolean isAssociationTable = false;
 	private ForeignKeyWrapper associationForeignKeyA = null;
 	private ForeignKeyWrapper associationForeignKeyB = null;
@@ -207,6 +208,20 @@ public class Entity {
 
 	public void setAsCloneable() {
 		this.cloneable = true;
+	}
+
+	public void setSerialVersionUID(Long serialVersionUID) {
+		this.serialVersionUID = serialVersionUID;
+	}
+
+	public boolean isSerializable() {
+		return this.serialVersionUID != null;
+	}
+
+	public Long getSerialVersionUID() {
+		if (this.serialVersionUID == null)
+			throw new IllegalStateException("Unchecked method call. Entity not serializable.");
+		return this.serialVersionUID;
 	}
 
 	public String getVoSimpleClassName() {
