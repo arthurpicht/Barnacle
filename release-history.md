@@ -10,5 +10,10 @@
     * consistent handling of null values for fields of object types.
     * CLI
 * v0.3.1 07.06.2023 minor fix
+* v0.3.2 27.06.2023
+    * `@CloneableVo` annotation: VO implements `Cloneable` interface and `clone` method
+      only if annotation is given on type level.
+    * `@SerializableVo` annotation: VO implements `Serializable` interface and defines `serialVersionUID`
+  
 
 
