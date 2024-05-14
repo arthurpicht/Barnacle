@@ -5,11 +5,11 @@ plugins {
 group 'com.github.arthurpicht'
 version '0.3.2'
 
-java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(11)
-    }
-}
+// java {
+//    toolchain {
+//         languageVersion = JavaLanguageVersion.of(11)
+//    }
+// }
 
 repositories {
     mavenCentral()
