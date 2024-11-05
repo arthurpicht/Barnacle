@@ -1,6 +1,0 @@
-before_install:
-    ./create_gradle_wrapper.sh
-
-
-
-    

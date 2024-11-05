@@ -1,36 +1,55 @@
 plugins {
     id 'java'
+    id 'maven-publish'
 }
 
-group 'com.github.arthurpicht'
-version '0.3.2'
-
-// java {
-//    toolchain {
-//         languageVersion = JavaLanguageVersion.of(11)
-//    }
-// }
+group 'de.arthurpicht'
+version '0.3.3'
+def artifact = 'barnacle'
 
 repositories {
+    maven { url "https://raw.githubusercontent.com/arthurpicht/mvn-repo/main/releases"}
     mavenCentral()
-    maven { url "https://jitpack.io" }
 }
 
 dependencies {
-    implementation 'com.github.arthurpicht:AP-Configuration:0.1.6'
-    implementation 'com.github.arthurpicht:utils-core:1.13.0'
-    implementation 'com.github.arthurpicht:utils-io:0.0.17'
-    implementation 'com.github.arthurpicht:cli:0.1.2'
-    implementation 'com.github.arthurpicht:console:0.1.5'
+    implementation 'de.arthurpicht:ap-configuration:0.1.7'
+    implementation 'de.arthurpicht:ap-utils-core:1.19.0'
+    implementation 'de.arthurpicht:ap-utils-io:0.0.23'
+    implementation 'de.arthurpicht:ap-cli:0.1.4'
+    implementation 'de.arthurpicht:ap-console:0.3.2'
 
     runtimeOnly 'org.mariadb.jdbc:mariadb-java-client:2.4.3'
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.3'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.3'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.11.3'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.11.3'
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
 }
 
 test {
     useJUnitPlatform()
+}
+
+base {
+    archivesName = artifact
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = artifact
+            from components.java
+        }
+    }
+    repositories {
+        maven {
+            url = layout.buildDirectory.dir(project.gradle.gradleUserHomeDir.parent + "/gitrepos/ap/mvn-repo/releases")
+        }
+    }
 }
 
 tasks.register('extractDependencies', Copy) {

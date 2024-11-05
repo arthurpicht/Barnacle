@@ -52,8 +52,8 @@ public class Barnacle {
 
         ConsoleConfigurationBuilder consoleConfigurationBuilder = new ConsoleConfigurationBuilder();
         if (isNoColor(cliCall)) consoleConfigurationBuilder.withSuppressedColors();
-        if (verbose) consoleConfigurationBuilder.asLevel(Level.VERBOSE);
-        if (debug) consoleConfigurationBuilder.asLevel(Level.VERY_VERBOSE);
+        if (verbose) consoleConfigurationBuilder.withLevel(Level.VERBOSE);
+        if (debug) consoleConfigurationBuilder.withLevel(Level.VERY_VERBOSE);
         Console.configure(consoleConfigurationBuilder.build());
 
         try {
